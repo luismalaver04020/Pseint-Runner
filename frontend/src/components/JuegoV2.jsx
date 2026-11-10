@@ -1,6 +1,5 @@
 import { useStore } from '../store/useStore';
 import { useJuegoV2 } from '../hooks/useJuegoV2';
-import { guardarResultado } from '../services/rankingService';
 import { registrarPartida } from '../services/statsService';
 import { ZONAS, ZONAS_ORDEN, DIFICULTAD_CONFIG } from '../game/zonas';
 import { useEffect, useState } from 'react';
@@ -10,17 +9,33 @@ import '../styles/juegov2.css';
 function RevivalModal({ reto, onEnviar, onRendirse }) {
   const [code, setCode] = useState('');
   const [fb,   setFb]   = useState(null);
+  const [error, setError] = useState('');
+  const [evaluando, setEvaluando] = useState(false);
   const esOpcion = reto.tipo === 'opcion';
 
-  const submit = () => {
-    const r = onEnviar(code);
-    if (r === 'ok') setFb({ ok:true, msg:'✓ ¡Correcto! Reviviste con ½❤️' });
-    else            setFb({ ok:false, msg:'✗ Faltan palabras clave. Intenta de nuevo.' });
+  const submit = async () => {
+    if (evaluando || fb) return;
+    setEvaluando(true);
+    setError('');
+    try {
+      const r = await onEnviar(code);
+      if (r === 'ok' || r?.ok) {
+        setFb({ ok:true, msg:'¡Correcto! Reviviste con ½❤️.' });
+      }
+      else {
+        setFb({ ok:false, msg:r?.mensaje || 'El código no cumple con lo pedido. Perdiste la última oportunidad.' });
+        setTimeout(onRendirse, 2500);
+      }
+    } catch (e) {
+      setError(e?.message || 'No se pudo evaluar el código. Inténtalo nuevamente.');
+    } finally {
+      setEvaluando(false);
+    }
   };
-  const elegir = (o) => {
-    if (fb) return;
-    const r = onEnviar(o);
-    if (r === 'ok') setFb({ ok:true, msg:'✓ ¡Correcto! Reviviste con ½❤️', marcado:{ [o.l]:'ok' } });
+  const elegir = async (o) => {
+    if (fb || evaluando) return;
+    const r = await onEnviar(o);
+    if (r === 'ok' || r?.ok) setFb({ ok:true, msg:'✓ ¡Correcto! Reviviste con ½❤️', marcado:{ [o.l]:'ok' } });
     else {
       const marcado = {}; reto.opciones.forEach(x => { marcado[x.l] = x.ok ? 'ok' : (x === o ? 'no' : ''); });
       setFb({ ok:false, msg:'✗ Incorrecto. ' + reto.ex, marcado });
@@ -38,20 +53,21 @@ function RevivalModal({ reto, onEnviar, onRendirse }) {
           <>
             <div className="q-opts">
               {reto.opciones.map((o,i) => (
-                <button key={i} className={`qo ${fb?.marcado?.[o.l]||''}`} disabled={!!fb} onClick={()=>elegir(o)}><strong>{o.l}.</strong> {o.texto || o.t || o.option_text || ''}</button>
+                <button key={i} className={`qo ${fb?.marcado?.[o.l]||''}`} disabled={!!fb || evaluando} onClick={()=>elegir(o)}><strong>{o.l}.</strong> {o.texto || o.t || o.option_text || ''}</button>
               ))}
             </div>
-            {fb && <div className={`q-fb ${fb.ok?'ok':'no'}`}>{fb.msg}</div>}
+            {fb && <div className={`q-fb ${fb.ok?'ok':'no'}`} style={{ whiteSpace:'pre-wrap' }}>{fb.msg}</div>}
             {!fb && <div className="revival-btns" style={{marginTop:14}}><button className="btn btn-r" onClick={onRendirse}>✖ RENDIRSE</button></div>}
           </>
         ) : (
           <>
             <textarea className="revival-ta" value={code} onChange={e=>setCode(e.target.value)}
-              placeholder="Escribe tu pseudocódigo PSeInt aquí..." rows={5} />
-            {fb && <div className={`q-fb ${fb.ok?'ok':'no'}`}>{fb.msg}</div>}
+              placeholder="Escribe tu pseudocódigo PSeInt aquí..." rows={5} disabled={evaluando || !!fb} />
+            {error && <div className="q-fb error" role="alert">{error}</div>}
+            {fb && <div className={`q-fb ${fb.ok?'ok':'no'}`} style={{ whiteSpace:'pre-wrap' }}>{fb.msg}</div>}
             <div className="revival-btns">
-              <button className="btn btn-y" onClick={submit}>✔ ENVIAR</button>
-              <button className="btn btn-r" onClick={onRendirse}>✖ RENDIRSE</button>
+              <button className="btn btn-y" onClick={submit} disabled={evaluando || !!fb}>{evaluando ? '⏳ EVALUANDO...' : '✔ ENVIAR'}</button>
+              <button className="btn btn-r" onClick={onRendirse} disabled={evaluando || fb?.ok}>✖ RENDIRSE</button>
             </div>
           </>
         )}
@@ -181,7 +197,7 @@ function PreguntaModal({
 }
 
 // ── Fin Juego ──
-function FinJuego({ fin, dificultad, zonaId, usuario, onReintentar, onMapa, onRanking, onSiguienteNivel, vistaLlegada }) {
+function FinJuego({ fin, dificultad, zonaId, onReintentar, onMapa, onRanking, onSiguienteNivel, vistaLlegada }) {
   const { unlockZona } = useStore();
   const win = fin.tipo === 'win';
   const zonaIdx = ZONAS_ORDEN.indexOf(zonaId) + 1;
@@ -191,7 +207,6 @@ function FinJuego({ fin, dificultad, zonaId, usuario, onReintentar, onMapa, onRa
 
   useEffect(() => {
     if (vistaLlegada) return;
-    guardarResultado(dificultad, usuario || 'Anon', fin.score, zonaIdx);
     registrarPartida({ zona: zonaId, dificultad, puntaje: fin.score, resultado: win ? 'ganó' : 'perdió' });
     if (win) unlockZona(zonaId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -244,14 +259,15 @@ function PausaModal({ onReanudar, onMapa, onSalir }) {
 }
 
 export default function JuegoV2({ onMapa, onRanking, onSiguienteNivel, puntajeInicial = 0, vistaLlegada = false }) {
-  const { usuario, avatar, dificultad, zona } = useStore();
+  const { avatar, dificultad, zona, usuario } = useStore();
+  const modoDemo = usuario === 'demo';
   const {
     canvasRef, wrapRef, hud, alerta, zonaBanner,
     pregunta, qTimerPct, feedback, responder, responderCodigo, evaluandoCodigo, errorEvaluacion,
     finJuego, revival, enviarRevival, cancelarRevival,
     reintentar, volver, pausado, togglePausa, reanudar,
     saltarJugador, moverCarrilJugador, agacharJugador,
-  } = useJuegoV2({ onVolver: onMapa, zonaId: zona || 'rocosa', dificultad, avatar, puntajeInicial, vistaLlegada });
+  } = useJuegoV2({ onVolver: onMapa, zonaId: zona || 'rocosa', dificultad, avatar, puntajeInicial, vistaLlegada, modoDemo });
 
   return (
     <div className="game-screen">
@@ -291,7 +307,7 @@ export default function JuegoV2({ onMapa, onRanking, onSiguienteNivel, puntajeIn
 
         {/* Fin de juego */}
         {finJuego && (
-          <FinJuego fin={finJuego} dificultad={dificultad} zonaId={zona||'rocosa'} usuario={usuario} vistaLlegada={vistaLlegada}
+          <FinJuego fin={finJuego} dificultad={dificultad} zonaId={zona||'rocosa'} vistaLlegada={vistaLlegada}
             onReintentar={reintentar} onMapa={onMapa} onRanking={onRanking} onSiguienteNivel={onSiguienteNivel} />
         )}
 

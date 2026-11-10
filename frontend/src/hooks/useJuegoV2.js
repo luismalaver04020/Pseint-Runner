@@ -18,15 +18,13 @@ import {
 } from '../game/psxPostProcess';
 import { timeLabel } from '../game/diaNoche';
 
-import {
-  proximoDelay,
-  INFO_UNIDADES,
-} from '../game/preguntasLogicaV2';
+import { proximoDelay } from '../game/preguntasLogicaV2';
 
 import {
   iniciarPartida,
-  obtenerSiguientePregunta,
-   obtenerSiguientePreguntaMixta,
+  iniciarPartidaDemo,
+  obtenerSiguientePreguntaMixta,
+  obtenerSiguientePreguntaDemo,
 } from '../services/partidaService';
 import { esDificultadValida } from '../services/validacionesPartida';
 
@@ -56,6 +54,7 @@ export function useJuegoV2({
   avatar,
   puntajeInicial = 0,
   vistaLlegada = false,
+  modoDemo = false,
 } = {}) {
 
   // ── Referencias ──
@@ -345,7 +344,9 @@ const scheduleQ = useCallback((retrasoInicial = false) => {
     setAlerta(true);
 
     try {
-   const q = await obtenerSiguientePreguntaMixta(sessionId);
+      const q = modoDemo
+        ? obtenerSiguientePreguntaDemo(sessionId)
+        : await obtenerSiguientePreguntaMixta(sessionId);
 
       if (
         intento !== inicioRef.current ||
@@ -374,7 +375,7 @@ const scheduleQ = useCallback((retrasoInicial = false) => {
       solicitudRef.current = false;
     }
 
-  }, [abrirQ, terminar]);
+  }, [abrirQ, terminar, modoDemo]);
 
   useEffect(() => {
     dispararRef.current = disparar;
@@ -496,8 +497,8 @@ const scheduleQ = useCallback((retrasoInicial = false) => {
       resolverRespuesta(
         !!resultado.correcto,
         { status: resultado.correcto ? 'ok' : 'no', texto: resultado.mensaje || (resultado.correcto ? '¡Correcto!' : 'El algoritmo no cumple el ejercicio.') },
-        2200,
-        2600,
+        3200,
+        6000,
       );
     } catch (error) {
       if (!doneRef.current && solicitudId === evaluacionCodigoIdRef.current) setErrorEvaluacion(error?.message || 'No se pudo evaluar el código. Inténtalo nuevamente.');
@@ -542,7 +543,9 @@ console.time('Carga pregunta rescate');
     try {
       const q = await (
   preguntaRescateRef.current ||
-  obtenerSiguientePregunta(sessionId)
+  (modoDemo
+    ? obtenerSiguientePreguntaDemo(sessionId)
+    : obtenerSiguientePreguntaMixta(sessionId))
 );
 console.timeEnd('Carga pregunta rescate');
 
@@ -567,7 +570,8 @@ if (!q) {
       }));
 
       setRevival({
-        tipo: 'opcion',
+        tipo: q.tipo === 'codigo' ? 'codigo' : 'opcion',
+        question_id: q.question_id ?? q.id,
         texto: q.t || q.prompt || q.enunciado,
         ex: q.ex || q.explanation || '',
         opciones: [...ops].sort(() => Math.random() - 0.5),
@@ -584,7 +588,7 @@ if (!q) {
       }
     }
 
- }, [revivalUsed, cerrarQ, terminar]);
+ }, [revivalUsed, cerrarQ, terminar, modoDemo]);
 
   useEffect(() => {
     tryRevivalRef.current = tryRevival;
@@ -620,13 +624,13 @@ const reanudarTrasRevival = useCallback(() => {
 
      
 
-    }, 1600);
+    }, 3200);
 
  }, [dificultad, actuHUD, scheduleQ]);
 
   // ── Enviar respuesta de revival ──
 
-  const enviarRevival = useCallback((resp) => {
+  const enviarRevival = useCallback(async (resp) => {
     const reto = revival;
 
     if (!reto) return;
@@ -640,18 +644,22 @@ const reanudarTrasRevival = useCallback(() => {
       return 'no';
     }
 
-    const up = resp.toUpperCase();
-
-    const found = reto.kw.filter((k) =>
-      up.includes(k.toUpperCase())
-    );
-
-    if (found.length >= Math.ceil(reto.kw.length * 0.6)) {
-      reanudarTrasRevival();
-      return 'ok';
+    const preguntaId = reto.question_id;
+    const sessionId = sessionRef.current;
+    if (!preguntaId || !sessionId) {
+      throw new Error('No se pudo identificar la pregunta o la partida.');
     }
 
-    return 'no';
+    const resultado = await evaluarCodigoPregunta(preguntaId, sessionId, resp);
+    if (resultado.correcto) {
+      reanudarTrasRevival();
+      return { ok: true, mensaje: resultado.mensaje };
+    }
+
+    return {
+      ok: false,
+      mensaje: resultado.mensaje || '✗ El algoritmo aún no cumple. Corrígelo e inténtalo de nuevo.',
+    };
 
   }, [revival, reanudarTrasRevival]);
 
@@ -687,7 +695,7 @@ const reanudarTrasRevival = useCallback(() => {
 
  // ── Loop del juego ──
 
-const loop = useCallback(() => {
+const loop = useCallback(function juegoFrame() {
   const s = stateRef.current;
   const ctx = ctxRef.current;
 
@@ -720,7 +728,7 @@ const loop = useCallback(() => {
 
   renderJuegoV2(ctx, s);
 
-  rafRef.current = requestAnimationFrame(loop);
+  rafRef.current = requestAnimationFrame(juegoFrame);
 
 }, [actuHUD, terminar, vistaLlegada]);
 
@@ -788,17 +796,18 @@ rafRef.current = requestAnimationFrame(loop);
     if (vistaLlegada) return;
 
     try {
-      const sessionId = await iniciarPartida(
-        zonaId,
-        dificultad
-      );
+      const sessionId = modoDemo
+        ? iniciarPartidaDemo(zonaId)
+        : await iniciarPartida(zonaId, dificultad);
 
       if (intento !== inicioRef.current) return;
 
  sessionRef.current = sessionId;
 
 // Precargar pregunta de rescate en segundo plano
-preguntaRescateRef.current = obtenerSiguientePregunta(sessionId)
+preguntaRescateRef.current = (modoDemo
+  ? obtenerSiguientePreguntaDemo(sessionId)
+  : obtenerSiguientePreguntaMixta(sessionId))
   .catch((error) => {
     console.error('Error precargando pregunta de rescate:', error);
     return null;
@@ -829,6 +838,7 @@ dispararRef.current();
     loop,
     onPowerup,
     terminar,
+    modoDemo,
   ]);
 
   // ── Volver al mapa ──
@@ -1097,7 +1107,6 @@ dispararRef.current();
     cancelarRevival,
     reintentar: iniciar,
     volver,
-    INFO_UNIDADES,
     pausado,
     togglePausa,
     reanudar,
