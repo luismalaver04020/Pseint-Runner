@@ -1,10 +1,43 @@
 import { rpc } from './supabase';
-import { ZONAS_ORDEN } from '../game/zonas';
+import { QUESTIONS, ZONAS, ZONAS_ORDEN } from '../game/zonas';
 import { esDificultadValida, MSG_FALTA_DIFICULTAD } from './validacionesPartida';
 
 // Evita crear dos sesiones iguales si se pide la misma partida mientras la primera sigue en curso
 // (doble clic, doble montaje de React, reintentos rápidos).
 const enCurso = new Map();
+const sesionesDemo = new Map();
+
+function mezclar(preguntas) {
+  const copia = [...preguntas];
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+  }
+  return copia;
+}
+
+/** Crea una sesión local para que la demo no dependa de una cuenta de Supabase. */
+export function iniciarPartidaDemo(zona) {
+  const unidad = ZONAS[zona]?.unidad;
+  const unidades = unidad === 'all' ? Object.keys(QUESTIONS) : [unidad];
+  const banco = unidades
+    .flatMap((id) => QUESTIONS[id] || [])
+    .filter((pregunta) => pregunta.tipo !== 'codigo' && Array.isArray(pregunta.ops) && pregunta.ops.length);
+
+  if (!banco.length) throw new Error('No hay preguntas de demo para esta zona.');
+
+  const sessionId = `demo-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  sesionesDemo.set(sessionId, { banco, pendientes: mezclar(banco) });
+  return sessionId;
+}
+
+/** Entrega preguntas locales de opción múltiple y las vuelve a mezclar al agotarse. */
+export function obtenerSiguientePreguntaDemo(sessionId) {
+  const sesion = sesionesDemo.get(sessionId);
+  if (!sesion) throw new Error('La sesión de demo ya no está disponible.');
+  if (!sesion.pendientes.length) sesion.pendientes = mezclar(sesion.banco);
+  return sesion.pendientes.pop();
+}
 
 /**
  * Crea una partida en Supabase.
@@ -32,25 +65,6 @@ export async function iniciarPartida(zona, dificultad) {
   return promesa;
 }
 
-/**
- * Solicita una pregunta nueva para la partida.
- * Supabase evita que se repita dentro de esa partida.
- */
-export async function obtenerSiguientePregunta(sessionId) {
-  if (!sessionId) {
-    throw new Error('No existe un identificador de partida');
-  }
-
-  const pregunta = await rpc('api_siguiente_pregunta', {
-    p_session_id: sessionId,
-  });
-
-  if (!pregunta) {
-    throw new Error('Supabase no devolvió una pregunta');
-  }
-
-  return pregunta;
-}
 /**
  * Solicita preguntas mixtas para el recorrido normal.
  * Incluye opción múltiple y pseudocódigo.
