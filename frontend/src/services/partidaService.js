@@ -1,5 +1,6 @@
 import { rpc } from './supabase';
-import { QUESTIONS, ZONAS, ZONAS_ORDEN } from '../game/zonas';
+import { QUESTIONS } from '../data/preguntas';
+import { ZONAS, ZONAS_ORDEN } from '../game/zonas';
 import { esDificultadValida, MSG_FALTA_DIFICULTAD } from './validacionesPartida';
 
 // Evita crear dos sesiones iguales si se pide la misma partida mientras la primera sigue en curso
