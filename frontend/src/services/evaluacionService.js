@@ -1,7 +1,7 @@
 // Envía el código al backend. Las respuestas de referencia y los casos ocultos nunca llegan al navegador.
 import { supabase, supabaseListo, MSG_CONEXION } from './supabase';
 
-const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/$/, '');
+const API_BASE = (import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:3000' : '')).replace(/\/$/, '');
 
 export async function evaluarCodigoPregunta(preguntaId, sessionId, codigo) {
   if (!supabaseListo) throw new Error(MSG_CONEXION);
