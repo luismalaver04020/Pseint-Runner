@@ -1,0 +1,25 @@
+/* ─── Componentes compartidos: modal de confirmación y campo de contraseña ─── */
+.ui-overlay{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:rgba(4,8,22,.78);backdrop-filter:blur(6px);animation:ui-fade .18s ease-out both}
+.ui-dialog{width:min(420px,100%);padding:26px 26px 22px;border:1px solid #2a3a6e;border-top:3px solid #38d6ff;border-radius:16px;background:linear-gradient(145deg,#14203f,#0d1530);color:#eef1ff;box-shadow:0 24px 70px rgba(0,0,0,.55);font-family:Inter,'Segoe UI',Arial,sans-serif;animation:ui-pop .24s cubic-bezier(.2,.8,.2,1) both}
+.ui-dialog h2{margin:0 0 8px;font-size:19px;line-height:1.35;color:#fff}
+.ui-dialog p{margin:0;color:#b6c0ea;font-size:14px;line-height:1.55}
+.ui-dialog-acts{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+.ui-btn{min-width:118px;padding:11px 16px;border:1px solid #3a4a82;border-radius:10px;font:700 13px Inter,'Segoe UI',Arial,sans-serif;cursor:pointer;transition:transform .15s,background .15s,border-color .15s}
+.ui-btn:hover:not(:disabled){transform:translateY(-1px)}
+.ui-btn:disabled{opacity:.55;cursor:default}
+.ui-btn:focus-visible,.pw-toggle:focus-visible{outline:2px solid #38d6ff;outline-offset:2px}
+.ui-btn-ghost{background:transparent;color:#dce5ff}.ui-btn-ghost:hover:not(:disabled){background:#17254e;border-color:#52dbf5}
+.ui-btn-primary{border-color:#52dbf5;background:#0d4864;color:#fff}.ui-btn-primary:hover:not(:disabled){background:#116183}
+.ui-btn-danger{border-color:#e8344a;background:linear-gradient(100deg,#d9304a,#b3203a);color:#fff}.ui-btn-danger:hover:not(:disabled){background:linear-gradient(100deg,#ec3f58,#c52a44)}
+@media(max-width:420px){.ui-dialog-acts{flex-direction:column-reverse}.ui-btn{width:100%}}
+
+/* Campo de contraseña con ojo */
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:50px!important}
+.pw-toggle{position:absolute;top:50%;right:8px;transform:translateY(-50%);display:grid;place-items:center;width:34px;height:34px;border:0;border-radius:50%;background:transparent;color:#5b5870;cursor:pointer;transition:background .15s,color .15s}
+.pw-toggle:hover{background:rgba(26,26,42,.08);color:#1a1a2a}
+.pw-toggle[aria-pressed="true"]{color:#c8102e}
+
+@keyframes ui-fade{from{opacity:0}to{opacity:1}}
+@keyframes ui-pop{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.ui-overlay,.ui-dialog{animation:none}.ui-btn{transition:none}}

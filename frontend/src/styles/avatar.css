@@ -1,0 +1,18 @@
+.avatar-bg{position:relative;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050b23,#0a2547,#11103a);overflow-y:auto}
+.avatar-bg::before{content:"";position:absolute;inset:0;background:url('../assets/mapa-peru.png') center/cover;filter:blur(4px) brightness(.32) saturate(1.05);z-index:0}
+.avatar-bg > *{position:relative;z-index:1}
+.avatar-editor{background:rgba(10,20,50,.9);border:2px solid rgba(177,239,255,.35);border-radius:20px;padding:28px 34px;width:min(580px,96vw);max-height:92vh;overflow-y:auto}
+.avatar-editor h2{font-size:12px;color:#52dbf5;text-align:center;margin-bottom:18px}
+.av-preview{display:flex;justify-content:center;margin-bottom:18px}
+.av-section{margin-bottom:14px}
+.av-section h3{font-size:7px;color:#75a8cc;margin-bottom:10px;letter-spacing:1px;text-transform:uppercase}
+.av-btns{display:flex;flex-wrap:wrap;gap:7px}
+.av-btn{padding:8px 12px;border:2px solid #1e3a6a;border-radius:7px;background:rgba(255,255,255,.05);color:#ccd;font-family:'Press Start 2P',monospace;font-size:7px;cursor:pointer;transition:all .12s}
+.av-btn.sel{border-color:#38bdf8;background:#0d2a52;color:#a9eaff}
+.av-btn:hover:not(.sel){border-color:#4a7ca0;background:rgba(255,255,255,.09)}
+.av-colors{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.color-swatch{width:30px;height:30px;border-radius:50%;border:3px solid #1e3a6a;cursor:pointer;transition:all .12s}
+.color-swatch.sel{border-color:#38bdf8;transform:scale(1.2);box-shadow:0 0 10px rgba(56,189,248,.6)}
+@keyframes avatar-enter{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.avatar-editor{animation:avatar-enter .5s cubic-bezier(.2,.8,.2,1) both}.av-preview canvas{animation:avatar-enter .6s .12s ease-out both}.av-btn:hover:not(.sel){transform:translateY(-2px)}.av-btn:active,.color-swatch:active{transform:scale(.94)}
+@media(prefers-reduced-motion:reduce){.avatar-bg *{animation:none!important;transition:none!important}.av-btn:hover:not(.sel){transform:none}}
