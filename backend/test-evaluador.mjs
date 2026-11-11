@@ -68,6 +68,36 @@ FinAlgoritmo`;
   console.log('✓ (aprueba) Área: acepta validación positiva, mensajes y separadores');
 }
 {
+  const configIGV = {
+    casos: [
+      { entradas: ['100'], salida: ['118'] },
+      { entradas: ['250'], salida: ['295'] },
+      { entradas: ['80'], salida: ['94.4'], visible: false },
+    ],
+    estructura: { requiere: ['DECLARACION', 'LECTURA', 'ASIGNACION', 'ESCRITURA'] },
+    comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+  };
+  const codigoIGV = `Algoritmo CalcularPrecioConIGV
+  Definir precioBase, tasaIGV, montoIGV, precioFinal Como Real
+  tasaIGV <- 0.18 // Tasa de IGV estándar del 18%
+  Escribir "Ingrese el precio base del producto:"
+  Leer precioBase
+  Si precioBase < 0 Entonces
+    Escribir "Error: El precio base no puede ser un valor negativo."
+  Sino
+    montoIGV <- precioBase * tasaIGV
+    precioFinal <- precioBase + montoIGV
+    Escribir "Precio base sin IGV : $", precioBase
+    Escribir "IGV (18%) : +$", montoIGV
+    Escribir "PRECIO FINAL A PAGAR : $", precioFinal
+  FinSi
+FinAlgoritmo`;
+  const r = await evaluarCodigo(codigoIGV, configIGV);
+  assert.equal(r.correcto, true, `IGV con comentario inline y porcentaje en texto\n${r.mensaje}\n${JSON.stringify(r.motivos)}`);
+  n++;
+  console.log('✓ (aprueba) IGV: acepta comentario inline con % y salidas rotuladas');
+}
+{
   const ponderado = {
     casos: [
       { entradas: ['16', '30', '18', '30', '14', '40'], salida: ['15.8'] },

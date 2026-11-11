@@ -8,8 +8,36 @@ export function normalizarCodigo(codigo) {
     .replace(/\r\n/g, '\n')
     .replace(/\r/g, '\n')
     .split('\n')
+    .map(quitarComentarioEnLinea)
     .map(linea => linea.trim())
     .filter(linea => linea.length > 0);
+}
+
+// En PSeInt `//` inicia un comentario hasta el final de la línea, excepto
+// cuando aparece dentro de una cadena. También admite comentarios al final
+// de una instrucción, por ejemplo: tasa <- 0.18 // IGV del 18%.
+function quitarComentarioEnLinea(linea) {
+  let comilla = null;
+
+  for (let i = 0; i < linea.length; i++) {
+    const caracter = linea[i];
+
+    if (comilla) {
+      if (caracter === comilla) comilla = null;
+      continue;
+    }
+
+    if (caracter === '"' || caracter === "'") {
+      comilla = caracter;
+      continue;
+    }
+
+    if (caracter === '/' && linea[i + 1] === '/') {
+      return linea.slice(0, i);
+    }
+  }
+
+  return linea;
 }
 
 export function analizarCodigo(codigo) {
