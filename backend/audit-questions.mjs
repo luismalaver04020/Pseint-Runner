@@ -1,9 +1,8 @@
 import assert from 'node:assert/strict';
 import { createClient } from '@supabase/supabase-js';
-import { evaluarCodigo, evaluarContraReferencia } from './src/evaluador/evaluarCodigo.js';
+import { normalizarConfig } from './src/evaluador/evaluarCodigo.js';
+import { juzgarEnProlog } from './src/evaluador/prolog.js';
 import { juzgarEnJavaScript } from './src/evaluador/juez.js';
-
-const compararConProlog = process.argv.includes('--comparar-prolog');
 
 const url = process.env.SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -13,7 +12,7 @@ if (!url || !serviceKey) {
 }
 
 const supabase = createClient(url, serviceKey, {
-  auth: { persistSession: false, autoRefreshToken: false }
+  auth: { persistSession: false, autoRefreshToken: false },
 });
 
 async function cargarPreguntas() {
@@ -24,7 +23,7 @@ async function cargarPreguntas() {
     const { data, error } = await supabase
       .schema('algoritmos')
       .from('questions')
-      .select('question_id,label,prompt,expected_answer,evaluation_config,question_type')
+      .select('question_id,label,published,evaluation_config,question_type')
       .eq('published', true)
       .in('question_type', ['codigo', 'codigo_pseudocodigo'])
       .order('question_id')
@@ -38,124 +37,85 @@ async function cargarPreguntas() {
   return filas;
 }
 
-function esProgramaCompleto(texto) {
-  return /^\s*(Algoritmo|Proceso)\b/i.test(texto ?? '');
-}
-
-function varianteFormato(codigo) {
-  const lineas = codigo.split(/\r?\n/);
-  const salida = [];
-
-  for (const linea of lineas) {
-    const limpia = linea.trim();
-
-    if (/^Algoritmo\b/i.test(limpia)) {
-      salida.push(linea.replace(/^\s*Algoritmo\b/i, 'Proceso'));
-    } else if (/^FinAlgoritmo\s*$/i.test(limpia)) {
-      salida.push(linea.replace(/FinAlgoritmo/i, 'FinProceso'));
-    } else if (/^Leer\b/i.test(limpia)) {
-      salida.push('Escribir "Ingrese el dato:"');
-      salida.push(linea);
-    } else {
-      salida.push(linea);
-    }
+// Construye hechos estructurales de control para probar la configuración del juez.
+// Esto no reemplaza la revisión semántica de una solución de estudiante.
+function programaQueCumpleReglas(reglas) {
+  const cantidades = new Map();
+  for (const tipo of reglas.requiere) cantidades.set(tipo, Math.max(1, cantidades.get(tipo) ?? 0));
+  for (const [tipo, minimo] of Object.entries(reglas.minimos)) {
+    cantidades.set(tipo, Math.max(minimo, cantidades.get(tipo) ?? 0));
   }
 
-  return salida.join('\n');
-}
-
-function varianteIncorrecta(codigo) {
-  let escrituras = 0;
-  const salida = codigo.split(/\r?\n/).map((linea) => {
-    if (!/^\s*Escribir\b/i.test(linea)) return linea;
-    escrituras++;
-    return linea.replace(/Escribir\b.*/i, 'Escribir "RESPUESTA_INCORRECTA"');
-  });
-
-  return escrituras ? salida.join('\n') : null;
-}
-
-async function evaluarReferencia(pregunta, codigo, ejecutar = evaluarCodigo) {
-  if (pregunta.evaluation_config?.casos?.length) {
-    return ejecutar(codigo, pregunta.evaluation_config);
+  const programa = [];
+  let linea = 1;
+  for (const [tipo, cantidad] of cantidades) {
+    for (let i = 0; i < cantidad; i++) programa.push([linea++, tipo, tipo]);
   }
-  return evaluarContraReferencia(codigo, pregunta.expected_answer, {}, pregunta.prompt ?? '', ejecutar);
+  for (const palabra of reglas.requiere_texto) {
+    programa.push([linea++, 'EXPRESION', palabra]);
+  }
+  return programa;
 }
 
-async function evaluarYCompararJueces(pregunta, codigo) {
-  const resultadoProlog = await evaluarReferencia(pregunta, codigo);
-  if (compararConProlog) {
-    const resultadoJavaScript = await evaluarReferencia(
-      pregunta,
-      codigo,
-      (programa, configuracion) => evaluarCodigo(programa, configuracion, juzgarEnJavaScript)
-    );
-    assert.deepEqual(resultadoProlog, resultadoJavaScript, 'El juez Prolog y el juez JS de referencia discrepan');
-  }
-  return resultadoProlog;
+function entradaJuez(config, caso, incorrecta = false) {
+  const { reglas } = normalizarConfig(config);
+  return {
+    programa: programaQueCumpleReglas(reglas),
+    reglas,
+    casos: [{
+      id: caso.id,
+      visible: caso.visible ? 'si' : 'no',
+      estado: 'ok',
+      esperado: caso.salida,
+      obtenido: incorrecta ? ['__resultado_incorrecto__'] : caso.salida,
+    }],
+  };
 }
 
 const preguntas = await cargarPreguntas();
 const fallas = [];
-const omitidas = [];
-let referenciasCorrectas = 0;
-let variantesValidasCorrectas = 0;
-let variantesIncorrectasRechazadas = 0;
+let configuracionesValidas = 0;
+let aprobadasPorAmbosJueces = 0;
+let rechazadasPorAmbosJueces = 0;
+let casosAuditados = 0;
 
 for (const pregunta of preguntas) {
   const id = `${pregunta.question_id} (${pregunta.label ?? 'sin etiqueta'})`;
-  const referencia = pregunta.expected_answer?.trim() ?? '';
-
-  if (!esProgramaCompleto(referencia)) {
-    omitidas.push({ id, motivo: 'expected_answer no es un programa ejecutable completo' });
-    continue;
-  }
-
   try {
-    const resultadoReferencia = await evaluarYCompararJueces(pregunta, referencia);
-    assert.equal(
-      resultadoReferencia.correcto,
-      true,
-      `La respuesta de referencia falló: ${resultadoReferencia.mensaje}`
-    );
-    referenciasCorrectas++;
+    const config = pregunta.evaluation_config;
+    const { casos } = normalizarConfig(config);
+    if (casos.length === 0) throw new Error('no tiene casos de prueba');
+    configuracionesValidas++;
 
-    const variante = varianteFormato(referencia);
-    const resultadoVariante = await evaluarYCompararJueces(pregunta, variante);
-    assert.equal(
-      resultadoVariante.correcto,
-      true,
-      `La variante de formato falló: ${resultadoVariante.mensaje}`
-    );
-    variantesValidasCorrectas++;
+    for (const caso of casos) {
+      const correcta = entradaJuez(config, caso);
+      const incorrecta = entradaJuez(config, caso, true);
+      const bienProlog = await juzgarEnProlog(correcta);
+      const bienJavaScript = juzgarEnJavaScript(correcta);
+      const malProlog = await juzgarEnProlog(incorrecta);
+      const malJavaScript = juzgarEnJavaScript(incorrecta);
 
-    const incorrecta = varianteIncorrecta(referencia);
-    if (incorrecta) {
-      const resultadoIncorrecto = await evaluarYCompararJueces(pregunta, incorrecta);
-      assert.equal(resultadoIncorrecto.correcto, false, 'Aceptó una respuesta intencionalmente incorrecta');
-      variantesIncorrectasRechazadas++;
+      assert.equal(bienProlog.veredicto, 'correcto', `Prolog rechazó el caso ${caso.id} correcto`);
+      assert.equal(malProlog.veredicto, 'incorrecto', `Prolog aceptó el caso ${caso.id} alterado`);
+      assert.deepEqual(bienProlog, bienJavaScript, `Los jueces discrepan al aceptar el caso ${caso.id}`);
+      assert.deepEqual(malProlog, malJavaScript, `Los jueces discrepan al rechazar el caso ${caso.id}`);
+      casosAuditados++;
     }
+    aprobadasPorAmbosJueces++;
+    rechazadasPorAmbosJueces++;
   } catch (error) {
     fallas.push({ id, error: error.message });
   }
 }
 
-const omitidasPorUnidad = omitidas.reduce((resumen, pregunta) => {
-  const unidad = pregunta.id.match(/\(U(\d+)-/)?.[1] ?? 'sin unidad';
-  resumen[unidad] = (resumen[unidad] ?? 0) + 1;
-  return resumen;
-}, {});
-
 console.log(JSON.stringify({
   publicadas: preguntas.length,
-  referenciasCorrectas,
-  variantesValidasCorrectas,
-  variantesIncorrectasRechazadas,
-  omitidas: omitidas.length,
+  configuracionesValidas,
+  casosAuditados,
+  aceptadasPorAmbosJueces: aprobadasPorAmbosJueces,
+  incorrectasRechazadasPorAmbosJueces: rechazadasPorAmbosJueces,
   fallas: fallas.length,
-  omitidasPorUnidad,
-  muestraOmitidas: omitidas.slice(0, 10),
   detalleFallas: fallas,
 }, null, 2));
 
-if (fallas.length || omitidas.length) process.exitCode = 1;
+if (fallas.length || configuracionesValidas !== preguntas.length) process.exitCode = 1;

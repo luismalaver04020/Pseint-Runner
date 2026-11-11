@@ -4,7 +4,7 @@ import { HttpError } from '../lib/errores.js';
 import { usuarioAutenticado } from '../middleware/auth.js';
 import { privado } from '../db.js';
 import { obtenerEvaluacion } from '../evaluador/fuentePreguntas.js';
-import { evaluarCodigo, evaluarContraReferencia, ConfigInvalida, CodigoInvalido } from '../evaluador/evaluarCodigo.js';
+import { evaluarCodigo, ConfigInvalida, CodigoInvalido } from '../evaluador/evaluarCodigo.js';
 
 const router = Router();
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -30,17 +30,12 @@ async function validarAsignacion({ userId, sessionId, preguntaId }) {
   if (!asignacion) throw new HttpError(403, 'Esta pregunta no está asignada a tu partida.');
 }
 
-async function ejecutar(codigo, config, referencia, enunciado = '') {
+async function ejecutar(codigo, config) {
   try {
-    const estructuraNueva = config?.estructura && Object.values(config.estructura).some((v) =>
-      Array.isArray(v) ? v.length > 0 : v && typeof v === 'object' ? Object.keys(v).length > 0 : false
-    );
-    if (config && ((Array.isArray(config.casos) && config.casos.length > 0) || estructuraNueva)) {
-      return await evaluarCodigo(codigo, config);
+    if (!Array.isArray(config?.casos) || config.casos.length === 0) {
+      throw new ConfigInvalida('la pregunta no tiene casos de prueba publicados');
     }
-    // Compatibilidad con evaluation_config antiguo: se compara contra expected_answer
-    // privado mediante entradas variadas, sin aplicar keywords como condición de aprobación.
-    return await evaluarContraReferencia(codigo, referencia, config, enunciado);
+    return await evaluarCodigo(codigo, config);
   } catch (e) {
     if (e instanceof CodigoInvalido) throw new HttpError(400, e.message);
     if (e instanceof ConfigInvalida) {
@@ -62,8 +57,8 @@ router.post('/codigo', async (req, res) => {
 
   const preguntaId = String(preguntaIdRaw);
   await validarAsignacion({ userId: usuario.id, sessionId, preguntaId });
-  const { config, referencia, enunciado } = await obtenerEvaluacion(preguntaId);
-  res.json(await ejecutar(codigo, config, referencia, enunciado));
+  const { config } = await obtenerEvaluacion(preguntaId);
+  res.json(await ejecutar(codigo, config));
 });
 
 // Herramienta local para que el docente/desarrollador pruebe configuraciones.
