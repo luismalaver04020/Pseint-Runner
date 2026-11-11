@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { evaluarCodigo, evaluarContraReferencia, ConfigInvalida } from './src/evaluador/evaluarCodigo.js';
 import { juzgarEnProlog } from './src/evaluador/prolog.js';
+import { juzgarEnJavaScript } from './src/evaluador/juez.js';
 
 const configs = JSON.parse(readFileSync(new URL('./src/evaluador/configs-ejemplo.json', import.meta.url), 'utf8'));
 const C = (titulo) => configs[titulo];
@@ -341,11 +342,11 @@ assert.equal(rIncorrecto.correcto, false, 'Debe rechazar una solución con resul
 n++;
 console.log('✓ rechaza algoritmo distinto con resultado incorrecto');
 
-// Durante la migración, verifica que el juez JS mantenga los veredictos del juez Prolog.
+// Compara el juez Prolog de producción con el juez JavaScript de referencia.
 async function compararJueces(nombre, codigo, config) {
-  const directo = await evaluarCodigo(codigo, config);
+  const javascript = await evaluarCodigo(codigo, config, juzgarEnJavaScript);
   const prolog = await evaluarCodigo(codigo, config, juzgarEnProlog);
-  assert.deepEqual(directo, prolog, `Los jueces discrepan en ${nombre}`);
+  assert.deepEqual(javascript, prolog, `Los jueces discrepan en ${nombre}`);
   n++;
   console.log(`✓ ambos jueces coinciden: ${nombre}`);
 }

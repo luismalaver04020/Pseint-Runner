@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createClient } from '@supabase/supabase-js';
 import { evaluarCodigo, evaluarContraReferencia } from './src/evaluador/evaluarCodigo.js';
-import { juzgarEnProlog } from './src/evaluador/prolog.js';
+import { juzgarEnJavaScript } from './src/evaluador/juez.js';
 
 const compararConProlog = process.argv.includes('--comparar-prolog');
 
@@ -83,16 +83,16 @@ async function evaluarReferencia(pregunta, codigo, ejecutar = evaluarCodigo) {
 }
 
 async function evaluarYCompararJueces(pregunta, codigo) {
-  const resultado = await evaluarReferencia(pregunta, codigo);
+  const resultadoProlog = await evaluarReferencia(pregunta, codigo);
   if (compararConProlog) {
-    const resultadoProlog = await evaluarReferencia(
+    const resultadoJavaScript = await evaluarReferencia(
       pregunta,
       codigo,
-      (programa, configuracion) => evaluarCodigo(programa, configuracion, juzgarEnProlog)
+      (programa, configuracion) => evaluarCodigo(programa, configuracion, juzgarEnJavaScript)
     );
-    assert.deepEqual(resultado, resultadoProlog, 'El juez JS y el juez Prolog discrepan');
+    assert.deepEqual(resultadoProlog, resultadoJavaScript, 'El juez Prolog y el juez JS de referencia discrepan');
   }
-  return resultado;
+  return resultadoProlog;
 }
 
 const preguntas = await cargarPreguntas();

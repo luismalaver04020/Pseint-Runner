@@ -1,12 +1,12 @@
-// ─── EVALUADOR DE PREGUNTAS DE CÓDIGO (Node analiza, ejecuta y decide) ───
+// ─── EVALUADOR DE PREGUNTAS DE CÓDIGO (Node analiza/ejecuta · Prolog decide) ───
 //
 //   código del alumno ──► parser.js ──► estructura del programa ─┐
-//                    └──► interprete.js ──► salida de cada caso ─┴──► juez.js ──► veredicto
+//                    └──► interprete.js ──► salida de cada caso ─┴──► reglas.pl ──► veredicto
 //
 // `config` es el contenido de `evaluation_config` de la pregunta (ver docs/EVALUACION_CODIGO.md).
 import { analizarCodigo } from './parser.js';
 import { ejecutarCodigo } from './interprete.js';
-import { juzgarEnJavaScript } from './juez.js';
+import { juzgarEnProlog } from './prolog.js';
 
 // Límites: protegen al servidor (el intérprete ya corta a 100 000 instrucciones por caso).
 export const LIMITES = {
@@ -249,7 +249,7 @@ function quitarMensajesDeEntrada(lineas, esperadas) {
 }
 
 // ── 3. Evaluar: ejecuta los casos, aplica las reglas y presenta el resultado ──
-export async function evaluarCodigo(codigo, configCruda, juzgador = juzgarEnJavaScript) {
+export async function evaluarCodigo(codigo, configCruda, juzgador = juzgarEnProlog) {
   if (typeof codigo !== 'string' || !codigo.trim()) throw new CodigoInvalido('Escribe tu código antes de enviarlo');
   if (codigo.length > LIMITES.caracteresCodigo) throw new CodigoInvalido('El código es demasiado largo');
 
