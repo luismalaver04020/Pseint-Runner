@@ -14,6 +14,26 @@ const MAYOR = 'U2 · CÓDIGO — Mayor de dos números';
 const TABLA = 'U3 · CÓDIGO — Tabla de multiplicar';
 const MIENTRAS = 'U3 · CÓDIGO — Suma con Mientras';
 
+const SUMA_CONDICIONAL_CW = {
+  casos: [
+    { entradas: ['4', '4', '3', '8', '7'], salida: ['8'] },
+    { entradas: ['5', '0', '-4', '5', '12', '3'], salida: ['2'] },
+    { entradas: ['3', '4', '4', '0'], salida: ['2'], visible: false },
+  ],
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'PARA', 'CONDICIONAL'] },
+  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+};
+
+const CIRCULO_AREA_PERIMETRO = {
+  casos: [
+    { entradas: ['1'], salida: ['3.141592653589793', '6.283185307179586'] },
+    { entradas: ['2'], salida: ['12.566370614359172', '12.566370614359172'] },
+    { entradas: ['3'], salida: ['28.274333882308138', '18.84955592153876'], visible: false },
+  ],
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA'] },
+  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+};
+
 let n = 0;
 async function caso(nombre, titulo, codigo, esperado, extra) {
   const r = await evaluarCodigo(codigo, typeof titulo === 'string' ? C(titulo) : titulo);
@@ -161,6 +181,46 @@ await caso('Mientras: solución de ejemplo', MIENTRAS, `Proceso SumaMientras
   Escribir suma
 FinProceso`, true);
 
+const codigoSumaCondicionalCW = `Algoritmo SumaCondicionalGrupoCW
+  Definir N, i Como Entero
+  Definir X, termino, suma Como Real
+  suma <- 0
+  Escribir "Ingrese la cantidad total de elementos (N):"
+  Leer N
+  Si N <= 0 Entonces
+    Escribir "Error: La cantidad de elementos N debe ser un número entero mayor a cero."
+  Sino
+    Para i <- 1 Hasta N Con Paso 1 Hacer
+      Escribir "Ingrese el valor entero para la cantidad ", i, ":"
+      Leer X
+      Si X MOD 4 = 0 Entonces
+        termino <- (X * 1) + (-2)
+        suma <- suma + termino
+      FinSi
+    FinPara
+    Escribir "REPORTE TÉCNICO - GRUPO CW"
+    Escribir "SUMA CONDICIONAL ACUMULADA: ", suma
+  FinSi
+FinAlgoritmo`;
+await caso('CW: acepta solución con ciclo Para, MOD 4 y salida decorada', SUMA_CONDICIONAL_CW, codigoSumaCondicionalCW, true);
+
+const codigoAreaPerimetroCirculo = `Algoritmo CalcularAreaYPerimetroCirculo
+  Definir radio, area, perimetro, PI Como Real
+  PI <- 3.14159265
+  Escribir "Ingrese el radio del círculo:"
+  Leer radio
+  Si radio <= 0 Entonces
+    Escribir "Error: El radio debe ser un valor estrictamente mayor a cero."
+  Sino
+    area <- PI * (radio * radio)
+    perimetro <- 2 * PI * radio
+    Escribir "REPORTE GEOMÉTRICO - CÍRCULO"
+    Escribir "ÁREA TOTAL CALCULADA: ", area
+    Escribir "PERÍMETRO CALCULADO: ", perimetro
+  FinSi
+FinAlgoritmo`;
+await caso('Círculo: acepta área primero, perímetro después, PI aproximado y reporte', CIRCULO_AREA_PERIMETRO, codigoAreaPerimetroCirculo, true);
+
 // ── Soluciones incorrectas ──
 await caso('Suma: resta en vez de suma (salida distinta)', SUMA, `Proceso Suma
   Definir a, b, suma Como Entero
@@ -215,6 +275,8 @@ await caso('Tabla: resultados erróneos', TABLA, `Proceso Tabla
     Escribir n+i
   FinPara
 FinProceso`, false);
+await caso('CW: rechaza sumar X + 2 en vez de X - 2', SUMA_CONDICIONAL_CW, codigoSumaCondicionalCW.replace('(X * 1) + (-2)', '(X * 1) + 2'), false);
+await caso('Círculo: rechaza mostrar el perímetro antes del área', CIRCULO_AREA_PERIMETRO, codigoAreaPerimetroCirculo.replace('Escribir "ÁREA TOTAL CALCULADA: ", area\n    Escribir "PERÍMETRO CALCULADO: ", perimetro', 'Escribir "PERÍMETRO CALCULADO: ", perimetro\n    Escribir "ÁREA TOTAL CALCULADA: ", area'), false);
 await caso('Palabra clave solo en un comentario no cuenta', PAR, `Proceso ParImpar
   Definir n Como Entero
   // usar MOD
