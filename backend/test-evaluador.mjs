@@ -1,8 +1,9 @@
 // Prueba offline del evaluador (no necesita Supabase ni el servidor):  npm run test:evaluador
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
-import { evaluarCodigo, evaluarContraReferencia, ConfigInvalida } from './src/evaluador/evaluarCodigo.js';
+import { evaluarCodigo, ConfigInvalida } from './src/evaluador/evaluarCodigo.js';
 import { juzgarEnProlog } from './src/evaluador/prolog.js';
+import { juzgarEnJavaScript } from './src/evaluador/juez.js';
 
 const configs = JSON.parse(readFileSync(new URL('./src/evaluador/configs-ejemplo.json', import.meta.url), 'utf8'));
 const C = (titulo) => configs[titulo];
@@ -61,16 +62,40 @@ FinProceso`, true);
     Escribir "Error: La base y la altura deben ser valores mayores que cero."
   FinSi
 FinAlgoritmo`;
-  const r = await evaluarContraReferencia(codigoConValidacionYMensajes, `Proceso Area
-  Definir base, altura, area Como Real
-  Leer base
-  Leer altura
-  area <- base * altura
-  Escribir area
-FinProceso`, {}, 'Calcula el área de un rectángulo con base y altura positivas.');
+  const r = await evaluarCodigo(codigoConValidacionYMensajes, C(AREA));
   assert.equal(r.correcto, true, `Área con validación y mensajes\n${r.mensaje}\n${JSON.stringify(r.motivos)}`);
   n++;
   console.log('✓ (aprueba) Área: acepta validación positiva, mensajes y separadores');
+}
+{
+  const configIGV = {
+    casos: [
+      { entradas: ['100'], salida: ['118'] },
+      { entradas: ['250'], salida: ['295'] },
+      { entradas: ['80'], salida: ['94.4'], visible: false },
+    ],
+    estructura: { requiere: ['DECLARACION', 'LECTURA', 'ASIGNACION', 'ESCRITURA'] },
+    comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+  };
+  const codigoIGV = `Algoritmo CalcularPrecioConIGV
+  Definir precioBase, tasaIGV, montoIGV, precioFinal Como Real
+  tasaIGV <- 0.18 // Tasa de IGV estándar del 18%
+  Escribir "Ingrese el precio base del producto:"
+  Leer precioBase
+  Si precioBase < 0 Entonces
+    Escribir "Error: El precio base no puede ser un valor negativo."
+  Sino
+    montoIGV <- precioBase * tasaIGV
+    precioFinal <- precioBase + montoIGV
+    Escribir "Precio base sin IGV : $", precioBase
+    Escribir "IGV (18%) : +$", montoIGV
+    Escribir "PRECIO FINAL A PAGAR : $", precioFinal
+  FinSi
+FinAlgoritmo`;
+  const r = await evaluarCodigo(codigoIGV, configIGV);
+  assert.equal(r.correcto, true, `IGV con comentario inline y porcentaje en texto\n${r.mensaje}\n${JSON.stringify(r.motivos)}`);
+  n++;
+  console.log('✓ (aprueba) IGV: acepta comentario inline con % y salidas rotuladas');
 }
 {
   const ponderado = {
@@ -306,7 +331,7 @@ console.log(`✓ 300 evaluaciones seguidas en ${Date.now() - t0} ms (memoria: ${
 
 
 
-// ── Compatibilidad con preguntas legacy: comparación contra expected_answer ──
+// ── Acepta soluciones equivalentes si el enunciado no exige estructura ──
 const referenciaMientras = `Proceso Suma
   Definir i, suma Como Entero
   i <- 1
@@ -325,27 +350,32 @@ const solucionParaEquivalente = `Proceso Suma
   FinPara
   Escribir "Resultado: ", total
 FinProceso`;
-const rEquivalente = await evaluarContraReferencia(solucionParaEquivalente, referenciaMientras, { keywords: ['Mientras'], min_ratio: 0.6 });
+const configSumaDelUnoAlDiez = {
+  casos: [{ entradas: [], salida: ['55'] }],
+  estructura: {},
+  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+};
+const rEquivalente = await evaluarCodigo(solucionParaEquivalente, configSumaDelUnoAlDiez);
 assert.equal(rEquivalente.correcto, true, 'Debe aceptar Para cuando la referencia usa Mientras si el resultado coincide');
 n++;
 console.log('✓ acepta estructura distinta con comportamiento equivalente');
-const rIncorrecto = await evaluarContraReferencia(`Proceso Suma
+const rIncorrecto = await evaluarCodigo(`Proceso Suma
   Definir i, total Como Entero
   total <- 0
   Para i <- 1 Hasta 10 Hacer
     total <- total + i + 1
   FinPara
   Escribir total
-FinProceso`, referenciaMientras, { keywords: ['Mientras'], min_ratio: 0.6 });
+FinProceso`, configSumaDelUnoAlDiez);
 assert.equal(rIncorrecto.correcto, false, 'Debe rechazar una solución con resultado incorrecto');
 n++;
 console.log('✓ rechaza algoritmo distinto con resultado incorrecto');
 
-// Durante la migración, verifica que el juez JS mantenga los veredictos del juez Prolog.
+// Compara el juez Prolog de producción con el juez JavaScript de referencia.
 async function compararJueces(nombre, codigo, config) {
-  const directo = await evaluarCodigo(codigo, config);
+  const javascript = await evaluarCodigo(codigo, config, juzgarEnJavaScript);
   const prolog = await evaluarCodigo(codigo, config, juzgarEnProlog);
-  assert.deepEqual(directo, prolog, `Los jueces discrepan en ${nombre}`);
+  assert.deepEqual(javascript, prolog, `Los jueces discrepan en ${nombre}`);
   n++;
   console.log(`✓ ambos jueces coinciden: ${nombre}`);
 }
