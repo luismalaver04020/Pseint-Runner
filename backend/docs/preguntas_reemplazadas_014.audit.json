@@ -1,0 +1,1348 @@
+[
+  {
+    "id": 351,
+    "unit": 1,
+    "prompt": "Lee dos números enteros. El segundo será distinto de cero. Muestra el resultado de dividir el primero entre el segundo.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 400,
+    "unit": 1,
+    "prompt": "Lee una cantidad de minutos y conviértela a segundos. Usa 60 segundos por minuto.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 401,
+    "unit": 1,
+    "prompt": "Lee el largo y el ancho de un rectángulo. Muestra su perímetro: dos veces la suma del largo y el ancho.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 402,
+    "unit": 1,
+    "prompt": "Lee el costo de un producto y calcula el total agregando el IGV del 18%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1257,
+    "unit": 1,
+    "prompt": "Lee dos números enteros y muestra su suma.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1264,
+    "unit": 1,
+    "prompt": "Una tienda aplica un descuento del 10%. Lee el precio original y muestra cuánto se paga después del descuento.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1278,
+    "unit": 1,
+    "prompt": "Lee una cantidad entera de dinero. Muestra cuántos billetes de 10 se necesitan usando DIV y cuánto sobra usando MOD.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1299,
+    "unit": 1,
+    "prompt": "Lee el precio de un producto y el monto de descuento. Muestra el precio final restando el descuento.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1300,
+    "unit": 1,
+    "prompt": "Lee el lado de un cuadrado y muestra su perímetro (cuatro veces el lado).",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1301,
+    "unit": 1,
+    "prompt": "Lee tres notas y muestra su promedio.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1302,
+    "unit": 1,
+    "prompt": "Lee la base y la altura de un rectángulo. Muestra el área, que se obtiene multiplicando base por altura.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1305,
+    "unit": 1,
+    "prompt": "Una caja tenía cierta cantidad de unidades. Lee la cantidad inicial y la cantidad vendida; muestra cuántas quedan.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1320,
+    "unit": 1,
+    "prompt": "Lee el precio de un producto y muestra el monto que se ahorra con un descuento del 20%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1321,
+    "unit": 1,
+    "prompt": "Lee dos números enteros y muestra la diferencia entre el primero y el segundo.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1322,
+    "unit": 1,
+    "prompt": "Lee el costo de una cuenta y calcula el total agregando una propina del 10%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1327,
+    "unit": 1,
+    "prompt": "Cada paquete contiene 6 unidades. Lee cuántas unidades hay y muestra cuántos paquetes completos se forman y cuántas unidades sobran, usando DIV y MOD.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1329,
+    "unit": 1,
+    "prompt": "Lee la cantidad de entradas y el precio de cada entrada. Muestra el total a pagar.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1338,
+    "unit": 1,
+    "prompt": "Lee el total de la compra y el monto pagado. Muestra cuánto vuelto corresponde.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1339,
+    "unit": 1,
+    "prompt": "Lee el precio de un artículo y cuántas unidades se compran. Muestra el costo total.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1340,
+    "unit": 1,
+    "prompt": "Lee el lado de un cuadrado y muestra su área (lado por lado).",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1341,
+    "unit": 1,
+    "prompt": "Lee una cantidad de días y conviértela a horas. Usa 24 horas por día.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1342,
+    "unit": 1,
+    "prompt": "Lee el precio de una comida y calcula una propina del 10%. Muestra solo el monto de la propina.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1354,
+    "unit": 1,
+    "prompt": "Lee dos números enteros y muestra el producto.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1358,
+    "unit": 1,
+    "prompt": "Lee una cantidad de horas y conviértela a minutos. Usa 60 minutos por hora.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1362,
+    "unit": 1,
+    "prompt": "Lee dos notas de un curso y muestra el promedio.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1368,
+    "unit": 1,
+    "prompt": "Lee una cantidad de minutos y conviértela a horas expresadas en minutos por hora (divide entre 60).",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1378,
+    "unit": 1,
+    "prompt": "Lee una cantidad de dinero entera y muestra cuántos billetes de 20 caben en ella y cuánto dinero queda. Usa DIV y MOD.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1384,
+    "unit": 1,
+    "prompt": "Lee el precio de un producto y muestra el precio final al agregar el IGV del 18%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1386,
+    "unit": 1,
+    "prompt": "Lee el precio de una compra y el dinero entregado. Muestra el vuelto.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1387,
+    "unit": 1,
+    "prompt": "Lee tres números enteros y muestra el resultado de sumarlos.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1389,
+    "unit": 1,
+    "prompt": "Lee la base y la altura de un rectángulo y muestra su área.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1393,
+    "unit": 1,
+    "prompt": "Lee dos números enteros. El segundo será distinto de cero. Muestra el resultado de dividir el primero entre el segundo.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 354,
+    "unit": 1,
+    "prompt": "Lee una cantidad de minutos y conviértela a segundos. Usa 60 segundos por minuto.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 403,
+    "unit": 1,
+    "prompt": "Lee el largo y el ancho de un rectángulo. Muestra su perímetro: dos veces la suma del largo y el ancho.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 432,
+    "unit": 1,
+    "prompt": "Lee el costo de un producto y calcula el total agregando el IGV del 18%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1304,
+    "unit": 1,
+    "prompt": "Lee dos números enteros y muestra su suma.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1307,
+    "unit": 1,
+    "prompt": "Una tienda aplica un descuento del 10%. Lee el precio original y muestra cuánto se paga después del descuento.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1308,
+    "unit": 1,
+    "prompt": "Lee una cantidad entera de dinero. Muestra cuántos billetes de 10 se necesitan usando DIV y cuánto sobra usando MOD.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1314,
+    "unit": 1,
+    "prompt": "Lee el precio de un producto y el monto de descuento. Muestra el precio final restando el descuento.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1315,
+    "unit": 1,
+    "prompt": "Lee el lado de un cuadrado y muestra su perímetro (cuatro veces el lado).",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1333,
+    "unit": 1,
+    "prompt": "Lee tres notas y muestra su promedio.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1352,
+    "unit": 1,
+    "prompt": "Lee la base y la altura de un rectángulo. Muestra el área, que se obtiene multiplicando base por altura.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1392,
+    "unit": 1,
+    "prompt": "Una caja tenía cierta cantidad de unidades. Lee la cantidad inicial y la cantidad vendida; muestra cuántas quedan.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 372,
+    "unit": 1,
+    "prompt": "Lee el precio de un producto y muestra el monto que se ahorra con un descuento del 20%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 392,
+    "unit": 1,
+    "prompt": "Lee dos números enteros y muestra la diferencia entre el primero y el segundo.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 404,
+    "unit": 1,
+    "prompt": "Lee el costo de una cuenta y calcula el total agregando una propina del 10%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 431,
+    "unit": 1,
+    "prompt": "Cada paquete contiene 6 unidades. Lee cuántas unidades hay y muestra cuántos paquetes completos se forman y cuántas unidades sobran, usando DIV y MOD.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 436,
+    "unit": 1,
+    "prompt": "Lee la cantidad de entradas y el precio de cada entrada. Muestra el total a pagar.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1109,
+    "unit": 1,
+    "prompt": "Lee el total de la compra y el monto pagado. Muestra cuánto vuelto corresponde.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1151,
+    "unit": 1,
+    "prompt": "Lee el precio de un artículo y cuántas unidades se compran. Muestra el costo total.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1265,
+    "unit": 1,
+    "prompt": "Lee el lado de un cuadrado y muestra su área (lado por lado).",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1309,
+    "unit": 1,
+    "prompt": "Lee una cantidad de días y conviértela a horas. Usa 24 horas por día.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1379,
+    "unit": 1,
+    "prompt": "Lee el precio de una comida y calcula una propina del 10%. Muestra solo el monto de la propina.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 388,
+    "unit": 1,
+    "prompt": "Lee dos números enteros y muestra el producto.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 390,
+    "unit": 1,
+    "prompt": "Lee una cantidad de horas y conviértela a minutos. Usa 60 minutos por hora.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 438,
+    "unit": 1,
+    "prompt": "Lee dos notas de un curso y muestra el promedio.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 439,
+    "unit": 1,
+    "prompt": "Lee una cantidad de minutos y conviértela a horas expresadas en minutos por hora (divide entre 60).",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 440,
+    "unit": 1,
+    "prompt": "Lee una cantidad de dinero entera y muestra cuántos billetes de 20 caben en ella y cuánto dinero queda. Usa DIV y MOD.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 442,
+    "unit": 1,
+    "prompt": "Lee el precio de un producto y muestra el precio final al agregar el IGV del 18%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1121,
+    "unit": 1,
+    "prompt": "Lee el precio de una compra y el dinero entregado. Muestra el vuelto.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1128,
+    "unit": 1,
+    "prompt": "Lee tres números enteros y muestra el resultado de sumarlos.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1153,
+    "unit": 1,
+    "prompt": "Lee la base y la altura de un rectángulo y muestra su área.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1182,
+    "unit": 1,
+    "prompt": "Lee dos números enteros. El segundo será distinto de cero. Muestra el resultado de dividir el primero entre el segundo.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1303,
+    "unit": 1,
+    "prompt": "Lee una cantidad de minutos y conviértela a segundos. Usa 60 segundos por minuto.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1325,
+    "unit": 1,
+    "prompt": "Lee el largo y el ancho de un rectángulo. Muestra su perímetro: dos veces la suma del largo y el ancho.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1330,
+    "unit": 1,
+    "prompt": "Lee el costo de un producto y calcula el total agregando el IGV del 18%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1331,
+    "unit": 1,
+    "prompt": "Lee dos números enteros y muestra su suma.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1336,
+    "unit": 1,
+    "prompt": "Una tienda aplica un descuento del 10%. Lee el precio original y muestra cuánto se paga después del descuento.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1351,
+    "unit": 1,
+    "prompt": "Lee una cantidad entera de dinero. Muestra cuántos billetes de 10 se necesitan usando DIV y cuánto sobra usando MOD.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1359,
+    "unit": 1,
+    "prompt": "Lee el precio de un producto y el monto de descuento. Muestra el precio final restando el descuento.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1383,
+    "unit": 1,
+    "prompt": "Lee el lado de un cuadrado y muestra su perímetro (cuatro veces el lado).",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 367,
+    "unit": 1,
+    "prompt": "Lee tres notas y muestra su promedio.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1107,
+    "unit": 1,
+    "prompt": "Lee la base y la altura de un rectángulo. Muestra el área, que se obtiene multiplicando base por altura.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1356,
+    "unit": 1,
+    "prompt": "Una caja tenía cierta cantidad de unidades. Lee la cantidad inicial y la cantidad vendida; muestra cuántas quedan.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1372,
+    "unit": 1,
+    "prompt": "Lee el precio de un producto y muestra el monto que se ahorra con un descuento del 20%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1297,
+    "unit": 1,
+    "prompt": "Lee dos números enteros y muestra la diferencia entre el primero y el segundo.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1316,
+    "unit": 1,
+    "prompt": "Lee el costo de una cuenta y calcula el total agregando una propina del 10%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1348,
+    "unit": 1,
+    "prompt": "Cada paquete contiene 6 unidades. Lee cuántas unidades hay y muestra cuántos paquetes completos se forman y cuántas unidades sobran, usando DIV y MOD.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1786,
+    "unit": 3,
+    "prompt": "Usa Repetir para leer números enteros hasta que se ingrese 0. Al final, muestra la suma de los números ingresados antes del 0.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "REPETIR"
+    ]
+  },
+  {
+    "id": 352,
+    "unit": 1,
+    "prompt": "Lee la cantidad de entradas y el precio de cada entrada. Muestra el total a pagar.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 366,
+    "unit": 1,
+    "prompt": "Lee el total de la compra y el monto pagado. Muestra cuánto vuelto corresponde.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 375,
+    "unit": 1,
+    "prompt": "Lee el precio de un artículo y cuántas unidades se compran. Muestra el costo total.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 381,
+    "unit": 1,
+    "prompt": "Lee el lado de un cuadrado y muestra su área (lado por lado).",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 399,
+    "unit": 1,
+    "prompt": "Lee una cantidad de días y conviértela a horas. Usa 24 horas por día.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 413,
+    "unit": 1,
+    "prompt": "Lee el precio de una comida y calcula una propina del 10%. Muestra solo el monto de la propina.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1127,
+    "unit": 1,
+    "prompt": "Lee dos números enteros y muestra el producto.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1192,
+    "unit": 1,
+    "prompt": "Lee una cantidad de horas y conviértela a minutos. Usa 60 minutos por hora.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1253,
+    "unit": 1,
+    "prompt": "Lee dos notas de un curso y muestra el promedio.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1255,
+    "unit": 1,
+    "prompt": "Lee una cantidad de minutos y conviértela a horas expresadas en minutos por hora (divide entre 60).",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1263,
+    "unit": 1,
+    "prompt": "Lee una cantidad de dinero entera y muestra cuántos billetes de 20 caben en ella y cuánto dinero queda. Usa DIV y MOD.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1298,
+    "unit": 1,
+    "prompt": "Lee el precio de un producto y muestra el precio final al agregar el IGV del 18%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1313,
+    "unit": 1,
+    "prompt": "Lee el precio de una compra y el dinero entregado. Muestra el vuelto.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1317,
+    "unit": 1,
+    "prompt": "Lee tres números enteros y muestra el resultado de sumarlos.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1319,
+    "unit": 1,
+    "prompt": "Lee la base y la altura de un rectángulo y muestra su área.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1343,
+    "unit": 1,
+    "prompt": "Lee dos números enteros. El segundo será distinto de cero. Muestra el resultado de dividir el primero entre el segundo.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1346,
+    "unit": 1,
+    "prompt": "Lee una cantidad de minutos y conviértela a segundos. Usa 60 segundos por minuto.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1350,
+    "unit": 1,
+    "prompt": "Lee el largo y el ancho de un rectángulo. Muestra su perímetro: dos veces la suma del largo y el ancho.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1357,
+    "unit": 1,
+    "prompt": "Lee el costo de un producto y calcula el total agregando el IGV del 18%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1361,
+    "unit": 1,
+    "prompt": "Lee dos números enteros y muestra su suma.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1367,
+    "unit": 1,
+    "prompt": "Una tienda aplica un descuento del 10%. Lee el precio original y muestra cuánto se paga después del descuento.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1370,
+    "unit": 1,
+    "prompt": "Lee una cantidad entera de dinero. Muestra cuántos billetes de 10 se necesitan usando DIV y cuánto sobra usando MOD.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1374,
+    "unit": 1,
+    "prompt": "Lee el precio de un producto y el monto de descuento. Muestra el precio final restando el descuento.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1377,
+    "unit": 1,
+    "prompt": "Lee el lado de un cuadrado y muestra su perímetro (cuatro veces el lado).",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1391,
+    "unit": 1,
+    "prompt": "Lee tres notas y muestra su promedio.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1295,
+    "unit": 1,
+    "prompt": "Lee la base y la altura de un rectángulo. Muestra el área, que se obtiene multiplicando base por altura.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1296,
+    "unit": 1,
+    "prompt": "Una caja tenía cierta cantidad de unidades. Lee la cantidad inicial y la cantidad vendida; muestra cuántas quedan.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1335,
+    "unit": 1,
+    "prompt": "Lee el precio de un producto y muestra el monto que se ahorra con un descuento del 20%.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1375,
+    "unit": 1,
+    "prompt": "Lee dos números enteros y muestra la diferencia entre el primero y el segundo.",
+    "cases": 3,
+    "requirements": []
+  },
+  {
+    "id": 1405,
+    "unit": 2,
+    "prompt": "Lee una nota entera. Muestra 1 si la nota es 11 o más y 0 si es menor que 11.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "CONDICIONAL",
+      "SINO",
+      "ESCRITURA"
+    ]
+  },
+  {
+    "id": 1438,
+    "unit": 2,
+    "prompt": "Lee un número entero. Muestra 1 si es par y 0 si es impar.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "CONDICIONAL",
+      "SINO",
+      "ESCRITURA"
+    ]
+  },
+  {
+    "id": 1470,
+    "unit": 2,
+    "prompt": "Lee el precio de una compra. Si es 100 o más, aplica un descuento de 10; en caso contrario, no hay descuento. Muestra el monto final.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "CONDICIONAL",
+      "SINO",
+      "ESCRITURA"
+    ]
+  },
+  {
+    "id": 1938,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma y muestra solo los números pares. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1946,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Cuenta cuántos son positivos y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1803,
+    "unit": 3,
+    "prompt": "Lee N y luego N notas. Cuenta cuántas son aprobatorias (11 o más) y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1808,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Muestra el mayor. Usa un ciclo Para y una condición Si para actualizarlo.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1810,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Muestra el menor. Usa un ciclo Para y una condición Si para actualizarlo.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1817,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma los que son mayores que cero y muestra el resultado. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1818,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Cuenta cuántos son múltiplos de 3 y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1826,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma los que son impares y muestra el resultado. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1831,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma y muestra solo los números pares. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1832,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Cuenta cuántos son positivos y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1839,
+    "unit": 3,
+    "prompt": "Lee N y luego N notas. Cuenta cuántas son aprobatorias (11 o más) y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1843,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Muestra el mayor. Usa un ciclo Para y una condición Si para actualizarlo.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1853,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Muestra el menor. Usa un ciclo Para y una condición Si para actualizarlo.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1860,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma los que son mayores que cero y muestra el resultado. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1869,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Cuenta cuántos son múltiplos de 3 y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1872,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma los que son impares y muestra el resultado. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1873,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma y muestra solo los números pares. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1874,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Cuenta cuántos son positivos y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1875,
+    "unit": 3,
+    "prompt": "Lee N y luego N notas. Cuenta cuántas son aprobatorias (11 o más) y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1880,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Muestra el mayor. Usa un ciclo Para y una condición Si para actualizarlo.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1883,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Muestra el menor. Usa un ciclo Para y una condición Si para actualizarlo.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1884,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma los que son mayores que cero y muestra el resultado. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1899,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Cuenta cuántos son múltiplos de 3 y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1909,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma los que son impares y muestra el resultado. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1916,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma y muestra solo los números pares. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1922,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Cuenta cuántos son positivos y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1923,
+    "unit": 3,
+    "prompt": "Lee N y luego N notas. Cuenta cuántas son aprobatorias (11 o más) y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1926,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Muestra el mayor. Usa un ciclo Para y una condición Si para actualizarlo.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1927,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Muestra el menor. Usa un ciclo Para y una condición Si para actualizarlo.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1939,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma los que son mayores que cero y muestra el resultado. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1941,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Cuenta cuántos son múltiplos de 3 y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1947,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma los que son impares y muestra el resultado. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1954,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma y muestra solo los números pares. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1961,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Cuenta cuántos son positivos y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1963,
+    "unit": 3,
+    "prompt": "Lee N y luego N notas. Cuenta cuántas son aprobatorias (11 o más) y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1968,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Muestra el mayor. Usa un ciclo Para y una condición Si para actualizarlo.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1970,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Muestra el menor. Usa un ciclo Para y una condición Si para actualizarlo.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1974,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma los que son mayores que cero y muestra el resultado. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1979,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Cuenta cuántos son múltiplos de 3 y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1983,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma los que son impares y muestra el resultado. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1987,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Suma y muestra solo los números pares. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  },
+  {
+    "id": 1994,
+    "unit": 3,
+    "prompt": "Lee N y luego N números enteros. Cuenta cuántos son positivos y muestra la cantidad. Usa un ciclo Para y una condición Si.",
+    "cases": 3,
+    "requirements": [
+      "DECLARACION",
+      "LECTURA",
+      "ESCRITURA",
+      "PARA",
+      "CONDICIONAL"
+    ]
+  }
+]
