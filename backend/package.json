@@ -9,12 +9,15 @@
     "dev": "node --watch --env-file=.env src/server.js",
     "start": "node --env-file=.env src/server.js",
     "test:evaluador": "node test-evaluador.mjs",
-    "test:interprete": "node test-interprete.mjs"
+    "test:interprete": "node test-interprete.mjs",
+    "audit:questions": "node --env-file=.env audit-questions.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
     "cors": "^2.8.6",
-    "express": "^5.3.0",
+    "express": "^5.3.0"
+  },
+  "devDependencies": {
     "swipl-wasm": "^8.3.0"
   }
 }

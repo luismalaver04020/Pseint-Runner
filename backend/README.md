@@ -11,7 +11,7 @@ backend/
 │   ├── middleware/auth.js   elige el cliente: con token del usuario, o anónimo si la función es pública
 │   ├── lib/errores.js       HttpError, traducción de errores de la BD y función rpc()
 │   ├── lib/funciones.js     lista blanca de funciones api_* que se pueden llamar
-│   ├── evaluador/           parser, intérprete PSeInt y juez Prolog (ver docs/EVALUACION_PROLOG.md)
+│   ├── evaluador/           parser, intérprete PSeInt y juez JavaScript (ver docs/EVALUACION_CODIGO.md)
 │   └── routes/
 │       ├── rpc.js           POST /api/rpc/:funcion
 │       ├── evaluacion.js    POST /api/evaluar/codigo y /probar (preguntas de código)
@@ -54,4 +54,4 @@ Para agregar una función nueva de la base de datos, primero debe existir allí,
 ## Preguntas de código (Prolog)
 
 Las preguntas de tipo código se validan ejecutando el algoritmo del alumno con casos de prueba y juzgándolo con
-reglas Prolog. Guía de conexión, formato de configuración y pruebas: [`docs/EVALUACION_PROLOG.md`](docs/EVALUACION_PROLOG.md).
+reglas Prolog. Guía de conexión, formato de configuración y pruebas: [`docs/EVALUACION_CODIGO.md`](docs/EVALUACION_CODIGO.md).

@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { evaluarCodigo, evaluarContraReferencia, ConfigInvalida } from './src/evaluador/evaluarCodigo.js';
+import { juzgarEnProlog } from './src/evaluador/prolog.js';
 
 const configs = JSON.parse(readFileSync(new URL('./src/evaluador/configs-ejemplo.json', import.meta.url), 'utf8'));
 const C = (titulo) => configs[titulo];
@@ -339,6 +340,51 @@ FinProceso`, referenciaMientras, { keywords: ['Mientras'], min_ratio: 0.6 });
 assert.equal(rIncorrecto.correcto, false, 'Debe rechazar una solución con resultado incorrecto');
 n++;
 console.log('✓ rechaza algoritmo distinto con resultado incorrecto');
+
+// Durante la migración, verifica que el juez JS mantenga los veredictos del juez Prolog.
+async function compararJueces(nombre, codigo, config) {
+  const directo = await evaluarCodigo(codigo, config);
+  const prolog = await evaluarCodigo(codigo, config, juzgarEnProlog);
+  assert.deepEqual(directo, prolog, `Los jueces discrepan en ${nombre}`);
+  n++;
+  console.log(`✓ ambos jueces coinciden: ${nombre}`);
+}
+
+const configParidad = {
+  casos: [
+    { entradas: ['2', '3'], salida: ['5'] },
+    { entradas: ['10', '4'], salida: ['14'], visible: false },
+  ],
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA'] },
+  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+};
+await compararJueces('respuesta correcta con salida numérica', `Proceso Suma
+Definir x, y, resultado Como Real
+Leer x, y
+resultado <- x + y
+Escribir "La suma es: ", resultado
+FinProceso`, configParidad);
+await compararJueces('respuesta incorrecta', `Proceso Suma
+Definir x, y, resultado Como Real
+Leer x, y
+resultado <- x - y
+Escribir resultado
+FinProceso`, configParidad);
+await compararJueces('error de sintaxis', 'Proceso SinCierre\nEscribir 1', configParidad);
+await compararJueces('estructura requerida', `Proceso Bucle
+Definir i, total Como Entero
+i <- 0
+total <- 0
+Mientras i < 1 Hacer
+total <- total + 1
+i <- i + 1
+FinMientras
+Escribir total
+FinProceso`, {
+  casos: [{ entradas: [], salida: ['1'] }],
+  estructura: { requiere: ['MIENTRAS'], prohibe: ['PARA'], minimos: { DECLARACION: 2 } },
+  comparacion: { modo: 'exacto' },
+});
 
 // Las referencias y los casos que se publican con SQL deben coincidir.
 let referenciasMigracion = 0;

@@ -1,12 +1,12 @@
-// ─── EVALUADOR DE PREGUNTAS DE CÓDIGO (Node prepara · Prolog decide) ───
+// ─── EVALUADOR DE PREGUNTAS DE CÓDIGO (Node analiza, ejecuta y decide) ───
 //
 //   código del alumno ──► parser.js ──► estructura del programa ─┐
-//                    └──► interprete.js ──► salida de cada caso ─┴──► reglas.pl (Prolog) ──► veredicto
+//                    └──► interprete.js ──► salida de cada caso ─┴──► juez.js ──► veredicto
 //
-// `config` es el contenido de `evaluation_config` de la pregunta (ver docs/EVALUACION_PROLOG.md).
+// `config` es el contenido de `evaluation_config` de la pregunta (ver docs/EVALUACION_CODIGO.md).
 import { analizarCodigo } from './parser.js';
 import { ejecutarCodigo } from './interprete.js';
-import { juzgarEnProlog } from './prolog.js';
+import { juzgarEnJavaScript } from './juez.js';
 
 // Límites: protegen al servidor (el intérprete ya corta a 100 000 instrucciones por caso).
 export const LIMITES = {
@@ -171,7 +171,7 @@ function generarEntradas(tipos, enunciado = '') {
   }));
 }
 
-export async function evaluarContraReferencia(codigo, referencia, configAntigua = {}, enunciado = '') {
+export async function evaluarContraReferencia(codigo, referencia, configAntigua = {}, enunciado = '', juzgador = evaluarCodigo) {
   if (typeof referencia !== 'string' || !referencia.trim()) {
     throw new ConfigInvalida('la pregunta usa configuración antigua y no tiene expected_answer de referencia');
   }
@@ -206,7 +206,7 @@ export async function evaluarContraReferencia(codigo, referencia, configAntigua 
 
   // keywords/min_ratio son metadatos antiguos, no condiciones obligatorias:
   // exigirlos impediría aceptar soluciones equivalentes con otras estructuras.
-  return evaluarCodigo(codigo, {
+  return juzgador(codigo, {
     casos,
     estructura: {},
     comparacion: { modo: 'semantico', ignorar_mayusculas: true, tolerancia: 0.000001 },
@@ -248,8 +248,8 @@ function quitarMensajesDeEntrada(lineas, esperadas) {
   });
 }
 
-// ── 3. Evaluar: arma los hechos, llama al juez Prolog y presenta el resultado ──
-export async function evaluarCodigo(codigo, configCruda) {
+// ── 3. Evaluar: ejecuta los casos, aplica las reglas y presenta el resultado ──
+export async function evaluarCodigo(codigo, configCruda, juzgador = juzgarEnJavaScript) {
   if (typeof codigo !== 'string' || !codigo.trim()) throw new CodigoInvalido('Escribe tu código antes de enviarlo');
   if (codigo.length > LIMITES.caracteresCodigo) throw new CodigoInvalido('El código es demasiado largo');
 
@@ -276,7 +276,7 @@ export async function evaluarCodigo(codigo, configCruda) {
     entrada.casos = casos.map((c) => ({ id: c.id }));
   }
 
-  const juicio = await juzgarEnProlog(entrada);
+  const juicio = await juzgador(entrada);
   return presentar(juicio, casos, ejecuciones);
 }
 

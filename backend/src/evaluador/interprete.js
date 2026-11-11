@@ -441,7 +441,7 @@ function escribirSalida(linea, contexto) {
   }
 
   // Un Escribir = una línea de pantalla (PSeInt concatena sus argumentos).
-  // Es lo que compara el juez Prolog; `salida` se conserva tal cual para el resto del código.
+  // Es lo que compara el juez; `salida` se conserva tal cual para el resto del código.
   contexto.lineas.push(partesLinea.join(''));
 }
 

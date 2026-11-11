@@ -54,14 +54,14 @@ Las capturas de la landing están en `frontend/src/assets/landing/` (puedes reem
 
 ## Evaluación de código PSeInt con Prolog
 
-Las preguntas de código se envían a `backend/`; el navegador no valida palabras clave. Node analiza y ejecuta el pseudocódigo, y SWI-Prolog decide el veredicto aplicando las reglas de comparación y estructura.
+Las preguntas de código se envían a `backend/`; el navegador no valida palabras clave. Node analiza y ejecuta el pseudocódigo y compara sus resultados con casos de prueba. Las respuestas equivalentes se aceptan aunque usen otras variables, mensajes o estructuras, salvo que el enunciado exija una estructura específica.
 
 - Preguntas nuevas: configuran `evaluation_config.casos`, `estructura` y `comparacion`.
 - Preguntas antiguas (`keywords/min_ratio`): el backend compara la ejecución del alumno con `expected_answer` privado usando varios conjuntos de entradas. Las palabras clave antiguas no se usan como criterio de aprobación para permitir estructuras equivalentes.
 - La ruta requiere token, `session_id` de una partida activa y una asignación real en `question_assignments`.
 - `expected_answer`, entradas y salidas ocultas nunca se envían al navegador.
 
-Consulta `backend/docs/EVALUACION_PROLOG.md` para límites, formato y pruebas.
+Consulta `backend/docs/EVALUACION_CODIGO.md` para límites, formato y pruebas.
 
 ### Pruebas
 

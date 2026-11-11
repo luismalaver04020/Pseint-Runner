@@ -1,13 +1,16 @@
-# Preguntas de código validadas con Prolog
+# Evaluación automática de preguntas de código
 
 ```
 código del alumno ─► parser.js ─► estructura del programa ─┐
-                 └─► interprete.js ─► salida de cada caso ─┴─► prolog/reglas.pl ─► veredicto
+                 └─► interprete.js ─► salida de cada caso ─┴─► juez.js ─► veredicto
 ```
 
-Node ejecuta el código del alumno con cada caso de prueba y entrega **hechos** al juez; las **reglas**
-(qué estructuras exige o prohíbe el ejercicio, cuándo dos salidas son equivalentes, cuántos casos se
-aprueban) y el veredicto los decide Prolog (`src/evaluador/prolog/reglas.pl`, SWI-Prolog vía `swipl-wasm`).
+Node analiza y ejecuta el código del alumno con cada caso de prueba. `juez.js` compara las salidas y
+aplica las estructuras que la pregunta pide explícitamente. No compara el texto del programa con una
+única respuesta modelo: acepta soluciones distintas si producen las salidas esperadas.
+
+SWI-Prolog se conserva como implementación de referencia para las pruebas de paridad durante la
+migración; no participa en la calificación de las respuestas en producción.
 
 ## Flujo implementado
 
@@ -15,7 +18,7 @@ aprueban) y el veredicto los decide Prolog (`src/evaluador/prolog/reglas.pl`, SW
 2. El backend valida el token, que la partida pertenezca al usuario y siga `en_curso`, y que la pregunta esté asignada a esa partida.
 3. El backend obtiene de forma privada la configuración y, cuando corresponde, `expected_answer`.
 4. El parser analiza la sintaxis; el intérprete ejecuta el algoritmo con las entradas de prueba.
-5. Prolog compara resultados y aplica las reglas configuradas.
+5. JavaScript compara resultados y aplica las reglas configuradas.
 6. El juego recibe el veredicto y conserva su flujo de vidas, puntos y progreso.
 
 Para preguntas nuevas se recomienda configurar `evaluation_config` con casos visibles y ocultos. Para las preguntas antiguas que solo tienen `{ keywords, min_ratio }`, el backend ejecuta `expected_answer` como referencia con entradas positivas por defecto y usa negativos/cero cuando el enunciado pide esos casos. Si una entrada generada queda fuera del dominio de la referencia (por ejemplo, divisor cero), se descarta sin invalidar la pregunta. Ese modo permite cambiar `Para` por `Mientras` (o viceversa) cuando el comportamiento coincide; las palabras clave antiguas no bloquean soluciones alternativas.
@@ -87,7 +90,7 @@ npm run test:evaluador
 
 ## Seguridad
 
-- Lo que escribe el alumno viaja a Prolog como **dato** (argumento de la consulta), nunca como texto de consulta.
+- El pseudocódigo del alumno se interpreta dentro de límites de tamaño e instrucciones; no se ejecuta como JavaScript del servidor.
 - Los casos de prueba se leen en el backend con `service_role`; el navegador no puede pedirlos.
 - El intérprete corta cada caso a 100 000 instrucciones, y el código, los casos y las líneas de salida tienen tope de tamaño.
 
