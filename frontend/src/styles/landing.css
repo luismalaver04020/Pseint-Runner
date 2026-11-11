@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap');
+/* Landing de PSeInt Runner. Todo va dentro de .landing para no chocar con el CSS del juego. */
+.landing{--bg:#070b1d;--bg2:#0e1530;--ln:#24315f;--cy:#38d6ff;--or:#ff7a45;--rd:#e8344a;--yl:#ffc83d;--gr:#3ddc84;--pu:#a855f7;--mut:#9aa6d6;color-scheme:dark;box-sizing:border-box;position:fixed;inset:0;overflow-y:auto;overflow-x:hidden}
+.landing *{box-sizing:border-box}
+.landing{scroll-behavior:smooth}
+.landing{margin:0;background:var(--bg);color:#eef1ff;font:400 19px/1.5 'Inter',-apple-system,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.landing h1,.landing h2,.landing h3{margin:0;font-weight:800;letter-spacing:-.035em;line-height:1.05}
+.landing .px{font-family:'Press Start 2P',monospace;line-height:1.7}
+.landing .gx{background:linear-gradient(90deg,var(--or),var(--rd) 50%,var(--pu));-webkit-background-clip:text;background-clip:text;color:transparent}
+.landing .gc{background:linear-gradient(90deg,var(--cy),var(--gr));-webkit-background-clip:text;background-clip:text;color:transparent}
+.landing .gy{background:linear-gradient(90deg,var(--yl),var(--or));-webkit-background-clip:text;background-clip:text;color:transparent}
+.landing nav{position:sticky;top:0;z-index:50;height:56px;background:rgba(7,11,29,.75);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid #ffffff14;display:flex;align-items:center;justify-content:space-between;padding:0 max(20px,calc(50% - 600px))}
+.landing .brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font:400 12px 'Press Start 2P',monospace}
+.landing .brand b{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--rd),var(--or));font-size:18px;box-shadow:0 0 18px #e8344a88;animation:ld-bob 2.4s ease-in-out infinite}
+.landing nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0}
+.landing nav ul a{color:#c9d1f5;text-decoration:none;font-size:14px;transition:.2s}
+.landing nav ul a:hover{color:#fff}
+.landing .ld-btn{--notch:5px;display:inline-flex;align-items:center;gap:10px;border:0;cursor:pointer;text-decoration:none;color:#fff;background:linear-gradient(90deg,var(--or),var(--rd));font:400 13px 'Press Start 2P',monospace;padding:18px 26px;transition:.2s;clip-path:polygon(0 var(--notch),var(--notch) var(--notch),var(--notch) 0,calc(100% - var(--notch)) 0,calc(100% - var(--notch)) var(--notch),100% var(--notch),100% calc(100% - var(--notch)),calc(100% - var(--notch)) calc(100% - var(--notch)),calc(100% - var(--notch)) 100%,var(--notch) 100%,var(--notch) calc(100% - var(--notch)),0 calc(100% - var(--notch)));filter:drop-shadow(0 0 0 transparent)}
+.landing .ld-btn:hover{transform:translateY(-3px) scale(1.04);background:linear-gradient(90deg,#ff9565,#ff4d63)}
+.landing .ld-btn.sm{padding:11px 16px;font-size:10px;--notch:4px}
+.landing .ld-btn.gh{background:#ffffff1c;color:#fff}
+.landing .ld-btn.gh:hover{background:#ffffff33}
+.landing .glow{box-shadow:none;position:relative}
+.landing .hero{position:relative;text-align:center;padding:84px 20px 0;overflow:hidden;background:radial-gradient(60% 50% at 50% 0%,#e8344a33,transparent),radial-gradient(40% 40% at 85% 20%,#38d6ff22,transparent),radial-gradient(40% 40% at 10% 30%,#a855f722,transparent)}
+.landing .hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(#000,transparent 70%);-webkit-mask-image:linear-gradient(#000,transparent 70%)}
+.landing .eb{position:relative;display:inline-block;color:var(--yl);font-size:11px;margin-bottom:24px;animation:ld-blink 1.4s steps(2) infinite}
+@keyframes ld-blink{50%{opacity:.35}}
+.landing .hero h1{position:relative;font-size:clamp(44px,8.4vw,100px);max-width:1100px;margin:0 auto;animation:ld-up 1s both}
+.landing .hero .sub{position:relative;font-size:clamp(19px,2.6vw,27px);color:#b6c0ea;font-weight:500;max-width:740px;margin:22px auto 34px;animation:ld-up 1s .15s both}
+.landing .cta{position:relative;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;animation:ld-up 1s .3s both}
+@keyframes ld-up{from{opacity:0;transform:translateY(34px)}}
+.landing .tags{position:relative;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px;color:var(--mut);font-size:15px}
+.landing .stage{position:relative;max-width:1040px;margin:64px auto 0;padding:0 20px;animation:ld-rise 1.4s .35s both cubic-bezier(.2,.8,.2,1)}
+@keyframes ld-rise{from{opacity:0;transform:translateY(90px) scale(.92)}}
+.landing .crt{position:relative;border-radius:22px 22px 0 0;border:3px solid var(--cy);border-bottom:0;box-shadow:0 0 60px #38d6ff55,0 -10px 100px #e8344a44;overflow:hidden;background:#000}
+.landing .crt img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;object-position:top}
+.landing .crt::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,#0000 0 2px,#00000030 2px 3px);pointer-events:none}
+.landing .chip{position:absolute;z-index:3;background:#070b1dd9;border:2px solid var(--cy);border-radius:12px;padding:10px 14px;font:400 11px 'Press Start 2P',monospace;color:#fff;box-shadow:0 8px 30px #0008;animation:ld-fl 4s ease-in-out infinite}
+.landing .chip.a{left:-6px;top:18%;animation-delay:0s}
+.landing .chip.b{right:-6px;top:34%;border-color:var(--yl);color:var(--yl);animation-delay:-1.3s}
+.landing .chip.c{left:6%;bottom:14%;border-color:var(--gr);color:var(--gr);animation-delay:-2.6s}
+@keyframes ld-fl{50%{transform:translateY(-12px)}}
+@keyframes ld-bob{50%{transform:translateY(-5px) rotate(-4deg)}}
+.landing .stats{background:var(--bg2);border-top:1px solid var(--ln);border-bottom:1px solid var(--ln)}
+.landing .stats div.w{max-width:1100px;margin:0 auto;padding:44px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:28px;text-align:center}
+.landing .stats b{display:block;font:400 clamp(28px,4vw,44px) 'Press Start 2P',monospace;margin-bottom:12px}
+.landing .stats span{color:var(--mut);font-size:16px}
+.landing .sec{padding:120px 20px;text-align:center;position:relative}
+.landing .in{max-width:1200px;margin:0 auto}
+.landing .kick{display:inline-block;color:var(--cy);font-size:11px;margin-bottom:20px}
+.landing .sec h2{font-size:clamp(38px,6.4vw,78px)}
+.landing .lead{font-size:clamp(19px,2.4vw,26px);color:#b6c0ea;font-weight:500;max-width:740px;margin:18px auto 56px;line-height:1.35}
+.landing .rv{opacity:0;transform:translateY(46px) scale(.97);transition:1s cubic-bezier(.2,.8,.2,1)}
+.landing .rv.ld-on{opacity:1;transform:none}
+.landing .d1{transition-delay:.12s}
+.landing .d2{transition-delay:.24s}
+.landing .d3{transition-delay:.36s}
+.landing .bento{display:grid;grid-template-columns:repeat(6,1fr);gap:18px;text-align:left}
+.landing .bx{position:relative;border-radius:28px;padding:36px;overflow:hidden;background:var(--bg2);border:1px solid var(--ln);min-height:330px;display:flex;flex-direction:column;transition:.4s}
+.landing .bx:hover{transform:translateY(-6px);border-color:var(--cy);box-shadow:0 20px 60px #38d6ff22}
+.landing .bx h3{font-size:clamp(26px,3vw,36px);margin:14px 0 10px}
+.landing .bx p{margin:0;color:#b6c0ea;font-size:18px;max-width:430px}
+.landing .bx .tg{font:400 10px 'Press Start 2P',monospace;color:var(--yl)}
+.landing .bx.s2{grid-column:span 2}
+.landing .bx.s3{grid-column:span 3}
+.landing .bx.s4{grid-column:span 4}
+.landing .bx.f1{background:linear-gradient(150deg,#3b1020,#0e1530 60%)}
+.landing .bx.f2{background:linear-gradient(150deg,#1b1347,#0e1530 60%)}
+.landing .bx.f3{background:linear-gradient(150deg,#06303d,#0e1530 60%)}
+.landing .bx.f4{background:linear-gradient(150deg,#3a2606,#0e1530 60%)}
+.landing .bx img{margin-top:auto;width:100%;height:170px;object-fit:cover;object-position:top;border-radius:14px 14px 0 0;border:2px solid #ffffff22;border-bottom:0;margin-bottom:-36px;transition:.5s}
+.landing .bx:hover img{transform:translateY(-8px)}
+.landing .bx .em{font-size:60px;animation:ld-fl 4s ease-in-out infinite;margin-top:auto;align-self:flex-end}
+.landing .q{margin-top:auto;background:#00000055;border:2px solid var(--yl);border-radius:14px;padding:16px;font:400 11px/1.9 'Press Start 2P',monospace;color:#fff}
+.landing .q i{display:block;margin-top:10px;font-style:normal;color:var(--yl)}
+.landing .bar{height:6px;background:#ffffff22;border-radius:6px;margin-top:12px;overflow:hidden}
+.landing .bar::after{content:"";display:block;height:100%;background:linear-gradient(90deg,#ff3d5a,var(--yl),var(--gr));animation:ld-tm 6s linear infinite}
+@keyframes ld-tm{from{width:100%}to{width:0}}
+.landing .rank{margin-top:auto;display:grid;gap:8px}
+.landing .rank div{display:flex;justify-content:space-between;background:#ffffff10;border-radius:10px;padding:9px 14px;font:400 11px 'Press Start 2P',monospace}
+.landing .rank div:first-child{background:#ffc83d22;color:var(--yl)}
+.landing .rail{display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:6px max(20px,calc(50% - 600px)) 10px;scroll-padding-left:max(20px,calc(50% - 600px));text-align:left}
+.landing .rail::-webkit-scrollbar{display:none}
+.landing .card{flex:none;width:min(86vw,600px);height:540px;border-radius:28px;scroll-snap-align:start;position:relative;overflow:hidden;color:#fff;padding:34px;transition:transform .5s}
+.landing .card:hover{transform:scale(1.015)}
+.landing .card small{display:block;font:400 10px 'Press Start 2P',monospace;margin-bottom:14px;opacity:.9}
+.landing .card h3{font-size:clamp(28px,3.4vw,38px)}
+.landing .card p{margin:12px 0 0;max-width:380px;opacity:.95;font-size:18px}
+.landing .card img{position:absolute;left:34px;right:34px;bottom:0;width:calc(100% - 68px);height:260px;object-fit:cover;object-position:top;border-radius:14px 14px 0 0;border:3px solid #fff4;border-bottom:0;box-shadow:0 -10px 50px #0007;transition:.6s}
+.landing .card:hover img{transform:translateY(-10px)}
+.landing .k1{background:linear-gradient(160deg,#e8344a,#ff8a3d)}
+.landing .k2{background:linear-gradient(160deg,#6d28d9,#ec4899)}
+.landing .k3{background:linear-gradient(160deg,#0a84ff,#30d5c8)}
+.landing .k4{background:linear-gradient(160deg,#0f9b6e,#a3e635)}
+.landing .k5{background:linear-gradient(160deg,#ff9f0a,#ff375f)}
+.landing .ctl{display:flex;justify-content:center;align-items:center;gap:16px;margin-top:28px}
+.landing .dots{display:flex;gap:10px;background:#ffffff18;padding:14px 16px;border-radius:980px}
+.landing .dots button{width:8px;height:8px;border:0;padding:0;border-radius:8px;background:#ffffff66;cursor:pointer;transition:.4s;position:relative;overflow:hidden}
+.landing .dots button.ld-on{width:40px}
+.landing .dots button.ld-on::after{content:"";position:absolute;inset:0;background:#fff;transform-origin:left;animation:ld-fill 6s linear forwards}
+@keyframes ld-fill{from{transform:scaleX(0)}}
+.landing .ab{width:48px;height:48px;border-radius:50%;border:0;background:#ffffff1f;color:#fff;font-size:22px;cursor:pointer;transition:.2s}
+.landing .ab:hover{background:#ffffff40;transform:scale(1.08)}
+.landing .zg{display:grid;grid-template-columns:1fr 1fr;gap:18px;text-align:left}
+.landing .zc{border-radius:28px;min-height:420px;padding:34px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;background:linear-gradient(0deg,#000e,#000a 40%,#0000 85%),var(--map) var(--p)/330% no-repeat;image-rendering:pixelated;transition:.5s;border:1px solid var(--ln)}
+.landing .zc:hover{transform:scale(1.015)}
+.landing .zc .em{position:absolute;top:24px;left:28px;font-size:54px}
+.landing .zc small{font:400 10px 'Press Start 2P',monospace;color:var(--yl)}
+.landing .zc h3{font-size:42px;margin:12px 0 10px}
+.landing .zc p{margin:0;font-size:18px;max-width:420px}
+.landing .dg{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
+.landing .dc{background:var(--bg2);border:1px solid var(--ln);border-radius:28px;padding:44px 26px;transition:.4s}
+.landing .dc:hover{transform:translateY(-6px)}
+.landing .dc .n{font:400 96px 'Press Start 2P',monospace;line-height:1.1}
+.landing .dc h3{font-size:28px;margin:12px 0 4px}
+.landing .dc>p{margin:0;color:var(--mut)}
+.landing .dc ul{list-style:none;margin:22px 0 0;padding:20px 0 0;border-top:1px solid var(--ln);text-align:left;font-size:17px}
+.landing .dc li{padding:5px 0}
+.landing .dc .hh{font-size:26px;margin-top:12px;letter-spacing:3px}
+.landing .teach{display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:center;text-align:left}
+.landing .teach h2{font-size:clamp(36px,5vw,62px)}
+.landing .tl{list-style:none;margin:30px 0 0;padding:0;display:grid;gap:16px;counter-reset:t}
+.landing .tl li{counter-increment:t;display:flex;gap:16px;align-items:flex-start;color:#c9d1f5;font-size:19px}
+.landing .tl li::before{content:counter(t);flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--cy);color:#001;font:400 12px 'Press Start 2P',monospace}
+.landing .panel{background:var(--bg2);border:1px solid var(--ln);border-radius:24px;padding:26px;box-shadow:0 30px 80px #0009}
+.landing .panel .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font:400 11px 'Press Start 2P',monospace;color:var(--cy)}
+.landing .panel .hd em{font-style:normal;background:#ffc83d22;color:var(--yl);padding:6px 8px;border-radius:6px;font-size:9px}
+.landing .row{display:grid;grid-template-columns:90px 1fr 56px;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--ln);font-size:16px}
+.landing .row i{height:10px;background:#ffffff14;border-radius:10px;position:relative;overflow:hidden}
+.landing .row i::after{content:"";position:absolute;inset:0;width:var(--w);background:linear-gradient(90deg,var(--gr),var(--cy));border-radius:10px;transition:1.4s .4s}
+.landing .rv:not(.ld-on) .row i::after{width:0}
+.landing .row b{text-align:right;font:400 11px 'Press Start 2P',monospace;color:var(--yl)}
+.landing .faq{max-width:820px;margin:0 auto;text-align:left;display:grid;gap:12px}
+.landing details{background:var(--bg2);border:1px solid var(--ln);border-radius:20px;padding:0 26px;transition:.3s}
+.landing details[open]{border-color:var(--cy);background:#10193a}
+.landing summary{cursor:pointer;list-style:none;padding:24px 0;font-size:21px;font-weight:600;display:flex;justify-content:space-between;gap:16px}
+.landing summary::-webkit-details-marker{display:none}
+.landing summary::after{content:"+";font:400 22px 'Press Start 2P',monospace;color:var(--cy);transition:.3s}
+.landing details[open] summary::after{transform:rotate(45deg)}
+.landing details p{margin:0;padding:0 0 24px;color:#b6c0ea;font-size:18px}
+.landing .fin{padding:140px 20px;text-align:center;background:linear-gradient(#070b1dee,#070b1dcc 50%,#070b1dee),var(--map) 50% 45%/cover;image-rendering:pixelated;border-top:1px solid var(--ln)}
+.landing .fin h2{font-size:clamp(42px,8vw,100px);margin-bottom:20px}
+.landing .coin{display:block;margin:0 0 34px;color:var(--yl);font-size:14px;animation:ld-blink 1s steps(2) infinite}
+.landing footer{background:#04061200;border-top:1px solid var(--ln);text-align:center;color:var(--mut);padding:40px 20px 50px;font-size:14px}
+@media(max-width:900px){.landing nav ul{display:none}.landing .bento,.landing .zg{grid-template-columns:1fr}.landing .bx.s2,.landing .bx.s3,.landing .bx.s4{grid-column:auto}.landing .teach{grid-template-columns:1fr}.landing .chip{display:none}.landing .card{height:520px}}
+@media(prefers-reduced-motion:reduce){.landing *{animation:none!important;transition:none!important}.landing .rv{opacity:1;transform:none}}

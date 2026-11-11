@@ -1,0 +1,53 @@
+{
+  "U1 · CÓDIGO — Suma de dos números": {
+    "casos": [
+      { "entradas": ["3", "4"], "salida": ["7"] },
+      { "entradas": ["10", "-2"], "salida": ["8"] },
+      { "entradas": ["0", "0"], "salida": ["0"], "visible": false }
+    ],
+    "estructura": { "requiere": ["DECLARACION", "LECTURA", "ESCRITURA"], "requiere_texto": ["+"] },
+    "comparacion": { "modo": "numeros" }
+  },
+  "U1 · CÓDIGO — Área de un rectángulo": {
+    "casos": [
+      { "entradas": ["2.5", "4"], "salida": ["10"] },
+      { "entradas": ["3", "3"], "salida": ["9"] },
+      { "entradas": ["1.5", "2"], "salida": ["3"], "visible": false }
+    ],
+    "estructura": { "requiere": ["DECLARACION", "LECTURA", "ESCRITURA"], "requiere_texto": ["*"] },
+    "comparacion": { "modo": "numeros" }
+  },
+  "U2 · CÓDIGO — Par o impar": {
+    "casos": [
+      { "entradas": ["4"], "salida": ["Par"] },
+      { "entradas": ["7"], "salida": ["Impar"] },
+      { "entradas": ["0"], "salida": ["Par"], "visible": false }
+    ],
+    "estructura": { "requiere": ["LECTURA", "CONDICIONAL", "SINO", "ESCRITURA"], "requiere_texto": ["MOD"] },
+    "comparacion": { "modo": "exacto", "ignorar_mayusculas": true }
+  },
+  "U2 · CÓDIGO — Mayor de dos números": {
+    "casos": [
+      { "entradas": ["3", "9"], "salida": ["9"] },
+      { "entradas": ["9", "3"], "salida": ["9"] },
+      { "entradas": ["5", "5"], "salida": ["5"], "visible": false }
+    ],
+    "estructura": { "requiere": ["LECTURA", "CONDICIONAL", "SINO", "ESCRITURA"] },
+    "comparacion": { "modo": "numeros" }
+  },
+  "U3 · CÓDIGO — Tabla de multiplicar": {
+    "casos": [
+      { "entradas": ["5"], "salida": ["5", "10", "15", "20", "25", "30", "35", "40", "45", "50"] },
+      { "entradas": ["3"], "salida": ["3", "6", "9", "12", "15", "18", "21", "24", "27", "30"], "visible": false }
+    ],
+    "estructura": { "requiere": ["LECTURA", "PARA", "ESCRITURA"] },
+    "comparacion": { "modo": "numeros" }
+  },
+  "U3 · CÓDIGO — Suma con Mientras": {
+    "casos": [
+      { "entradas": [], "salida": ["55"] }
+    ],
+    "estructura": { "requiere": ["MIENTRAS", "ESCRITURA"], "prohibe": ["PARA"] },
+    "comparacion": { "modo": "numeros" }
+  }
+}

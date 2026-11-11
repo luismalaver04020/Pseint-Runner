@@ -1,0 +1,68 @@
+.ranking-bg{position:relative;width:100%;height:100%;min-height:100vh;overflow-y:auto;padding:clamp(22px,5vh,54px) 24px 36px;background:radial-gradient(ellipse at 18% 0%,#254769 0,transparent 38%),radial-gradient(ellipse at 95% 100%,#4b2a36 0,transparent 34%),#10151d;color:#f4f2ed;font-family:Inter,'Segoe UI',Arial,sans-serif}
+.ranking-bg::before{content:"";position:fixed;inset:0;background:url('../assets/mapa-peru.png') center/cover;opacity:.07;filter:saturate(.4);pointer-events:none}
+.ranking-wrap{position:relative;z-index:1;width:min(1080px,100%);margin:0 auto}
+.ranking-header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin:0 0 26px}
+.ranking-header h1{margin:8px 0 7px;font-size:clamp(30px,4vw,48px);line-height:1.08;letter-spacing:-.04em;color:#fff8ea}
+.ranking-header p{color:#aab6c3;font-size:15px}
+.rank-eyebrow{display:block;color:#e2b879;font-size:10px;font-weight:800;letter-spacing:.18em}
+.rank-back{display:flex;align-items:center;gap:10px;flex-shrink:0;border:1px solid #536374;border-radius:12px;background:#202a35;color:#f5eee3;padding:12px 16px;font-size:13px;font-weight:750;cursor:pointer;transition:.18s}
+.rank-back:hover{border-color:#dfb97e;background:#2b3947;transform:translateY(-1px)}
+.rank-back span{font-size:20px;line-height:12px}
+.rank-tabs{display:flex;gap:10px;margin-bottom:18px;padding:5px;width:max-content;max-width:100%;border:1px solid #303d49;border-radius:14px;background:rgba(14,20,28,.78)}
+.rank-tab{display:flex;align-items:center;gap:9px;padding:10px 16px;border:1px solid transparent;border-radius:10px;background:transparent;color:#aab6c3;font-size:13px;font-weight:750;cursor:pointer;transition:.18s}
+.rank-tab-dot{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 12px currentColor}
+.rank-tab.easy{--tab:#6bd69b}.rank-tab.medium{--tab:#f0c875}.rank-tab.hard{--tab:#ff8290}
+.rank-tab{color:var(--tab)}.rank-tab.sel{border-color:color-mix(in srgb,var(--tab) 44%,transparent);background:color-mix(in srgb,var(--tab) 12%,#18212a);color:#fff}
+.rank-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:14px;margin-bottom:22px}
+.podium-card{position:relative;display:flex;min-height:172px;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:20px 14px 16px;border:1px solid #3a4652;border-radius:18px;background:linear-gradient(145deg,rgba(43,55,67,.96),rgba(24,31,40,.96));box-shadow:0 16px 35px rgba(0,0,0,.19)}
+.podium-card::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:var(--podium)}
+.podium-card.place-1{--podium:#efc67d;background:linear-gradient(145deg,rgba(87,66,39,.68),rgba(28,33,39,.98));border-color:#9b794b}
+.podium-card.place-2{--podium:#b9cad1}.podium-card.place-3{--podium:#cf9372}
+.podium-medal{position:absolute;top:13px;right:15px;font-size:19px}
+.podium-avatar,.rank-avatar{display:grid;place-items:center;flex-shrink:0;border:1px solid #61717c;border-radius:50%;background:linear-gradient(145deg,#44667d,#263744);color:#fff4df;font-weight:800}
+.podium-avatar{width:46px;height:46px;margin-bottom:9px;border-color:var(--podium,#677985);font-size:15px}
+.podium-name{max-width:100%;overflow:hidden;color:#f8f5ed;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
+.podium-zone{margin-top:4px;color:#aeb9c1;font-size:11px}
+.podium-score{margin-top:9px;color:var(--podium,#edc47b);font-size:21px;letter-spacing:-.03em}.podium-score small,.rank-points small{font-size:10px;font-weight:600;letter-spacing:0;opacity:.72}
+.rank-board{overflow:hidden;border:1px solid #35424d;border-radius:18px;background:rgba(18,24,32,.95);box-shadow:0 20px 55px rgba(0,0,0,.25)}
+.rank-board-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 23px;border-bottom:1px solid #313b45}
+.rank-board-head h2{margin-top:5px;font-size:20px;letter-spacing:-.02em;color:#f7f2e9}
+.rank-total{padding:7px 11px;border:1px solid #3b4d5a;border-radius:20px;background:#202e38;color:#bdcad0;font-size:11px;font-weight:750}
+.rank-table-scroll{overflow-x:auto}
+.rank-table{width:100%;border-collapse:collapse;min-width:650px}
+.rank-table th{padding:12px 20px;background:#202a34;color:#94a3ad;text-align:left;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.rank-table th:first-child,.rank-table td:first-child{width:100px;padding-left:24px}
+.rank-table td{height:58px;padding:10px 20px;border-bottom:1px solid rgba(80,97,109,.25);color:#e5e9e9;font-size:14px}
+.rank-table tbody tr:last-child td{border-bottom:0}.rank-table tbody tr:hover td{background:rgba(124,163,182,.07)}
+.rank-pos{color:#9caab3;font-size:12px;font-weight:800;letter-spacing:.06em}.rank-pos.medal{font-size:19px}
+.rank-player{display:flex;align-items:center;gap:11px}.rank-player b{font-weight:700}
+.rank-avatar{width:31px;height:31px;font-size:10px}
+.rank-zone{color:#bac6ca;font-size:13px}
+.rank-points{color:#f0c77e;font-size:15px}.rank-empty{height:96px!important;color:#a3b0b9!important;text-align:center!important;font-size:14px!important}
+.rank-footer{padding:17px 4px 0;color:#82909b;text-align:center;font-size:12px}
+@media(max-width:650px){.ranking-bg{padding:22px 14px 28px}.ranking-header{align-items:flex-start;flex-direction:column;margin-bottom:18px}.ranking-header p{font-size:13px}.rank-back{padding:10px 13px}.rank-tabs{width:100%;gap:4px}.rank-tab{flex:1;justify-content:center;padding:10px 8px;font-size:12px}.rank-podium{gap:8px}.podium-card{min-height:150px;padding:18px 8px 12px}.podium-name{font-size:12px}.podium-zone{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}.podium-score{font-size:17px}.rank-board-head{padding:16px}.rank-board-head h2{font-size:17px}}
+
+/* Paleta alineada con la landing: azul noche, cian y acentos arcade cálidos. */
+.ranking-bg{background:radial-gradient(ellipse at 18% 0%,#e8344a2b 0,transparent 34%),radial-gradient(ellipse at 92% 20%,#38d6ff20 0,transparent 34%),radial-gradient(ellipse at 50% 100%,#a855f71a 0,transparent 42%),#070b1d}
+.ranking-bg::before{opacity:.1;filter:saturate(.8)}
+.ranking-header h1{color:#eef1ff}.rank-eyebrow{color:#38d6ff}
+.rank-back{border-color:#24315f;background:#0e1530;color:#dce5ff}.rank-back:hover{border-color:#38d6ff;background:#132044}
+.rank-tabs{border-color:#24315f;background:#0e1530}.rank-tab{color:var(--tab)}
+.podium-card{border-color:#24315f;background:linear-gradient(145deg,#151e3d,#0e1530);box-shadow:0 16px 35px #0005}
+.podium-card.place-1{--podium:#ffc83d;background:linear-gradient(145deg,#302548,#101731);border-color:#8d623e}
+.podium-card.place-2{--podium:#38d6ff}.podium-card.place-3{--podium:#ff7a45}
+.podium-avatar,.rank-avatar{border-color:#3b5780;background:linear-gradient(145deg,#15405b,#232658)}
+.rank-board{border-color:#24315f;background:rgba(14,21,48,.96)}
+.rank-board-head{border-color:#24315f}.rank-board-head h2{color:#eef1ff}
+.rank-total{border-color:#304577;background:#121f46;color:#b8cbf3}
+.rank-table th{border-bottom:1px solid #24315f;background:#101a3a;color:#52dbf5}
+.rank-table td{border-color:#1c2850;color:#dce5ff}.rank-table tbody tr:hover td{background:#38d6ff0d}
+.rank-zone{color:#b6c0ea}.rank-points{color:#ffc83d}.rank-empty{color:#9aa6d6!important}.rank-footer{color:#9aa6d6}
+@keyframes rank-enter{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes rank-pop{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.ranking-header{animation:rank-enter .55s cubic-bezier(.2,.75,.25,1) both}.rank-tabs{animation:rank-enter .55s .08s both}
+.podium-card{animation:rank-pop .55s cubic-bezier(.2,.75,.25,1) both}.podium-card:nth-child(2){animation-delay:.1s}.podium-card:nth-child(3){animation-delay:.18s}
+.rank-board{animation:rank-enter .5s .16s both}.rank-table tbody tr{animation:rank-enter .32s ease-out both}.rank-table tbody tr:nth-child(2){animation-delay:.04s}.rank-table tbody tr:nth-child(3){animation-delay:.08s}.rank-table tbody tr:nth-child(4){animation-delay:.12s}.rank-table tbody tr:nth-child(5){animation-delay:.16s}.rank-table tbody tr:nth-child(6){animation-delay:.2s}
+.podium-card:hover{transform:translateY(-4px);border-color:var(--podium);box-shadow:0 18px 42px #0007;transition:transform .22s,border-color .22s,box-shadow .22s}
+.rank-tab:active,.rank-back:active{transform:scale(.97)}
+@media(prefers-reduced-motion:reduce){.ranking-bg *{animation:none!important;scroll-behavior:auto!important;transition:none!important}.podium-card:hover{transform:none}}
