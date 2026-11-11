@@ -9,7 +9,7 @@ export async function obtenerEvaluacion(preguntaId) {
 
   const { data, error } = await privado
     .from('questions')
-    .select('question_id, question_type, published, evaluation_config, expected_answer')
+    .select('question_id, question_type, published, prompt, evaluation_config, expected_answer')
     .eq('question_id', preguntaId)
     .maybeSingle();
 
@@ -23,5 +23,5 @@ export async function obtenerEvaluacion(preguntaId) {
     throw new HttpError(400, 'Esta pregunta no es un ejercicio de código.');
   }
 
-  return { config: data.evaluation_config, referencia: data.expected_answer ?? null };
+  return { config: data.evaluation_config, referencia: data.expected_answer ?? null, enunciado: data.prompt ?? '' };
 }

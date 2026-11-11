@@ -103,9 +103,13 @@ coincide(numeros, R, Esperado, Obtenido) :-
     NE \= [],
     subsecuencia_numerica(R, NE, NO).
 
-% Modo semantico: conserva cantidad/orden de líneas; si ambas líneas contienen
-% números compara sus valores, aunque cambie el texto alrededor. Si no, compara
-% el texto completo sin distinguir mayúsculas.
+% Modo semantico: para resultados numéricos compara los valores en orden e ignora
+% etiquetas/líneas decorativas. Para respuestas textuales conserva línea y orden.
+coincide(semantico, R, Esperado, Obtenido) :-
+    numeros_de_lineas(Esperado, NE),
+    numeros_de_lineas(Obtenido, NO),
+    NE \= [], !,
+    subsecuencia_numerica(R, NE, NO).
 coincide(semantico, R, Esperado, Obtenido) :-
     same_length(Esperado, Obtenido),
     maplist(equivalentes_semanticas(R), Esperado, Obtenido).

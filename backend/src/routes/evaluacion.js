@@ -30,7 +30,7 @@ async function validarAsignacion({ userId, sessionId, preguntaId }) {
   if (!asignacion) throw new HttpError(403, 'Esta pregunta no está asignada a tu partida.');
 }
 
-async function ejecutar(codigo, config, referencia) {
+async function ejecutar(codigo, config, referencia, enunciado = '') {
   try {
     const estructuraNueva = config?.estructura && Object.values(config.estructura).some((v) =>
       Array.isArray(v) ? v.length > 0 : v && typeof v === 'object' ? Object.keys(v).length > 0 : false
@@ -40,7 +40,7 @@ async function ejecutar(codigo, config, referencia) {
     }
     // Compatibilidad con evaluation_config antiguo: se compara contra expected_answer
     // privado mediante entradas variadas, sin aplicar keywords como condición de aprobación.
-    return await evaluarContraReferencia(codigo, referencia, config);
+    return await evaluarContraReferencia(codigo, referencia, config, enunciado);
   } catch (e) {
     if (e instanceof CodigoInvalido) throw new HttpError(400, e.message);
     if (e instanceof ConfigInvalida) {
@@ -62,8 +62,8 @@ router.post('/codigo', async (req, res) => {
 
   const preguntaId = String(preguntaIdRaw);
   await validarAsignacion({ userId: usuario.id, sessionId, preguntaId });
-  const { config, referencia } = await obtenerEvaluacion(preguntaId);
-  res.json(await ejecutar(codigo, config, referencia));
+  const { config, referencia, enunciado } = await obtenerEvaluacion(preguntaId);
+  res.json(await ejecutar(codigo, config, referencia, enunciado));
 });
 
 // Herramienta local para que el docente/desarrollador pruebe configuraciones.

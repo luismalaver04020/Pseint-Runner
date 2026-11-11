@@ -111,7 +111,15 @@ export function normalizarConfig(config) {
 // ── Compatibilidad con preguntas existentes (keywords/min_ratio) ──
 // En lugar de aceptar por palabras clave, ejecuta la respuesta de referencia y
 // compara el comportamiento del alumno con ella ante varias entradas.
+// Las preguntas legacy no declaran el dominio de sus entradas. Usamos valores
+// positivos por defecto (adecuados para medidas, cantidades y divisores) y
+// añadimos negativos/cero solo cuando el enunciado pide evaluar esos casos.
 const VECTORES_NUMERICOS = [
+  [1, 2, 3, 4], [2, 5, 7, 3], [10, 3, 2, 7], [4, 2, 8, 6],
+  [9, 5, 3, 2], [6, 8, 4, 7], [3, 9, 2, 5], [10, 4, 6, 8],
+  [7, 1, 20, 3], [5, 2, 8, 11], [4, 8, 12, 16], [9, 3, 7, 2],
+];
+const VECTORES_NUMERICOS_CON_SIGNO = [
   [0, 0, 0, 0], [1, 2, 3, 4], [-1, 5, 10, 2], [10, -3, 2, 7],
   [2, 2, 2, 2], [100, 0, -5, 1], [3, 9, -2, 5], [-10, -4, 6, 8],
   [7, 1, 20, -3], [50, -20, 0, 11], [4, 8, 12, 16], [99, 3, -7, 2],
@@ -141,9 +149,11 @@ function entradasDeReferencia(codigoReferencia) {
   });
 }
 
-function generarEntradas(tipos) {
+function generarEntradas(tipos, enunciado = '') {
   if (!tipos.length) return [[]];
   const cantidadCasos = 12;
+  const requiereSignos = /\b(negativ[oa]s?|menor(?:es)?\s+que\s+cero|positiv[oa]s?\s+y\s+negativ[oa]s?|cero)\b/i.test(enunciado);
+  const vectores = requiereSignos ? VECTORES_NUMERICOS_CON_SIGNO : VECTORES_NUMERICOS;
   // Se preparan hasta 30 repeticiones del patrón de Leer. Esto también cubre
   // ejercicios que leen datos dentro de un ciclo (sin exigir que el alumno
   // tenga exactamente la misma estructura que la referencia).
@@ -151,9 +161,9 @@ function generarEntradas(tipos) {
   return Array.from({ length: cantidadCasos }, (_, caso) => tiposDeEntrada.map((tipo, indice) => {
     const variable = indice % tipos.length;
     const repeticion = Math.floor(indice / tipos.length);
-    const pos = (caso + repeticion * 2 + variable * 3) % VECTORES_NUMERICOS.length;
-    if (tipo === 'entero') return String(Math.trunc(VECTORES_NUMERICOS[pos][variable % 4]));
-    if (tipo === 'real') return String(VECTORES_NUMERICOS[pos][variable % 4] + ((caso + repeticion + variable) % 3 === 0 ? 0.5 : 0));
+    const pos = (caso + repeticion * 2 + variable * 3) % vectores.length;
+    if (tipo === 'entero') return String(Math.trunc(vectores[pos][variable % 4]));
+    if (tipo === 'real') return String(vectores[pos][variable % 4] + ((caso + repeticion + variable) % 3 === 0 ? 0.5 : 0));
     if (tipo === 'cadena') return VECTORES_TEXTO[(caso + repeticion + variable * 2) % VECTORES_TEXTO.length];
     if (tipo === 'caracter') return ['a', 'Z', '0', 'ñ', 'x', 'b'][(caso + repeticion + variable) % 6];
     if (tipo === 'logico') return VECTORES_LOGICOS[(caso + repeticion + variable) % 2];
@@ -161,12 +171,16 @@ function generarEntradas(tipos) {
   }));
 }
 
-export async function evaluarContraReferencia(codigo, referencia, configAntigua = {}) {
+export async function evaluarContraReferencia(codigo, referencia, configAntigua = {}, enunciado = '') {
   if (typeof referencia !== 'string' || !referencia.trim()) {
     throw new ConfigInvalida('la pregunta usa configuración antigua y no tiene expected_answer de referencia');
   }
   let entradas;
-  try { entradas = generarEntradas(entradasDeReferencia(referencia)); }
+  let tiposEntrada;
+  try {
+    tiposEntrada = entradasDeReferencia(referencia);
+    entradas = generarEntradas(tiposEntrada, enunciado);
+  }
   catch (e) {
     if (e instanceof ConfigInvalida) throw e;
     throw new ConfigInvalida(`no se pudo analizar la respuesta de referencia: ${e.message}`);
@@ -177,11 +191,17 @@ export async function evaluarContraReferencia(codigo, referencia, configAntigua 
     let esperado;
     try {
       esperado = ejecutarCodigo(referencia, entradas[i]).lineas;
-    } catch (e) {
-      throw new ConfigInvalida(`la respuesta de referencia no se puede ejecutar en la prueba ${i + 1}: ${e.message}`);
+    } catch {
+      // Una entrada generada puede quedar fuera del dominio del ejercicio
+      // (por ejemplo, división entre cero). No debe inutilizar toda la pregunta.
+      continue;
     }
     if (!esperado.length) throw new ConfigInvalida('la respuesta de referencia no produce ninguna salida');
     casos.push({ entradas: entradas[i], salida: esperado, visible: i < 4 });
+  }
+
+  if (casos.length < (tiposEntrada.length ? 4 : 1)) {
+    throw new ConfigInvalida('la respuesta de referencia no pudo ejecutarse con suficientes entradas válidas');
   }
 
   // keywords/min_ratio son metadatos antiguos, no condiciones obligatorias:
@@ -302,7 +322,11 @@ function redactarMensaje(correcto, motivos, casos, casosOk, casosTotal) {
   if (correcto) return '¡Correcto! Tu código cumple con lo pedido.';
 
   const motivo = motivos[0];
-  if (motivo?.codigo === 'error_sintaxis') return 'Hay un error de sintaxis. Revisa cómo escribiste las instrucciones.';
+  if (motivo?.codigo === 'error_sintaxis') {
+    return motivo.detalle
+      ? `Hay un error de sintaxis: ${motivo.detalle}`
+      : 'Hay un error de sintaxis. Revisa cómo escribiste las instrucciones.';
+  }
   if (motivo?.codigo === 'falta_estructura') return `Falta usar ${nombreTipo(motivo.tipo)}.`;
   if (motivo?.codigo === 'estructura_prohibida') return `Quita ${nombreTipo(motivo.tipo)}; este ejercicio no la pide.`;
   if (motivo?.codigo === 'pocas_estructuras') return `Agrega ${nombreTipo(motivo.tipo)}.`;

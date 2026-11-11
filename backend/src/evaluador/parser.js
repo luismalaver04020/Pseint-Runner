@@ -42,9 +42,8 @@ export function analizarCodigo(codigo) {
   const ultima = instrucciones[instrucciones.length - 1];
 
   if (ultima.tipo !== 'FIN') {
-    throw new Error(
-      'El programa debe terminar con FinAlgoritmo o FinProceso.'
-    );
+    const cierre = /^Algoritmo\b/i.test(primera.codigo) ? 'FinAlgoritmo' : 'FinProceso';
+    throw new Error(`El programa debe terminar con ${cierre}.`);
   }
 
   // 3. Comprobar que el inicio tenga un nombre.

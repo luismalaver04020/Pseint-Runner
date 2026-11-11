@@ -44,6 +44,33 @@ await caso('Área: solución de ejemplo', AREA, `Proceso Area
   area <- base * altura
   Escribir area
 FinProceso`, true);
+{
+  const codigoConValidacionYMensajes = `Algoritmo CalcularAreaRectangulo
+  Definir base, altura, area Como Real
+  Escribir "Ingrese la longitud de la base del rectángulo:"
+  Leer base
+  Escribir "Ingrese la longitud de la altura del rectángulo:"
+  Leer altura
+  Si base > 0 Y altura > 0 Entonces
+    area <- base * altura
+    Escribir "--------------------------------------------------"
+    Escribir "El área del rectángulo es: ", area
+    Escribir "--------------------------------------------------"
+  Sino
+    Escribir "Error: La base y la altura deben ser valores mayores que cero."
+  FinSi
+FinAlgoritmo`;
+  const r = await evaluarContraReferencia(codigoConValidacionYMensajes, `Proceso Area
+  Definir base, altura, area Como Real
+  Leer base
+  Leer altura
+  area <- base * altura
+  Escribir area
+FinProceso`, {}, 'Calcula el área de un rectángulo con base y altura positivas.');
+  assert.equal(r.correcto, true, `Área con validación y mensajes\n${r.mensaje}\n${JSON.stringify(r.motivos)}`);
+  n++;
+  console.log('✓ (aprueba) Área: acepta validación positiva, mensajes y separadores');
+}
 await caso('Par/Impar: solución de ejemplo', PAR, `Proceso ParImpar
   Definir n Como Entero
   Leer n
