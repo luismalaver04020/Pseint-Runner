@@ -743,7 +743,7 @@ function expresionComparacion() {
 
     while (
       actual()?.tipo === 'operador' &&
-      ['*', '/', 'MOD'].includes(actual().valor)
+      ['*', '/', 'DIV', 'MOD'].includes(actual().valor)
     ) {
       const operador = tokens[posicion++].valor;
       const derecho = expresionPotencia();
@@ -752,7 +752,7 @@ function expresionComparacion() {
       exigirNumero(derecho);
 
       if (
-        (operador === '/' || operador === 'MOD') &&
+        (operador === '/' || operador === 'DIV' || operador === 'MOD') &&
         derecho === 0
       ) {
         throw new Error('No se puede dividir entre cero.');
@@ -760,6 +760,7 @@ function expresionComparacion() {
 
       if (operador === '*') valor *= derecho;
       if (operador === '/') valor /= derecho;
+      if (operador === 'DIV') valor = Math.trunc(valor / derecho);
       if (operador === 'MOD') valor %= derecho;
     }
 
@@ -835,11 +836,15 @@ function expresionComparacion() {
   if (actual()?.tipo === 'apertura') {
     posicion++;
 
-    const argumento = expresionLogicaO();
+    const argumentos = [expresionLogicaO()];
+    while (actual()?.tipo === 'separador') {
+      posicion++;
+      argumentos.push(expresionLogicaO());
+    }
 
     consumir('cierre');
 
-    return aplicarFuncionMatematica(nombre, argumento);
+    return aplicarFuncionMatematica(nombre, argumentos);
   }
 
   // Si no es una función, debe ser una variable declarada.
@@ -872,7 +877,27 @@ function expresionComparacion() {
 // FUNCIONES MATEMÁTICAS DE PSeInt
 // ─────────────────────────────────────────
 
-function aplicarFuncionMatematica(nombre, valor) {
+function aplicarFuncionMatematica(nombre, argumentos) {
+  const argumentosInvalidos =
+    !Array.isArray(argumentos) ||
+    argumentos.length === 0 ||
+    argumentos.some((v) => typeof v !== 'number' || !Number.isFinite(v));
+
+  if (argumentosInvalidos) {
+    throw new Error(`La función ${nombre} necesita argumentos numéricos válidos.`);
+  }
+
+  if (['max', 'min'].includes(nombre.toLowerCase())) {
+    if (argumentos.length < 2) {
+      throw new Error(`${nombre} necesita al menos dos argumentos.`);
+    }
+
+    return nombre.toLowerCase() === 'max'
+      ? Math.max(...argumentos)
+      : Math.min(...argumentos);
+  }
+  if (argumentos.length !== 1) throw new Error(`${nombre} necesita exactamente un argumento.`);
+  const valor = argumentos[0];
   if (typeof valor !== 'number' || !Number.isFinite(valor)) {
     throw new Error(
       `La función ${nombre} necesita un argumento numérico válido.`
@@ -1013,22 +1038,24 @@ function tokenizar(expresion) {
     if (identificador) {
       const nombre = identificador[0].toUpperCase();
 
-     if (['VERDADERO', 'FALSO'].includes(nombre)) {
-  tokens.push({
-    tipo: 'logico',
-    valor: nombre === 'VERDADERO'
-  });
-} else if (['MOD', 'Y', 'O', 'NO'].includes(nombre)) {
-  tokens.push({
-    tipo: 'operador',
-    valor: nombre
-  });
-} else {
-  tokens.push({
-    tipo: 'variable',
-    valor: nombre.toLowerCase()
-  });
-}
+      if (nombre === 'PI') {
+        tokens.push({ tipo: 'numero', valor: Math.PI });
+      } else if (['VERDADERO', 'FALSO'].includes(nombre)) {
+        tokens.push({
+          tipo: 'logico',
+          valor: nombre === 'VERDADERO'
+        });
+      } else if (['DIV', 'MOD', 'Y', 'O', 'NO'].includes(nombre)) {
+        tokens.push({
+          tipo: 'operador',
+          valor: nombre
+        });
+      } else {
+        tokens.push({
+          tipo: 'variable',
+          valor: nombre.toLowerCase()
+        });
+      }
       posicion += identificador[0].length;
       continue;
     }

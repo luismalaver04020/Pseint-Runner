@@ -340,5 +340,26 @@ assert.equal(rIncorrecto.correcto, false, 'Debe rechazar una solución con resul
 n++;
 console.log('✓ rechaza algoritmo distinto con resultado incorrecto');
 
+// Las referencias y los casos que se publican con SQL deben coincidir.
+let referenciasMigracion = 0;
+for (const archivo of [
+  new URL('./supabase/migrations/011_fix_beginner_questions_and_weighted_tests.sql', import.meta.url),
+  new URL('./supabase/migrations/012_repair_failed_loop_question_cases.sql', import.meta.url),
+]) {
+  const sql = readFileSync(archivo, 'utf8');
+  for (const [sentencia] of sql.matchAll(/UPDATE\s+algoritmos\.questions\s+SET[\s\S]*?;/gi)) {
+    const respuesta = sentencia.match(/expected_answer\s*=\s*\$(\w+)\$([\s\S]*?)\$\1\$/i)?.[2]?.trim();
+    const configTexto = sentencia.match(/evaluation_config\s*=\s*'([\s\S]*?)'::jsonb/i)?.[1];
+    if (!respuesta || !configTexto) continue;
+    const resultado = await evaluarCodigo(respuesta, JSON.parse(configTexto));
+    const id = sentencia.match(/WHERE\s+question_id\s*=\s*(\d+)/i)?.[1] ?? '?';
+    assert.equal(resultado.correcto, true, `La referencia de ${id} incluida en la migración debe pasar sus casos: ${resultado.mensaje}`);
+    referenciasMigracion++;
+  }
+}
+assert.equal(referenciasMigracion, 15, 'Se deben validar la referencia de costo total y las catorce preguntas reparadas');
+n++;
+console.log('✓ las referencias y los casos de las migraciones coinciden');
+
 console.log(`\nTodo en orden: ${n} comprobaciones.`);
 process.exit(0);
