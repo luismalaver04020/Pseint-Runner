@@ -71,6 +71,42 @@ FinProceso`, {}, 'Calcula el área de un rectángulo con base y altura positivas
   n++;
   console.log('✓ (aprueba) Área: acepta validación positiva, mensajes y separadores');
 }
+{
+  const ponderado = {
+    casos: [
+      { entradas: ['16', '30', '18', '30', '14', '40'], salida: ['15.8'] },
+      { entradas: ['18', '33', '22', '35', '20', '32'], salida: ['20.04'] },
+      { entradas: ['32', '20', '72', '30', '84', '50'], salida: ['70'], visible: false },
+    ],
+    estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA'] },
+    comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+  };
+  const codigo = `Algoritmo CalcularCalificacionPonderada
+  Definir nota1, nota2, nota3 Como Real
+  Definir peso1, peso2, peso3 Como Real
+  Definir calificacionFinal Como Real
+  Leer nota1
+  Leer peso1
+  Leer nota2
+  Leer peso2
+  Leer nota3
+  Leer peso3
+  Si (peso1 + peso2 + peso3 <> 100) Entonces
+    Escribir "Error: la suma de los porcentajes debe ser 100%."
+  Sino
+    Si (nota1 < 0 O nota2 < 0 O nota3 < 0 O peso1 < 0 O peso2 < 0 O peso3 < 0) Entonces
+      Escribir "Error: no se permiten valores negativos."
+    Sino
+      calificacionFinal <- (nota1 * (peso1 / 100)) + (nota2 * (peso2 / 100)) + (nota3 * (peso3 / 100))
+      Escribir "CALIFICACIÓN FINAL PONDERADA: ", calificacionFinal
+    FinSi
+  FinSi
+FinAlgoritmo`;
+  const r = await evaluarCodigo(codigo, ponderado);
+  assert.equal(r.correcto, true, `Ponderado con pesos válidos\n${r.mensaje}\n${JSON.stringify(r.motivos)}`);
+  n++;
+  console.log('✓ (aprueba) Promedio ponderado: los tres casos usan pesos que suman 100');
+}
 await caso('Par/Impar: solución de ejemplo', PAR, `Proceso ParImpar
   Definir n Como Entero
   Leer n
