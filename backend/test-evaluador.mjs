@@ -34,6 +34,16 @@ const CIRCULO_AREA_PERIMETRO = {
   comparacion: { modo: 'numeros', tolerancia: 0.000001 },
 };
 
+const MONITOREO_PEDIDOS_HASTA_CERO = {
+  casos: [
+    { entradas: ['3', '2', '4', '3', '0'], salida: ['3', '3', '1'] },
+    { entradas: ['5', '-2', '7', '0'], salida: ['5', '1', '1'] },
+    { entradas: ['2', '0'], salida: ['2', '0', '0'], visible: false },
+  ],
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'REPETIR', 'CONDICIONAL'] },
+  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+};
+
 let n = 0;
 async function caso(nombre, titulo, codigo, esperado, extra) {
   const r = await evaluarCodigo(codigo, typeof titulo === 'string' ? C(titulo) : titulo);
@@ -221,6 +231,39 @@ const codigoAreaPerimetroCirculo = `Algoritmo CalcularAreaYPerimetroCirculo
 FinAlgoritmo`;
 await caso('Círculo: acepta área primero, perímetro después, PI aproximado y reporte', CIRCULO_AREA_PERIMETRO, codigoAreaPerimetroCirculo, true);
 
+const codigoMonitoreoPedidos = `Algoritmo MonitoreoPedidosMinimos
+  Definir pedido, minimo Como Real
+  Definir contadorValidos, contadorTotal Como Entero
+  contadorValidos <- 0
+  contadorTotal <- 0
+  Escribir "Ingrese el umbral mínimo requerido por pedido:"
+  Leer minimo
+  Si minimo < 0 Entonces
+    Escribir "Error: El umbral mínimo no puede ser un valor negativo."
+  Sino
+    Repetir
+      Leer pedido
+      Si pedido < 0 Entonces
+        Escribir "Advertencia: El pedido no puede ser negativo."
+      Sino
+        Si pedido <> 0 Entonces
+          contadorTotal <- contadorTotal + 1
+          Si pedido > minimo Entonces
+            contadorValidos <- contadorValidos + 1
+            Escribir "Pedido válido (supera el mínimo)."
+          Sino
+            Escribir "Pedido por debajo del umbral mínimo."
+          FinSi
+        FinSi
+      FinSi
+    Hasta Que pedido = 0
+    Escribir "Umbral mínimo: ", minimo
+    Escribir "Total de pedidos procesados: ", contadorTotal
+    Escribir "Pedidos válidos (> mínimo): ", contadorValidos
+  FinSi
+FinAlgoritmo`;
+await caso('Monitoreo: acepta centinela cero, estructura Repetir y pedido estrictamente mayor', MONITOREO_PEDIDOS_HASTA_CERO, codigoMonitoreoPedidos, true);
+
 // ── Soluciones incorrectas ──
 await caso('Suma: resta en vez de suma (salida distinta)', SUMA, `Proceso Suma
   Definir a, b, suma Como Entero
@@ -277,6 +320,7 @@ await caso('Tabla: resultados erróneos', TABLA, `Proceso Tabla
 FinProceso`, false);
 await caso('CW: rechaza sumar X + 2 en vez de X - 2', SUMA_CONDICIONAL_CW, codigoSumaCondicionalCW.replace('(X * 1) + (-2)', '(X * 1) + 2'), false);
 await caso('Círculo: rechaza mostrar el perímetro antes del área', CIRCULO_AREA_PERIMETRO, codigoAreaPerimetroCirculo.replace('Escribir "ÁREA TOTAL CALCULADA: ", area\n    Escribir "PERÍMETRO CALCULADO: ", perimetro', 'Escribir "PERÍMETRO CALCULADO: ", perimetro\n    Escribir "ÁREA TOTAL CALCULADA: ", area'), false);
+await caso('Monitoreo: rechaza contar pedidos iguales al mínimo como válidos', MONITOREO_PEDIDOS_HASTA_CERO, codigoMonitoreoPedidos.replace('pedido > minimo', 'pedido >= minimo'), false);
 await caso('Palabra clave solo en un comentario no cuenta', PAR, `Proceso ParImpar
   Definir n Como Entero
   // usar MOD
