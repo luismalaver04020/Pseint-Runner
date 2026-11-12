@@ -34,14 +34,14 @@ const SUMA_PRODUCTOS_CANTIDAD_PAR = {
   comparacion: { modo: 'numeros', tolerancia: 0.000001 },
 };
 
-const SUMA_MONTOS_INFERIORES_A_100 = {
+const CONTAR_MONTOS_INFERIORES_A_100 = {
   casos: [
-    { entradas: ['3', '-2', '4', '0'], salida: ['5'] },
-    { entradas: ['4', '10', '-3', '5', '0'], salida: ['16'] },
-    { entradas: ['100', '99', '0'], salida: ['99'] },
+    { entradas: ['3', '-2', '4', '0'], salida: ['3'] },
+    { entradas: ['4', '10', '-3', '5', '0'], salida: ['4'] },
+    { entradas: ['100', '99', '0'], salida: ['1'] },
     { entradas: ['0'], salida: ['0'], visible: false },
   ],
-  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'CONDICIONAL'] },
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'MIENTRAS', 'CONDICIONAL'] },
   comparacion: { modo: 'numeros', tolerancia: 0.000001 },
 };
 
@@ -281,8 +281,8 @@ FinAlgoritmo`;
 await caso('Círculo: acepta área primero, perímetro después, PI aproximado y reporte', CIRCULO_AREA_PERIMETRO, codigoAreaPerimetroCirculo, true);
 
 const codigoProductosCantidadPar = `Algoritmo ProductosCantidadPar
-  Definir N, cantidad, suma, i Como Entero
-  suma <- 0
+  Definir N, cantidad, contador, i Como Entero
+  contador <- 0
   i <- 1
   Escribir "Ingrese la cantidad de productos:"
   Leer N
@@ -290,31 +290,76 @@ const codigoProductosCantidadPar = `Algoritmo ProductosCantidadPar
     Escribir "Ingrese la cantidad del producto ", i, ":"
     Leer cantidad
     Si cantidad MOD 2 = 0 Entonces
+      contador <- contador + 1
+    FinSi
+    i <- i + 1
+  FinMientras
+  Escribir "Cantidad de productos pares: ", contador
+FinAlgoritmo`;
+const CONTAR_PRODUCTOS_CANTIDAD_PAR = {
+  casos: [
+    { entradas: ['4', '3', '-2', '4', '6'], salida: ['3'] },
+    { entradas: ['5', '4', '10', '-3', '5', '8'], salida: ['3'] },
+    { entradas: ['4', '2', '0', '12', '-6'], salida: ['4'] },
+    { entradas: ['0'], salida: ['0'], visible: false },
+  ],
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'MIENTRAS', 'CONDICIONAL'] },
+  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+};
+await caso('Productos: cuenta cantidades pares según la consigna', CONTAR_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar, true);
+await caso('Productos: rechaza sumar cantidades cuando la consigna pide contarlas', CONTAR_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar.replace('contador <- contador + 1', 'contador <- contador + cantidad'), false);
+
+const codigoSumaProductosCantidadPar = `Algoritmo SumarCantidadesPares
+  Definir N, cantidad, suma, i Como Entero
+  suma <- 0
+  i <- 1
+  Leer N
+  Mientras i <= N Hacer
+    Leer cantidad
+    Si cantidad MOD 2 = 0 Entonces
       suma <- suma + cantidad
     FinSi
     i <- i + 1
   FinMientras
-  Escribir "Suma de cantidades pares: ", suma
+  Escribir suma
 FinAlgoritmo`;
-await caso('Productos: suma cantidades pares según los casos publicados', SUMA_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar, true);
-await caso('Productos: rechaza contar pares cuando los casos exigen sumarlos', SUMA_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar.replace('suma <- suma + cantidad', 'suma <- suma + 1'), false);
+await caso('Productos: conserva la suma cuando la operación está explícita', SUMA_PRODUCTOS_CANTIDAD_PAR, codigoSumaProductosCantidadPar, true);
+await caso('Productos: rechaza contar cuando la operación explícita es sumar', SUMA_PRODUCTOS_CANTIDAD_PAR, codigoSumaProductosCantidadPar.replace('suma <- suma + cantidad', 'suma <- suma + 1'), false);
 
 const codigoMontosInferiores = `Algoritmo MontosInferioresAlLimite
-  Definir monto, suma Como Entero
-  suma <- 0
+  Definir monto, contador Como Entero
+  contador <- 0
   Escribir "Ingrese un monto (0 para terminar):"
   Leer monto
   Mientras monto <> 0 Hacer
     Si monto < 100 Entonces
-      suma <- suma + monto
+      contador <- contador + 1
     FinSi
     Escribir "Ingrese otro monto (0 para terminar):"
     Leer monto
   FinMientras
-  Escribir "Suma de montos inferiores a 100: ", suma
+  Escribir "Cantidad de montos inferiores a 100: ", contador
 FinAlgoritmo`;
-await caso('Montos: suma valores menores que 100 y excluye el centinela', SUMA_MONTOS_INFERIORES_A_100, codigoMontosInferiores, true);
-await caso('Montos: rechaza contar valores menores cuando los casos exigen sumarlos', SUMA_MONTOS_INFERIORES_A_100, codigoMontosInferiores.replace('suma <- suma + monto', 'suma <- suma + 1'), false);
+await caso('Montos: cuenta valores menores que 100 y excluye el centinela', CONTAR_MONTOS_INFERIORES_A_100, codigoMontosInferiores, true);
+await caso('Montos: rechaza sumar valores cuando la consigna pide contarlos', CONTAR_MONTOS_INFERIORES_A_100, codigoMontosInferiores.replace('contador <- contador + 1', 'contador <- contador + monto'), false);
+
+const CONTAR_MONTOS_REPETIR = {
+  ...CONTAR_MONTOS_INFERIORES_A_100,
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'REPETIR', 'CONDICIONAL'] },
+};
+const codigoMontosInferioresRepetir = `Algoritmo MontosInferioresAlLimite
+  Definir monto, contador Como Entero
+  contador <- 0
+  Repetir
+    Leer monto
+    Si monto <> 0 Y monto < 100 Entonces
+      contador <- contador + 1
+    FinSi
+  Hasta Que monto = 0
+  Escribir "Cantidad de montos inferiores a 100: ", contador
+FinAlgoritmo`;
+await caso('Montos: cuenta con Repetir y excluye el centinela', CONTAR_MONTOS_REPETIR, codigoMontosInferioresRepetir, true);
+await caso('Montos: rechaza sumar valores cuando Repetir debe contarlos', CONTAR_MONTOS_REPETIR, codigoMontosInferioresRepetir.replace('contador <- contador + 1', 'contador <- contador + monto'), false);
 
 const codigoContarMayoresMientras = `Algoritmo ContarMayores
   Definir valor, contador Como Entero
@@ -438,8 +483,8 @@ FinProceso`, false);
 await caso('CW: rechaza sumar X + 2 en vez de X - 2', CW_PREGUNTA_PUBLICADA, codigoSumaCondicionalCW.replace('(X * 1) + (-2)', '(X * 1) + 2'), false);
 await caso('CW: rechaza bloquear N=0 cuando la salida esperada es suma cero', CW_PREGUNTA_PUBLICADA, codigoSumaCondicionalCW.replace('Para i <- 1 Hasta N Con Paso 1 Hacer', 'Si N <= 0 Entonces\n    Escribir "Error"\n  Sino\n  Para i <- 1 Hasta N Con Paso 1 Hacer').replace('FinAlgoritmo', '  FinSi\nFinAlgoritmo'), false);
 await caso('Círculo: rechaza mostrar el perímetro antes del área', CIRCULO_AREA_PERIMETRO, codigoAreaPerimetroCirculo.replace('Escribir "ÁREA TOTAL CALCULADA: ", area\n    Escribir "PERÍMETRO CALCULADO: ", perimetro', 'Escribir "PERÍMETRO CALCULADO: ", perimetro\n    Escribir "ÁREA TOTAL CALCULADA: ", area'), false);
-await caso('Productos: rechaza seleccionar cantidades impares', SUMA_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar.replace('cantidad MOD 2 = 0', 'cantidad MOD 2 <> 0'), false);
-await caso('Montos: rechaza incluir el límite 100 como inferior', SUMA_MONTOS_INFERIORES_A_100, codigoMontosInferiores.replace('monto < 100', 'monto <= 100'), false);
+await caso('Productos: rechaza seleccionar cantidades impares', CONTAR_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar.replace('cantidad MOD 2 = 0', 'cantidad MOD 2 <> 0'), false);
+await caso('Montos: rechaza incluir el límite 100 como inferior', CONTAR_MONTOS_INFERIORES_A_100, codigoMontosInferiores.replace('monto < 100', 'monto <= 100'), false);
 await caso('Palabra clave solo en un comentario no cuenta', PAR, `Proceso ParImpar
   Definir n Como Entero
   // usar MOD
