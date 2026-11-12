@@ -1,6 +1,5 @@
 -- Alinea preguntas cuyo banco exportado contiene contradicciones confirmadas:
--- 1) las preguntas de días usaban entradas decimales pese a describir días enteros;
--- 2) las preguntas de suma de positivos omitían que la lista empieza con N.
+-- tipos de dato, formato de lista, operación solicitada, valor del tope y casos.
 -- Cada cambio se aplica solo si coincide el identificador y el dato observado.
 -- Si el contenido actual de Supabase difiere, se conserva y se informa el conflicto.
 BEGIN;
