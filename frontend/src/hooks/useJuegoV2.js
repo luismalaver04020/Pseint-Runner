@@ -47,6 +47,19 @@ function jPos(s) {
   }
 }
 
+function canvasSizeForElement(element) {
+  const rect = element?.getBoundingClientRect();
+  if (!rect?.width || !rect?.height) return { width: PSX_WIDTH, height: PSX_HEIGHT };
+
+  // Keep the original pixel density while adapting the game world to the
+  // screen ratio, including tall portrait phones.
+  const pixelScale = Math.min(rect.width / PSX_WIDTH, rect.height / PSX_HEIGHT);
+  return {
+    width: Math.max(1, Math.round(rect.width / pixelScale)),
+    height: Math.max(1, Math.round(rect.height / pixelScale)),
+  };
+}
+
 export function useJuegoV2({
   onVolver,
   zonaId,
@@ -787,8 +800,9 @@ const loop = useCallback(function juegoFrame() {
 
     if (!canvas) return;
 
-    canvas.width = PSX_WIDTH;
-    canvas.height = PSX_HEIGHT;
+    const canvasSize = canvasSizeForElement(wrapRef.current);
+    canvas.width = canvasSize.width;
+    canvas.height = canvasSize.height;
 
     ctxRef.current = canvas.getContext('2d');
 
@@ -802,8 +816,8 @@ const loop = useCallback(function juegoFrame() {
       DIFICULTAD_CONFIG.facil;
 
     stateRef.current = crearEstadoV2(
-      PSX_WIDTH,
-      PSX_HEIGHT,
+      canvasSize.width,
+      canvasSize.height,
       zonaCfg,
       difCfg,
       avatar
@@ -1131,7 +1145,41 @@ scheduleQ(true);
   useEffect(() => {
     iniciar();
 
+    const wrap = wrapRef.current;
+    const canvas = canvasRef.current;
+    const actualizarTamano = () => {
+      const state = stateRef.current;
+      if (!wrap || !canvas || !state) return;
+
+      const nextSize = canvasSizeForElement(wrap);
+      if (canvas.width === nextSize.width && canvas.height === nextSize.height) return;
+
+      const previousHeight = state.H;
+      canvas.width = nextSize.width;
+      canvas.height = nextSize.height;
+      ctxRef.current = canvas.getContext('2d');
+      configurePSXCanvas(ctxRef.current);
+
+      state.W = nextSize.width;
+      state.H = nextSize.height;
+      state.GND = nextSize.height * 0.86;
+      state.horizonY = nextSize.height * 0.4;
+      state.centerX = nextSize.width / 2;
+      const heightRatio = nextSize.height / previousHeight;
+      state.jugador.jumpOffset *= heightRatio;
+      state.jugador.pvy *= heightRatio;
+      state.parts = [];
+    };
+
+    const resizeObserver = wrap && typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(actualizarTamano)
+      : null;
+    resizeObserver?.observe(wrap);
+    if (!resizeObserver) window.addEventListener('resize', actualizarTamano);
+
     return () => {
+      resizeObserver?.disconnect();
+      if (!resizeObserver) window.removeEventListener('resize', actualizarTamano);
       inicioRef.current++;
       evaluacionCodigoIdRef.current++;
 
