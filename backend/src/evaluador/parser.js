@@ -8,8 +8,26 @@ export function normalizarCodigo(codigo) {
     .replace(/\r\n/g, '\n')
     .replace(/\r/g, '\n')
     .split('\n')
+    .map(quitarComentarioLinea)
     .map(linea => linea.trim())
     .filter(linea => linea.length > 0);
+}
+
+function quitarComentarioLinea(linea) {
+  let comilla = null;
+  for (let i = 0; i < linea.length - 1; i++) {
+    const caracter = linea[i];
+    if (comilla) {
+      if (caracter === comilla && linea[i - 1] !== '\\') comilla = null;
+      continue;
+    }
+    if (caracter === '"' || caracter === "'") {
+      comilla = caracter;
+      continue;
+    }
+    if (caracter === '/' && linea[i + 1] === '/') return linea.slice(0, i);
+  }
+  return linea;
 }
 
 export function analizarCodigo(codigo) {
@@ -49,7 +67,7 @@ export function analizarCodigo(codigo) {
   // 3. Comprobar que el inicio tenga un nombre.
   const inicio = primera.codigo;
   const coincidenciaInicio = inicio.match(
-    /^(Algoritmo|Proceso)\s+([a-záéíóúñ_][\wáéíóúñ]*)$/i
+    /^(Algoritmo|Proceso)\s+([\p{L}_][\p{L}\p{N}_]*)$/iu
   );
 
   if (!coincidenciaInicio) {
@@ -244,7 +262,7 @@ function identificarInstruccion(linea) {
   if (/^Repetir$/i.test(texto)) return 'REPETIR';
   if (/^Hasta Que\b/i.test(texto)) return 'HASTA_QUE';
 
-  if (/^[a-záéíóúñ_][\wáéíóúñ]*\s*(?:\[[^\]]+\])?\s*<-/i.test(texto)) {
+  if (/^[\p{L}_][\p{L}\p{N}_]*\s*(?:\[[^\]]+\])?\s*<-/iu.test(texto)) {
     return 'ASIGNACION';
   }
 

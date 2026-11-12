@@ -50,7 +50,8 @@ Para preguntas nuevas se recomienda configurar `evaluation_config` con casos vis
 | `estructura.requiere` / `prohibe` | Tipos de instrucción que debe / no debe usar. |
 | `estructura.minimos` | Cantidad mínima de un tipo (p. ej. `{"ESCRITURA": 2}`). |
 | `estructura.requiere_texto` / `prohibe_texto` | Palabras u operadores (`MOD`, `+`, `*`). Se buscan como palabra completa, sin contar comentarios. |
-| `comparacion.modo` | `exacto` (por defecto): mismas líneas y orden · `subsecuencia`: las esperadas en orden, con líneas extra · `contiene`: las esperadas en cualquier orden · `numeros`: solo importan los números, ignora el texto que los rodea · `semantico`: si la respuesta contiene números compara sus valores en orden e ignora etiquetas y líneas decorativas; para respuestas de texto conserva la comparación línea a línea. |
+| `comparacion.modo` | `exacto` (por defecto): mismas líneas y orden; si la salida esperada es solo un número, acepta una etiqueta decorativa junto al mismo valor · `subsecuencia`: las esperadas en orden, con líneas extra · `contiene`: las esperadas en cualquier orden · `numeros`: solo importan los números, ignora el texto que los rodea · `semantico`: si la respuesta contiene números compara sus valores en orden e ignora etiquetas y líneas decorativas; para respuestas de texto conserva la comparación línea a línea. |
+| `comparacion.ignorar_tildes` | `true` por defecto: trata vocales con y sin tilde como equivalentes, pero mantiene `n` y `ñ` distintas. Se aplica a salidas y a palabras estructurales requeridas/prohibidas. |
 | `comparacion.ignorar_mayusculas` | `true` por defecto. |
 | `comparacion.tolerancia` | Diferencia permitida entre números (`7` = `7.0`). |
 
@@ -59,6 +60,8 @@ MIENTRAS FIN_MIENTRAS REPETIR HASTA_QUE EXPRESION COMENTARIO`. Un tipo mal escri
 (no hace fallar a todos los alumnos en silencio).
 
 Una pregunta es **correcta** solo si cumple todas las reglas de estructura **y** aprueba todos los casos.
+
+El intérprete admite `=`, `==`, `<>` y `!=` para comparar igualdad/desigualdad, `MOD` y `%` para el residuo, y `^` para potencia. También admite `Algoritmo`/`Proceso`, identificadores Unicode y comentarios `//` al final de la línea. Se ejecuta el código real del estudiante; no se comparan nombres de variables ni se exige que use la misma estructura de ciclos, salvo que `estructura.requiere` o `estructura.prohibe` la especifique.
 
 Ejemplo de SQL:
 

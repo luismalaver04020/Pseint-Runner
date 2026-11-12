@@ -103,6 +103,30 @@ FinProceso`);
   assert.deepEqual(r.lineas, ['3', '4', '5']);
 });
 
+prueba('acepta operadores equivalentes ==, !=, % y ^', () => {
+  const r = ejecutarCodigo(`Proceso Operadores
+Definir número, resultado Como Entero
+número <- 5
+Si número % 2 != 0 Entonces
+resultado <- número ^ 2
+FinSi
+Si número == 5 Entonces
+Escribir resultado
+FinSi
+FinProceso`);
+  assert.deepEqual(r.lineas, ['25']);
+});
+
+prueba('acepta identificadores con letras españolas y comentarios al final de línea', () => {
+  const r = ejecutarCodigo(`Proceso Cálculo_Ñ
+Definir año, número Como Entero // declaración
+año <- 2026 // asignación
+número <- año - 2000
+Escribir "Año // calculado: ", número
+FinProceso`);
+  assert.deepEqual(r.lineas, ['Año // calculado: 26']);
+});
+
 prueba('parser rechaza bloque sin cierre', () => {
   assert.throws(() => analizarCodigo(`Proceso Error
 Definir i Como Entero

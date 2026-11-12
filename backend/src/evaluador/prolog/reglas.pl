@@ -37,17 +37,43 @@ a_atomo(Texto, Atomo) :- term_to_atom(Texto, Atomo).
 
 minusculas(A, M) :- a_atomo(A, Atomo), downcase_atom(Atomo, M).
 
+normalizar_texto(Reglas, Texto, Normalizado) :-
+    a_atomo(Texto, Atomo),
+    opcional(Reglas, ignorar_mayusculas, si, IM),
+    ( IM == si -> downcase_atom(Atomo, Caso) ; Caso = Atomo ),
+    opcional(Reglas, ignorar_tildes, si, IT),
+    ( IT == si -> quitar_tildes(Caso, Normalizado) ; Normalizado = Caso ).
+
 quitar_tildes(Atomo, Normalizado) :-
-    atom_chars(Atomo, Caracteres),
-    maplist(caracter_sin_tilde, Caracteres, SinTildes),
-    atom_chars(Normalizado, SinTildes).
-caracter_sin_tilde('á', 'a').
-caracter_sin_tilde('é', 'e').
-caracter_sin_tilde('í', 'i').
-caracter_sin_tilde('ó', 'o').
-caracter_sin_tilde('ú', 'u').
-caracter_sin_tilde('ü', 'u').
-caracter_sin_tilde(Caracter, Caracter).
+    atom_codes(Atomo, Codigos),
+    normalizar_codigos(Codigos, Normalizados),
+    atom_codes(Normalizado, Normalizados).
+
+normalizar_codigos([110, 771|Resto], [241|Normalizados]) :- !, normalizar_codigos(Resto, Normalizados). % n + tilde -> ñ
+normalizar_codigos([78, 771|Resto], [209|Normalizados]) :- !, normalizar_codigos(Resto, Normalizados).  % N + tilde -> Ñ
+normalizar_codigos([Codigo|Resto], Normalizados) :-
+    codigo_sin_tilde(Codigo, Normalizado),
+    ( es_marca_combining(Normalizado) -> normalizar_codigos(Resto, Normalizados)
+    ; Normalizados = [Normalizado|Cola], normalizar_codigos(Resto, Cola) ).
+normalizar_codigos([], []).
+
+% Se normalizan vocales acentuadas en mayúscula y minúscula, se conserva ñ/Ñ
+% como letra distinta de n/N, y se quitan marcas Unicode combinadas.
+codigo_sin_tilde(193, 65).   % Á -> A
+codigo_sin_tilde(201, 69).   % É -> E
+codigo_sin_tilde(205, 73).   % Í -> I
+codigo_sin_tilde(211, 79).   % Ó -> O
+codigo_sin_tilde(218, 85).   % Ú -> U
+codigo_sin_tilde(220, 85).   % Ü -> U
+codigo_sin_tilde(225, 97).   % á -> a
+codigo_sin_tilde(233, 101).  % é -> e
+codigo_sin_tilde(237, 105).  % í -> i
+codigo_sin_tilde(243, 111).  % ó -> o
+codigo_sin_tilde(250, 117).  % ú -> u
+codigo_sin_tilde(252, 117).  % ü -> u
+codigo_sin_tilde(Codigo, Codigo).
+
+es_marca_combining(Codigo) :- between(768, 879, Codigo).
 
 % Texto "limpio": sin espacios en los bordes y con espacios internos colapsados.
 limpiar(A, Limpio) :-
@@ -106,7 +132,7 @@ fraccion --> [].
 
 coincide(exacto, R, Esperado, Obtenido) :-
     same_length(Esperado, Obtenido),
-    maplist(equivalentes(R), Esperado, Obtenido).
+    maplist(equivalentes_exactas(R), Esperado, Obtenido).
 coincide(subsecuencia, R, Esperado, Obtenido) :-
     subsecuencia(R, Esperado, Obtenido).
 coincide(contiene, R, Esperado, Obtenido) :-
@@ -127,6 +153,18 @@ coincide(semantico, R, Esperado, Obtenido) :-
 coincide(semantico, R, Esperado, Obtenido) :-
     same_length(Esperado, Obtenido),
     maplist(equivalentes_semanticas(R), Esperado, Obtenido).
+
+equivalentes_exactas(R, Esperado, Obtenido) :- equivalentes(R, Esperado, Obtenido), !.
+equivalentes_exactas(R, Esperado, Obtenido) :-
+    limpiar(Esperado, Limpio),
+    opcional(R, ignorar_mayusculas, si, IM),
+    ( IM == si -> minusculas(Limpio, Caso) ; Caso = Limpio ),
+    opcional(R, ignorar_tildes, si, IT),
+    ( IT == si -> quitar_tildes(Caso, NumeroTexto) ; NumeroTexto = Caso ),
+    numero_estricto(NumeroTexto, NumeroEsperado),
+    numeros_de_linea(Obtenido, [NumeroObtenido]),
+    opcional(R, tolerancia, 0.000001, Tol),
+    abs(NumeroEsperado - NumeroObtenido) =< Tol.
 
 equivalentes_semanticas(R, A, B) :-
     numeros_de_linea(A, NA), numeros_de_linea(B, NB),
@@ -199,12 +237,12 @@ cuenta(Tipos, Tipo, N) :- include(==(Tipo), Tipos, L), length(L, N).
 es_aprobado(R) :- get_dict(paso, R, si).
 
 % Texto ejecutable (sin comentarios), en minúsculas, para buscar palabras.
-textos_del_programa(Programa, Textos) :-
-    findall(M, ( member([_, T, X], Programa), T \== 'COMENTARIO', minusculas(X, M) ), Textos).
+textos_del_programa(Programa, Reglas, Textos) :-
+    findall(M, ( member([_, T, X], Programa), T \== 'COMENTARIO', normalizar_texto(Reglas, X, M) ), Textos).
 
 % La palabra aparece completa (no dentro de otro identificador).
-contiene_palabra(Textos, Palabra) :-
-    minusculas(Palabra, P),
+contiene_palabra(Textos, Reglas, Palabra) :-
+    normalizar_texto(Reglas, Palabra, P),
     member(Texto, Textos),
     atom_length(P, LP),
     sub_atom(Texto, Antes, LP, Despues, P),
@@ -226,7 +264,7 @@ es_alfanum(C) :- ( C == '_' -> true ; char_type(C, alnum) ).
 
 revisar_estructura(Programa, Reglas, Motivos) :-
     tipos_del_programa(Programa, Tipos),
-    textos_del_programa(Programa, Textos),
+    textos_del_programa(Programa, Reglas, Textos),
     opcional(Reglas, requiere,       [], Requiere),
     opcional(Reglas, prohibe,        [], Prohibe),
     opcional(Reglas, minimos,      _{}, Minimos),
@@ -240,9 +278,9 @@ revisar_estructura(Programa, Reglas, Motivos) :-
     findall(_{codigo: pocas_estructuras, tipo: T, minimo: Min, encontrado: N},
             ( member(T-Min, Pares), cuenta(Tipos, T, N), N < Min ), M3),
     findall(_{codigo: falta_palabra, palabra: W},
-            ( member(W, RTexto), \+ contiene_palabra(Textos, W) ), M4),
+            ( member(W, RTexto), \+ contiene_palabra(Textos, Reglas, W) ), M4),
     findall(_{codigo: palabra_prohibida, palabra: W},
-            ( member(W, PTexto), contiene_palabra(Textos, W) ), M5),
+            ( member(W, PTexto), contiene_palabra(Textos, Reglas, W) ), M5),
     append([M1, M2, M3, M4, M5], Motivos).
 
 % ----------------------------------------------------------------------------

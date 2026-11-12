@@ -244,7 +244,7 @@ function declararVariables(linea, contexto) {
   for (const nombre of nombres) {
     const variable = nombre.trim().toLowerCase();
 
-    if (!/^[a-záéíóúñ_]\w*$/i.test(variable)) {
+    if (!/^[\p{L}_][\p{L}\p{N}_]*$/iu.test(variable)) {
       throw new Error(`Nombre de variable inválido: ${nombre}`);
     }
 
@@ -266,7 +266,7 @@ function dimensionarArreglos(linea, contexto) {
   if (!coincidencia) throw new Error(`Instrucción Dimension inválida: ${linea}`);
 
   for (const declaracion of dividirArgumentos(coincidencia[1])) {
-    const match = declaracion.match(/^([a-záéíóúñ_]\w*)\s*\[([\s\S]+)\]$/i);
+    const match = declaracion.match(/^([\p{L}_][\p{L}\p{N}_]*)\s*\[([\s\S]+)\]$/iu);
     if (!match) throw new Error(`Dimensión de arreglo inválida: ${declaracion}`);
 
     const nombre = match[1].toLowerCase();
@@ -299,7 +299,7 @@ function crearArreglo(dimensiones, nivel, inicial) {
 }
 
 function analizarReferencia(texto, contexto) {
-  const coincidencia = texto.trim().match(/^([a-záéíóúñ_]\w*)\s*(?:\[([\s\S]+)\])?$/i);
+  const coincidencia = texto.trim().match(/^([\p{L}_][\p{L}\p{N}_]*)\s*(?:\[([\s\S]+)\])?$/iu);
   if (!coincidencia) throw new Error(`Variable o posición de arreglo inválida: ${texto}`);
   const nombre = coincidencia[1].toLowerCase();
   if (coincidencia[2] === undefined) return { nombre, indices: null };
@@ -527,7 +527,7 @@ function validarTipoAsignado(valor, tipo, variable) {
 
 function asignarVariable(linea, contexto) {
   const coincidencia = linea.match(
-    /^([a-záéíóúñ_]\w*)\s*(?:\[([\s\S]+)\])?\s*<-\s*(.+)$/i
+    /^([\p{L}_][\p{L}\p{N}_]*)\s*(?:\[([\s\S]+)\])?\s*<-\s*(.+)$/iu
   );
 
   if (!coincidencia) {
@@ -743,7 +743,7 @@ function expresionComparacion() {
 
     while (
       actual()?.tipo === 'operador' &&
-      ['*', '/', 'DIV', 'MOD'].includes(actual().valor)
+      ['*', '/', 'DIV', 'MOD', '%'].includes(actual().valor)
     ) {
       const operador = tokens[posicion++].valor;
       const derecho = expresionPotencia();
@@ -752,7 +752,7 @@ function expresionComparacion() {
       exigirNumero(derecho);
 
       if (
-        (operador === '/' || operador === 'DIV' || operador === 'MOD') &&
+        (operador === '/' || operador === 'DIV' || operador === 'MOD' || operador === '%') &&
         derecho === 0
       ) {
         throw new Error('No se puede dividir entre cero.');
@@ -761,7 +761,7 @@ function expresionComparacion() {
       if (operador === '*') valor *= derecho;
       if (operador === '/') valor /= derecho;
       if (operador === 'DIV') valor = Math.trunc(valor / derecho);
-      if (operador === 'MOD') valor %= derecho;
+      if (operador === 'MOD' || operador === '%') valor %= derecho;
     }
 
     return valor;
@@ -1032,7 +1032,7 @@ function tokenizar(expresion) {
     }
 
     const identificador = resto.match(
-      /^[a-záéíóúñ_]\w*/i
+      /^[\p{L}_][\p{L}\p{N}_]*/iu
     );
 
     if (identificador) {
@@ -1074,7 +1074,7 @@ function tokenizar(expresion) {
       continue;
     }
 
-    if ('+-*/^><='.includes(caracter)) {
+    if ('+-*/%^><='.includes(caracter)) {
       tokens.push({
         tipo: 'operador',
         valor: caracter
@@ -1134,7 +1134,7 @@ function tokenizar(expresion) {
 
 function prepararCicloPara(linea, contexto) {
   const coincidencia = linea.match(
-    /^Para\s+([a-záéíóúñ_]\w*)\s*<-\s*(.+?)\s+Hasta\s+(.+?)(?:\s+Con\s+Paso\s+(.+?))?\s+Hacer$/i
+    /^Para\s+([\p{L}_][\p{L}\p{N}_]*)\s*<-\s*(.+?)\s+Hasta\s+(.+?)(?:\s+Con\s+Paso\s+(.+?))?\s+Hacer$/iu
   );
 
   if (!coincidencia) {

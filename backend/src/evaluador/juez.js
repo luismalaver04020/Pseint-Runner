@@ -9,7 +9,15 @@ function normalizarTexto(reglas, texto) {
   let normalizado = texto;
   if (reglas.ignorar_mayusculas !== 'no') normalizado = normalizado.toLocaleLowerCase('es');
   if (reglas.ignorar_tildes !== 'no') {
-    normalizado = normalizado.replace(/ñ/g, '\uE000').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\uE000/g, 'ñ');
+    normalizado = normalizado
+      .replace(/ñ/g, '\uE000')
+      .replace(/Ñ/g, '\uE001')
+      .replace(/n\u0303/g, '\uE000')
+      .replace(/N\u0303/g, '\uE001')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\uE000/g, 'ñ')
+      .replace(/\uE001/g, 'Ñ');
   }
   return normalizado;
 }
@@ -41,6 +49,16 @@ function equivalentes(reglas, esperado, obtenido) {
     Math.abs(numeroA - numeroB) <= (reglas.tolerancia ?? TOLERANCIA_DEFAULT);
 }
 
+function equivalentesExactos(reglas, esperado, obtenido) {
+  if (equivalentes(reglas, esperado, obtenido)) return true;
+  // En respuestas numéricas sin formato exigido, permite etiquetas decorativas
+  // como "Resultado: 7" sin relajar las salidas textuales (p. ej. "Aprobado").
+  const numeroEsperado = numeroEstrictamente(normalizarTexto(reglas, limpiar(esperado)));
+  const numerosObtenidos = numerosEnLinea(obtenido);
+  return numeroEsperado !== null && numerosObtenidos.length === 1 &&
+    casiIgual(reglas, numeroEsperado, numerosObtenidos[0]);
+}
+
 function casiIgual(reglas, a, b) {
   return Math.abs(a - b) <= (reglas.tolerancia ?? TOLERANCIA_DEFAULT);
 }
@@ -58,7 +76,7 @@ function coincide(reglas, esperado, obtenido) {
   switch (reglas.modo ?? 'exacto') {
     case 'exacto':
       return esperado.length === obtenido.length &&
-        esperado.every((linea, indice) => equivalentes(reglas, linea, obtenido[indice]));
+        esperado.every((linea, indice) => equivalentesExactos(reglas, linea, obtenido[indice]));
     case 'subsecuencia':
       return subsecuencia(esperado, obtenido, (a, b) => equivalentes(reglas, a, b));
     case 'contiene':
@@ -98,8 +116,9 @@ function coincide(reglas, esperado, obtenido) {
   }
 }
 
-function contienePalabra(lineas, palabra) {
-  const escapada = String(palabra).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function contienePalabra(lineas, palabra, reglas = {}) {
+  const textoNormalizado = normalizarTexto(reglas, palabra);
+  const escapada = textoNormalizado.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const expresion = new RegExp(`(^|[^\\p{L}\\p{N}_])${escapada}($|[^\\p{L}\\p{N}_])`, 'iu');
   return lineas.some((linea) => expresion.test(linea));
 }
@@ -107,7 +126,7 @@ function contienePalabra(lineas, palabra) {
 function revisarEstructura(programa, reglas = {}) {
   const ejecutables = programa.filter(([, tipo]) => tipo !== 'COMENTARIO');
   const tipos = ejecutables.map(([, tipo]) => tipo);
-  const textos = ejecutables.map(([, , texto]) => String(texto).toLocaleLowerCase('es'));
+  const textos = ejecutables.map(([, , texto]) => normalizarTexto(reglas, texto));
   const motivos = [];
 
   for (const tipo of reglas.requiere ?? []) {
@@ -123,10 +142,10 @@ function revisarEstructura(programa, reglas = {}) {
     }
   }
   for (const palabra of reglas.requiere_texto ?? []) {
-    if (!contienePalabra(textos, palabra)) motivos.push({ codigo: 'falta_palabra', palabra });
+    if (!contienePalabra(textos, palabra, reglas)) motivos.push({ codigo: 'falta_palabra', palabra });
   }
   for (const palabra of reglas.prohibe_texto ?? []) {
-    if (contienePalabra(textos, palabra)) motivos.push({ codigo: 'palabra_prohibida', palabra });
+    if (contienePalabra(textos, palabra, reglas)) motivos.push({ codigo: 'palabra_prohibida', palabra });
   }
 
   return motivos;

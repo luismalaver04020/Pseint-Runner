@@ -656,6 +656,65 @@ FinProceso`, {
   comparacion: { modo: 'exacto' },
 });
 
+const configTildes = {
+  casos: [{ entradas: [], salida: ['¡Aprobación rápida!'] }],
+  estructura: { requiere_texto: ['APROBACIÓN'] },
+  comparacion: { modo: 'exacto', ignorar_mayusculas: true, ignorar_tildes: true },
+};
+await compararJueces('acepta mayúsculas y vocales sin tilde también en requisitos', `Proceso Texto
+Escribir "¡Aprobacion rapida!"
+FinProceso`, configTildes);
+assert.equal((await evaluarCodigo(`Proceso Texto
+Escribir "¡Aprobacion rapida!"
+FinProceso`, configTildes)).correcto, true);
+
+const configUnicodeCombinado = {
+  casos: [{ entradas: [], salida: ['ñandú'] }],
+  estructura: { requiere_texto: ['ñandú'] },
+  comparacion: { modo: 'exacto', ignorar_tildes: true },
+};
+const codigoUnicodeCombinado = `Proceso Texto
+Escribir "n\u0303andu\u0301"
+FinProceso`;
+await compararJueces('normaliza tildes Unicode combinadas y conserva ñ', codigoUnicodeCombinado, configUnicodeCombinado);
+assert.equal((await evaluarCodigo(codigoUnicodeCombinado, configUnicodeCombinado)).correcto, true);
+
+const configEne = {
+  casos: [{ entradas: [], salida: ['año'] }],
+  comparacion: { modo: 'exacto', ignorar_mayusculas: true, ignorar_tildes: true },
+};
+await compararJueces('conserva la diferencia entre n y ñ', `Proceso Texto
+Escribir "ano"
+FinProceso`, configEne);
+const resultadoEne = await evaluarCodigo(`Proceso Texto
+Escribir "ano"
+FinProceso`, configEne);
+assert.equal(resultadoEne.correcto, false, 'Ignorar tildes no debe convertir n en ñ');
+assert.equal((await evaluarCodigo(`Proceso Texto
+Escribir "ano"
+FinProceso`, configEne, juzgarEnProlog)).correcto, false);
+
+const configAcentoDesactivado = {
+  casos: [{ entradas: [], salida: ['aprobación'] }],
+  comparacion: { modo: 'exacto', ignorar_mayusculas: true, ignorar_tildes: false },
+};
+await compararJueces('respeta ignorar_tildes=false', `Proceso Texto
+Escribir "aprobacion"
+FinProceso`, configAcentoDesactivado);
+assert.equal((await evaluarCodigo(`Proceso Texto
+Escribir "aprobacion"
+FinProceso`, configAcentoDesactivado)).correcto, false);
+
+const configEtiquetaNumerica = {
+  casos: [{ entradas: [], salida: ['7'] }],
+  comparacion: { modo: 'exacto', tolerancia: 0.000001 },
+};
+const codigoEtiquetaNumerica = `Proceso Resultado
+Escribir "Resultado calculado: ", 7
+FinProceso`;
+await compararJueces('acepta etiqueta decorativa junto a resultado numérico', codigoEtiquetaNumerica, configEtiquetaNumerica);
+assert.equal((await evaluarCodigo(codigoEtiquetaNumerica, configEtiquetaNumerica)).correcto, true);
+
 // Las referencias y los casos que se publican con SQL deben coincidir.
 let referenciasMigracion = 0;
 for (const archivo of [
