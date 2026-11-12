@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { register, login } from '../services/authService';
 import { PASSWORD_MIN_LENGTH, requisitosContrasena, validarCorreoRegistro, mensajeContrasenaInvalida } from '../services/validacionesRegistro';
 import { CARRERAS } from '../services/carreras';
@@ -23,6 +23,15 @@ export default function Login() {
   const [codigo, setCodigo]   = useState(codigoInicial);
   const [err, setErr]     = useState('');
   const [cargando, setCargando] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('psr_cierre_por_inactividad') === '1') {
+        sessionStorage.removeItem('psr_cierre_por_inactividad');
+        setErr('Tu sesión se cerró tras 10 minutos sin actividad. Inicia sesión nuevamente.');
+      }
+    } catch {}
+  }, []);
 
   const doLogin = async () => {
     setErr('');

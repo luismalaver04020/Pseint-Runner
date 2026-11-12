@@ -90,6 +90,12 @@ export async function cerrarSesion() {
   try { if (supabase) await supabase.auth.signOut(); } catch { /* sin conexión */ }
 }
 
+// Expira únicamente la sesión local del navegador; no desconecta otros dispositivos.
+export async function cerrarSesionLocal() {
+  perfilActual = null;
+  try { if (supabase) await supabase.auth.signOut({ scope: 'local' }); } catch { /* sin conexión */ }
+}
+
 // null si no hay perfil cargado (por ejemplo, el docente removió la cuenta)
 export function getPerfil() { return perfilActual; }
 
