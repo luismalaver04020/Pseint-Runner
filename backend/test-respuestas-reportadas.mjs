@@ -110,6 +110,52 @@ await verificarGenerada('Generador: conversión km a m, cm y mm', 'U1-IC-006',
     comparacion: { modo: 'numeros', tolerancia: 0.000001 },
   });
 
+await verificarGenerada('Generador: cuenta pares estrictamente mayores que 2 en una lista', 'U3-HC-239',
+  'Lee N y luego N valores enteros. Cuenta los valores pares mayores que 2. Usa un ciclo Mientras y una estructura Si.', {
+    casos: [
+      { entradas: ['4', '3', '-2', '4', '6'], salida: ['2'] },
+      { entradas: ['5', '4', '10', '-3', '5', '8'], salida: ['3'] },
+      { entradas: ['4', '2', '0', '12', '-6'], salida: ['1'], visible: false },
+      { entradas: ['3', '2', '4', '6'], salida: ['2'], visible: false },
+    ],
+    estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'MIENTRAS', 'CONDICIONAL'] },
+    comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+  });
+
+await verificarGenerada('Generador: cuenta pares mayores que 2 con Repetir y centinela', 'U3-HC-279',
+  'Lee valores enteros hasta ingresar 0. Sin procesar el 0, cuenta los valores pares mayores que 2. Usa un ciclo Repetir-Hasta Que y una estructura Si.', {
+    casos: [
+      { entradas: ['3', '-2', '4', '0'], salida: ['1'] },
+      { entradas: ['4', '10', '-3', '5', '0'], salida: ['2'] },
+      { entradas: ['2', '0'], salida: ['0'], visible: false },
+      { entradas: ['2', '4', '6', '0'], salida: ['2'], visible: false },
+    ],
+    estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'REPETIR', 'CONDICIONAL'] },
+    comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+  });
+
+await verificarGenerada('Generador: imprime progresión con incremento y límite', 'U3-IC-039',
+  'Lee el valor inicial, el incremento y el límite. Imprime la progresión comenzando en el valor inicial y sumando el incremento mientras no se supere el límite. Usa un ciclo Mientras.', {
+    casos: [
+      { entradas: ['2', '3', '11'], salida: ['2', '5', '8', '11'] },
+      { entradas: ['1', '4', '10'], salida: ['1', '5', '9'] },
+      { entradas: ['5', '2', '8'], salida: ['5', '7'] },
+    ],
+    estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'MIENTRAS'] },
+    comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+  });
+
+await verificarGenerada('Generador: imprime tabla hasta el límite indicado', 'U3-IC-018',
+  'Lee la base y el límite. Muestra la tabla desde base × 1 hasta base × límite usando un ciclo Para.', {
+    casos: [
+      { entradas: ['3', '4'], salida: ['3', '6', '9', '12'] },
+      { entradas: ['5', '3'], salida: ['5', '10', '15'] },
+      { entradas: ['7', '2'], salida: ['7', '14'] },
+    ],
+    estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'PARA'] },
+    comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+  });
+
 const configLimiteTermico = {
   casos: [
     { entradas: ['79'], salida: ['Temperatura normal'] },

@@ -79,8 +79,33 @@ function generarU3(pregunta, prompt) {
   const tipoCiclo = ['PARA', 'MIENTRAS', 'REPETIR'].find((tipo) => requeridas.includes(tipo));
   if (!tipoCiclo) return null;
 
-  const esCentinela = /hasta ingresar cero|termina con cero|terminad[oa] al ingresar cero|recibir cero|centinela/.test(prompt);
-  const tieneN = /lee (?:un entero )?n y luego n|lee n numeros|lee n cantidades|lista de datos|lee n puntajes|lee n mediciones|lee n montos|lee n pedidos/.test(prompt);
+  if (tipoCiclo === 'MIENTRAS' && /lee el valor inicial, el incremento y el limite/.test(prompt) && /progresion comenzando en el valor inicial/.test(prompt)) {
+    const instrucciones = [
+      'Leer inicio',
+      'Leer incremento',
+      'Leer limite',
+      'valor <- inicio',
+      'Mientras valor <= limite Hacer',
+      '    Escribir valor',
+      '    valor <- valor + incremento',
+      'FinMientras',
+    ];
+    return { codigo: programa('ImprimirProgresion', 'inicio, incremento, limite, valor Como Entero', instrucciones), regla: 'progresión con inicio, incremento y límite', confianza: 'alta' };
+  }
+
+  if (tipoCiclo === 'PARA' && /lee la base y el limite/.test(prompt) && /muestra la tabla desde base/.test(prompt)) {
+    const instrucciones = [
+      'Leer base',
+      'Leer limite',
+      'Para i <- 1 Hasta limite Hacer',
+      '    Escribir base * i',
+      'FinPara',
+    ];
+    return { codigo: programa('TablaHastaLimite', 'base, limite, i Como Entero', instrucciones), regla: 'tabla de multiplicación hasta el límite', confianza: 'alta' };
+  }
+
+  const esCentinela = /hasta (?:que se ingrese|ingresar) (?:cero|0)|termina con cero|terminad[oa] al ingresar cero|recibir cero|centinela/.test(prompt);
+  const tieneN = /lee n y luego n|lee (?:un entero )?n y luego n|lee n numeros|lee n cantidades|lista de datos|lee n puntajes|lee n mediciones|lee n montos|lee n pedidos/.test(prompt);
   const empiezaSecuencia = /desde 1 hasta n|entre 1 y n|desde inicio hasta limite|desde inicio hasta n/.test(prompt);
   const variable = prompt.match(/\b([a-z_]\w*)\s+mod\s+\d+\s*=\s*0/)?.[1]
     ?? prompt.match(/\b([a-z_]\w*)\s*(?:>=|<=|<>|=|>|<)/)?.[1]
@@ -100,17 +125,23 @@ function generarU3(pregunta, prompt) {
   }
   const rango = prompt.match(/\b([a-z_]\w*)\s*(>=|>)\s*(-?\d+)\s+y\s+\1\s*(<=|<)\s*(-?\d+)/);
   if (rango) condicion = `${rango[1]} ${rango[2]} ${rango[3]} Y ${rango[1]} ${rango[4]} ${rango[5]}`;
-  const limite = prompt.match(/(?:mayores|mayor) que\s*(-?\d+)|(?:menores|menor)(?: o iguales?)? que\s*(-?\d+)|(?:iguales?|igual) a\s*(-?\d+)|(?:alcanzan|alcanzar)\s*(-?\d+)|divisibles? entre\s*(\d+|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)|multiplos? de\s*(\d+|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)/);
+  const rangoNatural = prompt.match(/\bentre\s*(-?\d+)\s+y\s*(-?\d+)/);
+  if (!condicion && rangoNatural) condicion = `${variable} >= ${rangoNatural[1]} Y ${variable} <= ${rangoNatural[2]}`;
+  const parSobreUmbral = prompt.match(/pares\s+mayores?\s+(?:a|que)\s*(\d+)/);
+  if (parSobreUmbral) condicion = `${variable} MOD 2 = 0 Y ${variable} > ${parSobreUmbral[1]}`;
+  const limite = prompt.match(/(?:mayores|mayor) que\s*(-?\d+)|(?:menores|menor)(?: o iguales?)? que\s*(-?\d+)|(?:iguales?|igual) a\s*(-?\d+)|(?:iguales? o superiores?|igual o superior) a\s*(-?\d+)|(?:alcanzan|alcanzar)\s*(-?\d+)|divisibles? entre\s*(\d+|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)|multiplos? de\s*(\d+|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)/);
   if (limite && !condicion) {
     const valor = numeroEnTexto(limite.slice(1).find(Boolean));
     if (/mayores|mayor/.test(prompt)) condicion = `${variable} > ${valor}`;
     else if (/menores|menor/.test(prompt)) condicion = `${variable} ${/menores o iguales|menor o igual/.test(prompt) ? '<=' : '<'} ${valor}`;
+    else if (/alcanzan|alcanzar|iguales? o superiores?/.test(prompt)) condicion = `${variable} >= ${valor}`;
     else if (/igual/.test(prompt)) condicion = `${variable} = ${valor}`;
-    else if (/alcanzan|alcanzar/.test(prompt)) condicion = `${variable} >= ${valor}`;
     else if (/divisibles? entre|multiplos? de/.test(prompt)) condicion = `${variable} MOD ${valor} = 0`;
   }
   if (!condicion && /negativ[oa]s?/.test(prompt)) condicion = `${variable} < 0`;
   if (!condicion && /positiv[oa]s?/.test(prompt)) condicion = `${variable} > 0`;
+  if (!condicion && /mayores? que cero/.test(prompt)) condicion = `${variable} > 0`;
+  if (!condicion && /menores? que cero/.test(prompt)) condicion = `${variable} < 0`;
   if (!condicion && /pares mayores? a\s*(\d+)/.test(prompt)) condicion = `${variable} MOD 2 = 0 Y ${variable} > ${prompt.match(/pares mayores? a\s*(\d+)/)[1]}`;
   if (!condicion && /pares mayores? que\s*(\d+)/.test(prompt)) condicion = `${variable} MOD 2 = 0 Y ${variable} > ${prompt.match(/pares mayores? que\s*(\d+)/)[1]}`;
   if (!condicion && /menores? o iguales? que cero/.test(prompt)) condicion = `${variable} <= 0`;

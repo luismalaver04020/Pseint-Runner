@@ -14,7 +14,8 @@
     "audit:questions": "node --env-file=.env audit-questions.mjs",
     "test:preguntas": "node --env-file=.env audit-questions.mjs",
     "test:preguntas-generadas": "node test-preguntas-generadas.mjs",
-    "audit:consistencia": "node audit-consistencia-codigo.mjs"
+    "audit:consistencia": "node audit-consistencia-codigo.mjs",
+    "audit:claridad": "node audit-claridad-preguntas.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
