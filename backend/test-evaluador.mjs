@@ -54,6 +54,16 @@ const CONTAR_PRODUCTOS_CANTIDAD_PAR = {
   comparacion: { modo: 'numeros', tolerancia: 0.000001 },
 };
 
+const CONTAR_MONTOS_INFERIORES_A_100 = {
+  casos: [
+    { entradas: ['50', '100', '101', '25', '0'], salida: ['2'] },
+    { entradas: ['1', '99', '0'], salida: ['2'] },
+    { entradas: ['25', '50', '75', '0'], salida: ['3'], visible: false },
+  ],
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'MIENTRAS', 'CONDICIONAL'] },
+  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+};
+
 let n = 0;
 async function caso(nombre, titulo, codigo, esperado, extra) {
   const r = await evaluarCodigo(codigo, typeof titulo === 'string' ? C(titulo) : titulo);
@@ -292,6 +302,22 @@ const codigoProductosCantidadPar = `Algoritmo ProductosCantidadPar
 FinAlgoritmo`;
 await caso('Productos: acepta conteo de cantidades pares con Mientras y Si', CONTAR_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar, true);
 
+const codigoMontosInferiores = `Algoritmo MontosInferioresAlLimite
+  Definir monto, contador Como Entero
+  contador <- 0
+  Escribir "Ingrese un monto (0 para terminar):"
+  Leer monto
+  Mientras monto <> 0 Hacer
+    Si monto < 100 Entonces
+      contador <- contador + 1
+    FinSi
+    Escribir "Ingrese otro monto (0 para terminar):"
+    Leer monto
+  FinMientras
+  Escribir "Cantidad de montos inferiores a 100: ", contador
+FinAlgoritmo`;
+await caso('Montos: acepta conteo bajo 100 sin procesar el cero centinela', CONTAR_MONTOS_INFERIORES_A_100, codigoMontosInferiores, true);
+
 // ── Soluciones incorrectas ──
 await caso('Suma: resta en vez de suma (salida distinta)', SUMA, `Proceso Suma
   Definir a, b, suma Como Entero
@@ -350,6 +376,7 @@ await caso('CW: rechaza sumar X + 2 en vez de X - 2', SUMA_CONDICIONAL_CW, codig
 await caso('Círculo: rechaza mostrar el perímetro antes del área', CIRCULO_AREA_PERIMETRO, codigoAreaPerimetroCirculo.replace('Escribir "ÁREA TOTAL CALCULADA: ", area\n    Escribir "PERÍMETRO CALCULADO: ", perimetro', 'Escribir "PERÍMETRO CALCULADO: ", perimetro\n    Escribir "ÁREA TOTAL CALCULADA: ", area'), false);
 await caso('Monitoreo: rechaza contar pedidos iguales al mínimo como válidos', MONITOREO_PEDIDOS_HASTA_CERO, codigoMonitoreoPedidos.replace('pedido > minimo', 'pedido >= minimo'), false);
 await caso('Productos: rechaza contar las cantidades impares', CONTAR_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar.replace('cantidad MOD 2 = 0', 'cantidad MOD 2 <> 0'), false);
+await caso('Montos: rechaza incluir el límite 100 como inferior', CONTAR_MONTOS_INFERIORES_A_100, codigoMontosInferiores.replace('monto < 100', 'monto <= 100'), false);
 await caso('Palabra clave solo en un comentario no cuenta', PAR, `Proceso ParImpar
   Definir n Como Entero
   // usar MOD
