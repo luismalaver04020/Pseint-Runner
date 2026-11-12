@@ -13,7 +13,8 @@
     "test:interprete": "node test-interprete.mjs",
     "audit:questions": "node --env-file=.env audit-questions.mjs",
     "test:preguntas": "node --env-file=.env audit-questions.mjs",
-    "test:preguntas-generadas": "node test-preguntas-generadas.mjs"
+    "test:preguntas-generadas": "node test-preguntas-generadas.mjs",
+    "audit:consistencia": "node audit-consistencia-codigo.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
