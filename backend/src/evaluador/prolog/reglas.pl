@@ -12,7 +12,7 @@
 %  Entrada = _{
 %      programa:       [ [Linea, Tipo, Texto], ... ],        % del parser (Tipo en MAYÚSCULAS)
 %      reglas:         _{ requiere, prohibe, minimos, requiere_texto, prohibe_texto,
-%                         ignorar_mayusculas, tolerancia, modo },
+%                         ignorar_mayusculas, ignorar_tildes, tolerancia, modo },
 %      casos:          [ _{id, visible, estado, mensaje, esperado, obtenido}, ... ],
 %      error_sintaxis: 'mensaje'                              % opcional
 %  }
@@ -37,6 +37,18 @@ a_atomo(Texto, Atomo) :- term_to_atom(Texto, Atomo).
 
 minusculas(A, M) :- a_atomo(A, Atomo), downcase_atom(Atomo, M).
 
+quitar_tildes(Atomo, Normalizado) :-
+    atom_chars(Atomo, Caracteres),
+    maplist(caracter_sin_tilde, Caracteres, SinTildes),
+    atom_chars(Normalizado, SinTildes).
+caracter_sin_tilde('á', 'a').
+caracter_sin_tilde('é', 'e').
+caracter_sin_tilde('í', 'i').
+caracter_sin_tilde('ó', 'o').
+caracter_sin_tilde('ú', 'u').
+caracter_sin_tilde('ü', 'u').
+caracter_sin_tilde(Caracter, Caracter).
+
 % Texto "limpio": sin espacios en los bordes y con espacios internos colapsados.
 limpiar(A, Limpio) :-
     a_atomo(A, Atomo),
@@ -54,7 +66,9 @@ limpiar(A, Limpio) :-
 equivalentes(Reglas, A, B) :-
     limpiar(A, LA), limpiar(B, LB),
     opcional(Reglas, ignorar_mayusculas, si, IM),
-    (   IM == si -> minusculas(LA, NA), minusculas(LB, NB) ; NA = LA, NB = LB ),
+    (   IM == si -> minusculas(LA, LA2), minusculas(LB, LB2) ; LA2 = LA, LB2 = LB ),
+    opcional(Reglas, ignorar_tildes, si, IT),
+    (   IT == si -> quitar_tildes(LA2, NA), quitar_tildes(LB2, NB) ; NA = LA2, NB = LB2 ),
     (   NA == NB -> true
     ;   numero_estricto(NA, X), numero_estricto(NB, Y),
         opcional(Reglas, tolerancia, 0.000001, Tol),

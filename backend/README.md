@@ -59,5 +59,7 @@ reglas Prolog. Guía de conexión, formato de configuración y pruebas: [`docs/E
 ## Auditoría del banco de preguntas
 
 - Ejecuta [`supabase/auditoria_banco_preguntas.sql`](supabase/auditoria_banco_preguntas.sql) en el SQL Editor de Supabase para revisar todas las preguntas, las opciones correctas y su asignación a niveles. Es una consulta de solo lectura.
-- Configura `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` únicamente en `backend/.env`, instala las dependencias y ejecuta `npm run audit:questions` para probar las referencias de todas las preguntas publicadas de código. El informe separa las que usan casos explícitos de las que dependen del fallback generado desde la referencia.
-- El auditor prueba referencias completas con variantes válidas e incorrectas. Las preguntas con casos explícitos pero sin referencia se reportan como pendientes de revisión; también marca los bancos de prueba cuyo resultado esperado es siempre cero, porque no distinguen algoritmos correctos de muchos errores.
+- Configura `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` únicamente en `backend/.env`, instala las dependencias y ejecuta `npm run test:preguntas` para revisar las preguntas publicadas de código. Es de solo lectura: no cambia Supabase.
+- El tester comprueba que las referencias pasen sus casos, que una variante equivalente con `Proceso` sea aceptada y que una respuesta mutada sea rechazada. También marca configuraciones débiles, preguntas sin casos ocultos y preguntas sin referencia ejecutable.
+- Para investigar una pregunta y guardar el informe JSON: `npm run test:preguntas -- --question=1940 --report=reportes/pregunta-1940.json`. También admite `--label=U3-HC-231` y `--comparar-prolog`.
+- Las alertas de calidad son heurísticas y requieren revisión humana; un resultado verde no demuestra equivalencia para todas las respuestas posibles.

@@ -9,8 +9,11 @@
     "dev": "node --watch --env-file=.env src/server.js",
     "start": "node --env-file=.env src/server.js",
     "test:evaluador": "node test-evaluador.mjs",
+    "test:respuestas": "node test-respuestas-reportadas.mjs",
     "test:interprete": "node test-interprete.mjs",
-    "audit:questions": "node --env-file=.env audit-questions.mjs"
+    "audit:questions": "node --env-file=.env audit-questions.mjs",
+    "test:preguntas": "node --env-file=.env audit-questions.mjs",
+    "test:preguntas-generadas": "node test-preguntas-generadas.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

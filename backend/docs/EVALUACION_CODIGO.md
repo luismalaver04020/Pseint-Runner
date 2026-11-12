@@ -88,6 +88,27 @@ cd backend
 npm run test:evaluador
 ```
 
+## Auditar las preguntas publicadas automáticamente
+
+`npm run test:preguntas` ejecuta una auditoría de solo lectura contra las preguntas publicadas de código en Supabase. Comprueba que la respuesta de referencia pase sus propios casos, acepta una variante equivalente `Proceso`/`FinProceso`, verifica que una respuesta deliberadamente incorrecta sea rechazada y revisa configuraciones con casos débiles, sin casos ocultos o sin referencia ejecutable.
+
+Configura `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` en `backend/.env` antes de ejecutarlo. Para revisar una sola pregunta o guardar el informe JSON:
+
+```
+npm run test:preguntas -- --question=1940
+npm run test:preguntas -- --label=U3-HC-231 --report=reportes/pregunta-1940.json
+```
+
+También admite `--comparar-prolog` para comparar el resultado del juez JavaScript con el juez Prolog. El informe separa fallas confirmadas de pendientes y alertas heurísticas; las alertas requieren revisión humana porque los casos por sí solos no prueban que una consigna y sus resultados esperados tengan la misma intención.
+
+Para generar y ejecutar una respuesta candidata por pregunta desde una exportación del banco (CSV con una columna JSON `banco`), usa:
+
+```
+node test-preguntas-generadas.mjs --csv="banco-1.csv" --csv="banco-2.csv" --report="reportes/respuestas-generadas.json" --csv-report="reportes/resumen-preguntas.csv" --sql="reportes/correcciones-seguras.sql"
+```
+
+El reporte clasifica cada pregunta como `PASA`, `NO_PASA`, `ERROR_EJECUCION` o `SIN_SOLUCION_GENERADA` e incluye el pseudocódigo candidato y el detalle de cada caso. El CSV ofrece el resumen de estado, causa y consigna por pregunta. El archivo SQL solo propone completar `expected_answer` cuando una solución generada con confianza alta pasó todos los casos existentes. Las preguntas sin reglas de generación confiables quedan pendientes; no se corrigen a partir de una conjetura.
+
 ## Seguridad
 
 - El pseudocódigo del alumno se interpreta dentro de límites de tamaño e instrucciones; no se ejecuta como JavaScript del servidor.

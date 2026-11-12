@@ -95,6 +95,7 @@ export function normalizarConfig(config) {
     requiere_texto: listaDeTextos(est.requiere_texto, 'requiere_texto'),
     prohibe_texto: listaDeTextos(est.prohibe_texto, 'prohibe_texto'),
     ignorar_mayusculas: cmp.ignorar_mayusculas === false ? 'no' : 'si',
+    ignorar_tildes: cmp.ignorar_tildes === false ? 'no' : 'si',
     tolerancia,
     modo,
   };

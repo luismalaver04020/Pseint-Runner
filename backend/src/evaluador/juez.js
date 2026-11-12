@@ -5,6 +5,15 @@ function limpiar(texto) {
   return String(texto).trim().replace(/[\t ]+/g, ' ');
 }
 
+function normalizarTexto(reglas, texto) {
+  let normalizado = texto;
+  if (reglas.ignorar_mayusculas !== 'no') normalizado = normalizado.toLocaleLowerCase('es');
+  if (reglas.ignorar_tildes !== 'no') {
+    normalizado = normalizado.replace(/ñ/g, '\uE000').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\uE000/g, 'ñ');
+  }
+  return normalizado;
+}
+
 function numeroEstrictamente(texto) {
   const limpio = limpiar(texto);
   return NUMERO_ESTRICTO.test(limpio) ? Number(limpio) : null;
@@ -21,9 +30,8 @@ function numerosEnLineas(lineas) {
 function equivalentes(reglas, esperado, obtenido) {
   const a = limpiar(esperado);
   const b = limpiar(obtenido);
-  const compararMayusculas = reglas.ignorar_mayusculas !== 'no';
-  const textoA = compararMayusculas ? a.toLocaleLowerCase('es') : a;
-  const textoB = compararMayusculas ? b.toLocaleLowerCase('es') : b;
+  const textoA = normalizarTexto(reglas, a);
+  const textoB = normalizarTexto(reglas, b);
 
   if (textoA === textoB) return true;
 
