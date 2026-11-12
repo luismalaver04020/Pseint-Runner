@@ -14,16 +14,6 @@ const MAYOR = 'U2 · CÓDIGO — Mayor de dos números';
 const TABLA = 'U3 · CÓDIGO — Tabla de multiplicar';
 const MIENTRAS = 'U3 · CÓDIGO — Suma con Mientras';
 
-const SUMA_CONDICIONAL_CW = {
-  casos: [
-    { entradas: ['4', '4', '3', '8', '7'], salida: ['8'] },
-    { entradas: ['5', '0', '-4', '5', '12', '3'], salida: ['2'] },
-    { entradas: ['3', '4', '4', '0'], salida: ['2'], visible: false },
-  ],
-  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'PARA', 'CONDICIONAL'] },
-  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
-};
-
 const CIRCULO_AREA_PERIMETRO = {
   casos: [
     { entradas: ['1'], salida: ['3.141592653589793', '6.283185307179586'] },
@@ -34,33 +24,77 @@ const CIRCULO_AREA_PERIMETRO = {
   comparacion: { modo: 'numeros', tolerancia: 0.000001 },
 };
 
-const MONITOREO_PEDIDOS_HASTA_CERO = {
+const SUMA_PRODUCTOS_CANTIDAD_PAR = {
   casos: [
-    { entradas: ['3', '2', '4', '3', '0'], salida: ['3', '3', '1'] },
-    { entradas: ['5', '-2', '7', '0'], salida: ['5', '1', '1'] },
-    { entradas: ['2', '0'], salida: ['2', '0', '0'], visible: false },
+    { entradas: ['4', '3', '-2', '4', '6'], salida: ['8'] },
+    { entradas: ['5', '4', '10', '-3', '5', '8'], salida: ['22'] },
+    { entradas: ['4', '2', '0', '12', '-6'], salida: ['8'], visible: false },
   ],
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'MIENTRAS', 'CONDICIONAL'] },
+  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+};
+
+const SUMA_MONTOS_INFERIORES_A_100 = {
+  casos: [
+    { entradas: ['3', '-2', '4', '0'], salida: ['5'] },
+    { entradas: ['4', '10', '-3', '5', '0'], salida: ['16'] },
+    { entradas: ['100', '99', '0'], salida: ['99'] },
+    { entradas: ['0'], salida: ['0'], visible: false },
+  ],
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'CONDICIONAL'] },
+  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+};
+
+const CW_PREGUNTA_PUBLICADA = {
+  casos: [
+    { entradas: ['4', '0', '3', '6', '4'], salida: ['0'] },
+    { entradas: ['5', '-2', '0', '3', '6', '4'], salida: ['0'] },
+    { entradas: ['0'], salida: ['0'] },
+    { entradas: ['3', '3', '6', '0'], salida: ['-2'], visible: false },
+  ],
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'PARA', 'CONDICIONAL'] },
+  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+};
+
+const CONTAR_MAYORES_100_CENTINELA = {
+  casos: [
+    { entradas: ['99', '100', '101', '200', '0'], salida: ['2'] },
+    { entradas: ['100', '150', '0'], salida: ['1'] },
+    { entradas: ['0'], salida: ['0'], visible: false },
+  ],
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'MIENTRAS', 'CONDICIONAL'] },
+  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+};
+
+const CONTAR_MAYORES_100_REPETIR = {
+  casos: CONTAR_MAYORES_100_CENTINELA.casos,
   estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'REPETIR', 'CONDICIONAL'] },
   comparacion: { modo: 'numeros', tolerancia: 0.000001 },
 };
 
-const CONTAR_PRODUCTOS_CANTIDAD_PAR = {
+const CONTAR_MAYORES_100_LISTA = {
   casos: [
-    { entradas: ['4', '2', '3', '6', '9'], salida: ['2'] },
-    { entradas: ['3', '1', '5', '7'], salida: ['0'] },
-    { entradas: ['5', '2', '4', '8', '10', '11'], salida: ['4'], visible: false },
+    { entradas: ['4', '99', '100', '101', '200'], salida: ['2'] },
+    { entradas: ['3', '100', '150', '200'], salida: ['2'] },
+    { entradas: ['2', '50', '100'], salida: ['0'], visible: false },
   ],
   estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'MIENTRAS', 'CONDICIONAL'] },
   comparacion: { modo: 'numeros', tolerancia: 0.000001 },
 };
 
-const CONTAR_MONTOS_INFERIORES_A_100 = {
+const CONTAR_PUNTAJES_MIN_11 = {
   casos: [
-    { entradas: ['50', '100', '101', '25', '0'], salida: ['2'] },
-    { entradas: ['1', '99', '0'], salida: ['2'] },
-    { entradas: ['25', '50', '75', '0'], salida: ['3'], visible: false },
+    { entradas: ['10', '11', '14', '0'], salida: ['2'] },
+    { entradas: ['11', '9', '15', '0'], salida: ['2'] },
+    { entradas: ['0'], salida: ['0'], visible: false },
   ],
   estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'MIENTRAS', 'CONDICIONAL'] },
+  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+};
+
+const CONTAR_PUNTAJES_MIN_11_REPETIR = {
+  casos: CONTAR_PUNTAJES_MIN_11.casos,
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'REPETIR', 'CONDICIONAL'] },
   comparacion: { modo: 'numeros', tolerancia: 0.000001 },
 };
 
@@ -217,22 +251,17 @@ const codigoSumaCondicionalCW = `Algoritmo SumaCondicionalGrupoCW
   suma <- 0
   Escribir "Ingrese la cantidad total de elementos (N):"
   Leer N
-  Si N <= 0 Entonces
-    Escribir "Error: La cantidad de elementos N debe ser un número entero mayor a cero."
-  Sino
-    Para i <- 1 Hasta N Con Paso 1 Hacer
-      Escribir "Ingrese el valor entero para la cantidad ", i, ":"
-      Leer X
-      Si X MOD 4 = 0 Entonces
-        termino <- (X * 1) + (-2)
-        suma <- suma + termino
-      FinSi
-    FinPara
-    Escribir "REPORTE TÉCNICO - GRUPO CW"
-    Escribir "SUMA CONDICIONAL ACUMULADA: ", suma
-  FinSi
+  Para i <- 1 Hasta N Con Paso 1 Hacer
+    Escribir "Ingrese el valor entero para la cantidad ", i, ":"
+    Leer X
+    Si X MOD 4 = 0 Entonces
+      termino <- (X * 1) + (-2)
+      suma <- suma + termino
+    FinSi
+  FinPara
+  Escribir "SUMA CONDICIONAL ACUMULADA: ", suma
 FinAlgoritmo`;
-await caso('CW: acepta solución con ciclo Para, MOD 4 y salida decorada', SUMA_CONDICIONAL_CW, codigoSumaCondicionalCW, true);
+await caso('CW publicado: acepta N=0 y conserva el acumulador inicializado', CW_PREGUNTA_PUBLICADA, codigoSumaCondicionalCW, true);
 
 const codigoAreaPerimetroCirculo = `Algoritmo CalcularAreaYPerimetroCirculo
   Definir radio, area, perimetro, PI Como Real
@@ -251,42 +280,9 @@ const codigoAreaPerimetroCirculo = `Algoritmo CalcularAreaYPerimetroCirculo
 FinAlgoritmo`;
 await caso('Círculo: acepta área primero, perímetro después, PI aproximado y reporte', CIRCULO_AREA_PERIMETRO, codigoAreaPerimetroCirculo, true);
 
-const codigoMonitoreoPedidos = `Algoritmo MonitoreoPedidosMinimos
-  Definir pedido, minimo Como Real
-  Definir contadorValidos, contadorTotal Como Entero
-  contadorValidos <- 0
-  contadorTotal <- 0
-  Escribir "Ingrese el umbral mínimo requerido por pedido:"
-  Leer minimo
-  Si minimo < 0 Entonces
-    Escribir "Error: El umbral mínimo no puede ser un valor negativo."
-  Sino
-    Repetir
-      Leer pedido
-      Si pedido < 0 Entonces
-        Escribir "Advertencia: El pedido no puede ser negativo."
-      Sino
-        Si pedido <> 0 Entonces
-          contadorTotal <- contadorTotal + 1
-          Si pedido > minimo Entonces
-            contadorValidos <- contadorValidos + 1
-            Escribir "Pedido válido (supera el mínimo)."
-          Sino
-            Escribir "Pedido por debajo del umbral mínimo."
-          FinSi
-        FinSi
-      FinSi
-    Hasta Que pedido = 0
-    Escribir "Umbral mínimo: ", minimo
-    Escribir "Total de pedidos procesados: ", contadorTotal
-    Escribir "Pedidos válidos (> mínimo): ", contadorValidos
-  FinSi
-FinAlgoritmo`;
-await caso('Monitoreo: acepta centinela cero, estructura Repetir y pedido estrictamente mayor', MONITOREO_PEDIDOS_HASTA_CERO, codigoMonitoreoPedidos, true);
-
 const codigoProductosCantidadPar = `Algoritmo ProductosCantidadPar
-  Definir N, cantidad, contador, i Como Entero
-  contador <- 0
+  Definir N, cantidad, suma, i Como Entero
+  suma <- 0
   i <- 1
   Escribir "Ingrese la cantidad de productos:"
   Leer N
@@ -294,29 +290,96 @@ const codigoProductosCantidadPar = `Algoritmo ProductosCantidadPar
     Escribir "Ingrese la cantidad del producto ", i, ":"
     Leer cantidad
     Si cantidad MOD 2 = 0 Entonces
-      contador <- contador + 1
+      suma <- suma + cantidad
     FinSi
     i <- i + 1
   FinMientras
-  Escribir "Cantidad de productos con cantidad par: ", contador
+  Escribir "Suma de cantidades pares: ", suma
 FinAlgoritmo`;
-await caso('Productos: acepta conteo de cantidades pares con Mientras y Si', CONTAR_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar, true);
+await caso('Productos: suma cantidades pares según los casos publicados', SUMA_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar, true);
+await caso('Productos: rechaza contar pares cuando los casos exigen sumarlos', SUMA_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar.replace('suma <- suma + cantidad', 'suma <- suma + 1'), false);
 
 const codigoMontosInferiores = `Algoritmo MontosInferioresAlLimite
-  Definir monto, contador Como Entero
-  contador <- 0
+  Definir monto, suma Como Entero
+  suma <- 0
   Escribir "Ingrese un monto (0 para terminar):"
   Leer monto
   Mientras monto <> 0 Hacer
     Si monto < 100 Entonces
-      contador <- contador + 1
+      suma <- suma + monto
     FinSi
     Escribir "Ingrese otro monto (0 para terminar):"
     Leer monto
   FinMientras
-  Escribir "Cantidad de montos inferiores a 100: ", contador
+  Escribir "Suma de montos inferiores a 100: ", suma
 FinAlgoritmo`;
-await caso('Montos: acepta conteo bajo 100 sin procesar el cero centinela', CONTAR_MONTOS_INFERIORES_A_100, codigoMontosInferiores, true);
+await caso('Montos: suma valores menores que 100 y excluye el centinela', SUMA_MONTOS_INFERIORES_A_100, codigoMontosInferiores, true);
+await caso('Montos: rechaza contar valores menores cuando los casos exigen sumarlos', SUMA_MONTOS_INFERIORES_A_100, codigoMontosInferiores.replace('suma <- suma + monto', 'suma <- suma + 1'), false);
+
+const codigoContarMayoresMientras = `Algoritmo ContarMayores
+  Definir valor, contador Como Entero
+  contador <- 0
+  Leer valor
+  Mientras valor <> 0 Hacer
+    Si valor > 100 Entonces
+      contador <- contador + 1
+    FinSi
+    Leer valor
+  FinMientras
+  Escribir contador
+FinAlgoritmo`;
+await caso('Secuencia: detecta mayores que 100, respeta > estricto y excluye el centinela', CONTAR_MAYORES_100_CENTINELA, codigoContarMayoresMientras, true);
+await caso('Secuencia: rechaza incluir el límite 100', CONTAR_MAYORES_100_CENTINELA, codigoContarMayoresMientras.replace('valor > 100', 'valor >= 100'), false);
+
+const codigoContarMayoresRepetir = `Algoritmo ContarMayoresRepetir
+  Definir valor, contador Como Entero
+  contador <- 0
+  Repetir
+    Leer valor
+    Si valor <> 0 Y valor > 100 Entonces
+      contador <- contador + 1
+    FinSi
+  Hasta Que valor = 0
+  Escribir contador
+FinAlgoritmo`;
+await caso('Secuencia: procesa centinela con Repetir sin contarlo', CONTAR_MAYORES_100_REPETIR, codigoContarMayoresRepetir, true);
+
+const codigoContarLista = `Algoritmo ContarMayoresLista
+  Definir N, i, valor, contador Como Entero
+  Leer N
+  i <- 1
+  contador <- 0
+  Mientras i <= N Hacer
+    Leer valor
+    Si valor > 100 Entonces
+      contador <- contador + 1
+    FinSi
+    i <- i + 1
+  FinMientras
+  Escribir contador
+FinAlgoritmo`;
+await caso('Lista: lee exactamente N datos y cuenta solo mayores que 100', CONTAR_MAYORES_100_LISTA, codigoContarLista, true);
+
+const codigoPuntajesMinimos = `Algoritmo ContarPuntajes
+  Definir puntaje, contador Como Entero
+  contador <- 0
+  Leer puntaje
+  Mientras puntaje <> 0 Hacer
+    Si puntaje >= 11 Entonces
+      contador <- contador + 1
+    FinSi
+    Leer puntaje
+  FinMientras
+  Escribir contador
+FinAlgoritmo`;
+await caso('Puntajes: cuenta 11 como mínimo y detiene el ciclo con cero', CONTAR_PUNTAJES_MIN_11, codigoPuntajesMinimos, true);
+await caso('Puntajes: rechaza usar > 11 y excluir el mínimo exacto', CONTAR_PUNTAJES_MIN_11, codigoPuntajesMinimos.replace('puntaje >= 11', 'puntaje > 11'), false);
+
+const codigoPuntajesRepetir = codigoContarMayoresRepetir
+  .replaceAll('ContarMayoresRepetir', 'ContarPuntajesRepetir')
+  .replaceAll('valor', 'puntaje')
+  .replaceAll('puntaje > 100', 'puntaje >= 11');
+await caso('Puntajes: cuenta los que alcanzan 11 usando Repetir', CONTAR_PUNTAJES_MIN_11_REPETIR, codigoPuntajesRepetir, true);
 
 // ── Soluciones incorrectas ──
 await caso('Suma: resta en vez de suma (salida distinta)', SUMA, `Proceso Suma
@@ -372,11 +435,11 @@ await caso('Tabla: resultados erróneos', TABLA, `Proceso Tabla
     Escribir n+i
   FinPara
 FinProceso`, false);
-await caso('CW: rechaza sumar X + 2 en vez de X - 2', SUMA_CONDICIONAL_CW, codigoSumaCondicionalCW.replace('(X * 1) + (-2)', '(X * 1) + 2'), false);
+await caso('CW: rechaza sumar X + 2 en vez de X - 2', CW_PREGUNTA_PUBLICADA, codigoSumaCondicionalCW.replace('(X * 1) + (-2)', '(X * 1) + 2'), false);
+await caso('CW: rechaza bloquear N=0 cuando la salida esperada es suma cero', CW_PREGUNTA_PUBLICADA, codigoSumaCondicionalCW.replace('Para i <- 1 Hasta N Con Paso 1 Hacer', 'Si N <= 0 Entonces\n    Escribir "Error"\n  Sino\n  Para i <- 1 Hasta N Con Paso 1 Hacer').replace('FinAlgoritmo', '  FinSi\nFinAlgoritmo'), false);
 await caso('Círculo: rechaza mostrar el perímetro antes del área', CIRCULO_AREA_PERIMETRO, codigoAreaPerimetroCirculo.replace('Escribir "ÁREA TOTAL CALCULADA: ", area\n    Escribir "PERÍMETRO CALCULADO: ", perimetro', 'Escribir "PERÍMETRO CALCULADO: ", perimetro\n    Escribir "ÁREA TOTAL CALCULADA: ", area'), false);
-await caso('Monitoreo: rechaza contar pedidos iguales al mínimo como válidos', MONITOREO_PEDIDOS_HASTA_CERO, codigoMonitoreoPedidos.replace('pedido > minimo', 'pedido >= minimo'), false);
-await caso('Productos: rechaza contar las cantidades impares', CONTAR_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar.replace('cantidad MOD 2 = 0', 'cantidad MOD 2 <> 0'), false);
-await caso('Montos: rechaza incluir el límite 100 como inferior', CONTAR_MONTOS_INFERIORES_A_100, codigoMontosInferiores.replace('monto < 100', 'monto <= 100'), false);
+await caso('Productos: rechaza seleccionar cantidades impares', SUMA_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar.replace('cantidad MOD 2 = 0', 'cantidad MOD 2 <> 0'), false);
+await caso('Montos: rechaza incluir el límite 100 como inferior', SUMA_MONTOS_INFERIORES_A_100, codigoMontosInferiores.replace('monto < 100', 'monto <= 100'), false);
 await caso('Palabra clave solo en un comentario no cuenta', PAR, `Proceso ParImpar
   Definir n Como Entero
   // usar MOD

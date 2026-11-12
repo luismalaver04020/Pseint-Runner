@@ -55,3 +55,9 @@ Para agregar una función nueva de la base de datos, primero debe existir allí,
 
 Las preguntas de tipo código se validan ejecutando el algoritmo del alumno con casos de prueba y juzgándolo con
 reglas Prolog. Guía de conexión, formato de configuración y pruebas: [`docs/EVALUACION_CODIGO.md`](docs/EVALUACION_CODIGO.md).
+
+## Auditoría del banco de preguntas
+
+- Ejecuta [`supabase/auditoria_banco_preguntas.sql`](supabase/auditoria_banco_preguntas.sql) en el SQL Editor de Supabase para revisar todas las preguntas, las opciones correctas y su asignación a niveles. Es una consulta de solo lectura.
+- Configura `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` únicamente en `backend/.env`, instala las dependencias y ejecuta `npm run audit:questions` para probar las referencias de todas las preguntas publicadas de código. El informe separa las que usan casos explícitos de las que dependen del fallback generado desde la referencia.
+- El auditor prueba referencias completas con variantes válidas e incorrectas. Las preguntas con casos explícitos pero sin referencia se reportan como pendientes de revisión; también marca los bancos de prueba cuyo resultado esperado es siempre cero, porque no distinguen algoritmos correctos de muchos errores.

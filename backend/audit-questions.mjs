@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createClient } from '@supabase/supabase-js';
-import { evaluarCodigo, evaluarContraReferencia } from './src/evaluador/evaluarCodigo.js';
+import { evaluarCodigo, evaluarContraReferencia, normalizarConfig } from './src/evaluador/evaluarCodigo.js';
 import { juzgarEnProlog } from './src/evaluador/prolog.js';
 
 const compararConProlog = process.argv.includes('--comparar-prolog');
@@ -98,16 +98,39 @@ async function evaluarYCompararJueces(pregunta, codigo) {
 const preguntas = await cargarPreguntas();
 const fallas = [];
 const omitidas = [];
+const pendientesRevision = [];
 let referenciasCorrectas = 0;
 let variantesValidasCorrectas = 0;
 let variantesIncorrectasRechazadas = 0;
+let preguntasConCasosExplicitos = 0;
+let preguntasConFallback = 0;
+let preguntasConCasosDebiles = 0;
 
 for (const pregunta of preguntas) {
   const id = `${pregunta.question_id} (${pregunta.label ?? 'sin etiqueta'})`;
   const referencia = pregunta.expected_answer?.trim() ?? '';
+  if (pregunta.evaluation_config?.casos?.length) preguntasConCasosExplicitos++;
+  else preguntasConFallback++;
 
   if (!esProgramaCompleto(referencia)) {
-    omitidas.push({ id, motivo: 'expected_answer no es un programa ejecutable completo' });
+    if (pregunta.evaluation_config?.casos?.length) {
+      try {
+        const { casos } = normalizarConfig(pregunta.evaluation_config);
+        const todosEsperadosSonCero = casos.every((caso) =>
+          caso.salida.length > 0 && caso.salida.every((valor) => Number(valor) === 0)
+        );
+        if (todosEsperadosSonCero) preguntasConCasosDebiles++;
+        pendientesRevision.push({
+          id,
+          motivo: 'tiene casos ejecutables, pero no referencia para verificar el algoritmo esperado',
+          resultadosTodosCero: todosEsperadosSonCero,
+        });
+      } catch (error) {
+        fallas.push({ id, error: `configuración de casos inválida: ${error.message}` });
+      }
+      continue;
+    }
+    omitidas.push({ id, motivo: 'no tiene referencia ni casos explícitos ejecutables' });
     continue;
   }
 
@@ -149,12 +172,17 @@ const omitidasPorUnidad = omitidas.reduce((resumen, pregunta) => {
 console.log(JSON.stringify({
   publicadas: preguntas.length,
   referenciasCorrectas,
+  preguntasConCasosExplicitos,
+  preguntasConFallback,
+  preguntasConCasosDebiles,
   variantesValidasCorrectas,
   variantesIncorrectasRechazadas,
   omitidas: omitidas.length,
+  pendientesRevision: pendientesRevision.length,
   fallas: fallas.length,
   omitidasPorUnidad,
   muestraOmitidas: omitidas.slice(0, 10),
+  muestraPendientes: pendientesRevision.slice(0, 20),
   detalleFallas: fallas,
 }, null, 2));
 
