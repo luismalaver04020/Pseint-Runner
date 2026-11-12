@@ -68,6 +68,9 @@ export function useJuegoV2({
 
   const rafRef = useRef(null);
   const qTimeoutRef = useRef(null);
+  const qTimeoutDueRef = useRef(0);
+  const qTimeoutRemainingRef = useRef(null);
+  const preguntaPendienteRef = useRef(null);
   const qTimerRef = useRef(null);
   const doneRef = useRef(false);
   const bannerTORef = useRef(null);
@@ -115,6 +118,9 @@ export function useJuegoV2({
     if (qTimeoutRef.current) {
       clearTimeout(qTimeoutRef.current);
     }
+    qTimeoutDueRef.current = 0;
+    qTimeoutRemainingRef.current = null;
+    preguntaPendienteRef.current = null;
 
     if (qTimerRef.current) {
       clearInterval(qTimerRef.current);
@@ -204,28 +210,40 @@ export function useJuegoV2({
   // ── Programar siguiente pregunta ──
 
 
-const scheduleQ = useCallback((retrasoInicial = false) => {
+const scheduleQ = useCallback((primera = false, retrasoRestante = null) => {
   if (qTimeoutRef.current) {
     clearTimeout(qTimeoutRef.current);
+    qTimeoutRef.current = null;
+    qTimeoutDueRef.current = 0;
   }
 
   const s = stateRef.current;
 
   if (!s || s.ended || s.finishing) return;
 
-  const tiempo = retrasoInicial
-    ? 5000
-    : proximoDelay(dificultad);
+  const tiempo = retrasoRestante ?? proximoDelay(dificultad, primera);
+  qTimeoutRemainingRef.current = tiempo;
+
+  // No consume el intervalo mientras el jugador tiene el juego pausado.
+  if (s.paused) return;
+
+  qTimeoutDueRef.current = Date.now() + tiempo;
 
   qTimeoutRef.current = setTimeout(() => {
-    if (
-      !stateRef.current ||
-      stateRef.current.ended ||
-      stateRef.current.questionOpen ||
-      stateRef.current.finishing
-    ) {
+    qTimeoutRef.current = null;
+    qTimeoutDueRef.current = 0;
+    const actual = stateRef.current;
+    if (!actual || actual.ended || actual.questionOpen || actual.finishing) {
+      qTimeoutRemainingRef.current = null;
       return;
     }
+    if (actual.paused) {
+      // Protege el caso límite en que el timeout vence justo al pausar.
+      qTimeoutRemainingRef.current = 1000;
+      return;
+    }
+
+    qTimeoutRemainingRef.current = null;
 
     dispararRef.current();
 
@@ -333,6 +351,7 @@ const scheduleQ = useCallback((retrasoInicial = false) => {
       !s ||
       !sessionId ||
       s.ended ||
+      s.paused ||
       s.questionOpen ||
       s.finishing ||
       solicitudRef.current
@@ -357,6 +376,10 @@ const scheduleQ = useCallback((retrasoInicial = false) => {
       }
 
       setAlerta(false);
+      if (stateRef.current.paused) {
+        preguntaPendienteRef.current = q;
+        return;
+      }
       abrirQ(q);
 
     } catch (error) {
@@ -745,6 +768,9 @@ const loop = useCallback(function juegoFrame() {
 
   revivalIniciadaRef.current = false;
   preguntaRescateRef.current = null;
+  preguntaPendienteRef.current = null;
+  qTimeoutRemainingRef.current = null;
+  qTimeoutDueRef.current = 0;
   doneRef.current = false;
     limpiar();
 
@@ -813,7 +839,7 @@ preguntaRescateRef.current = (modoDemo
     return null;
   });
 
-dispararRef.current();
+scheduleQ(true);
     } catch (error) {
       console.error(
         'Error iniciando partida:',
@@ -838,6 +864,7 @@ dispararRef.current();
     loop,
     onPowerup,
     terminar,
+    scheduleQ,
     modoDemo,
   ]);
 
@@ -860,6 +887,31 @@ dispararRef.current();
 
   // ── Pausa ──
 
+  const reanudar = useCallback(() => {
+    const s = stateRef.current;
+
+    if (!s) return;
+
+    s.paused = false;
+    setPausado(false);
+
+    if (s.ended || s.questionOpen || s.finishing) return;
+
+    if (preguntaPendienteRef.current) {
+      const q = preguntaPendienteRef.current;
+      preguntaPendienteRef.current = null;
+      abrirQ(q);
+      return;
+    }
+
+    if (qTimeoutRemainingRef.current !== null) {
+      const restante = qTimeoutRemainingRef.current;
+      qTimeoutRemainingRef.current = null;
+      scheduleQ(false, restante);
+    }
+
+  }, [abrirQ, scheduleQ]);
+
   const togglePausa = useCallback(() => {
     const s = stateRef.current;
 
@@ -872,20 +924,25 @@ dispararRef.current();
       return;
     }
 
-    s.paused = !s.paused;
-    setPausado(s.paused);
+    if (!s.paused) {
+      if (qTimeoutRef.current) {
+        qTimeoutRemainingRef.current = Math.max(
+          0,
+          qTimeoutDueRef.current - Date.now()
+        );
+        clearTimeout(qTimeoutRef.current);
+        qTimeoutRef.current = null;
+        qTimeoutDueRef.current = 0;
+      }
+      s.paused = true;
+      setAlerta(false);
+      setPausado(true);
+      return;
+    }
 
-  }, []);
+    reanudar();
 
-  const reanudar = useCallback(() => {
-    const s = stateRef.current;
-
-    if (!s) return;
-
-    s.paused = false;
-    setPausado(false);
-
-  }, []);
+  }, [reanudar]);
 
   // ── Teclado ──
 
