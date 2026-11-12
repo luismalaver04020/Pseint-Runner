@@ -110,4 +110,26 @@ await verificarGenerada('Generador: conversión km a m, cm y mm', 'U1-IC-006',
     comparacion: { modo: 'numeros', tolerancia: 0.000001 },
   });
 
+const configLimiteTermico = {
+  casos: [
+    { entradas: ['79'], salida: ['Temperatura normal'] },
+    { entradas: ['80'], salida: ['Temperatura normal'] },
+    { entradas: ['81'], salida: ['Alerta térmica'], visible: false },
+  ],
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'CONDICIONAL', 'SINO', 'ESCRITURA'] },
+  comparacion: { modo: 'exacto', ignorar_mayusculas: true },
+};
+const respuestaLimiteTermico = `Algoritmo Evaluar_Temperatura
+Definir temperatura Como Real
+Leer temperatura
+Si temperatura >= 80 Entonces
+    Escribir "Alerta térmica"
+Sino
+    Escribir "Temperatura normal"
+FinSi
+FinAlgoritmo`;
+const solucionLimiteTermico = respuestaLimiteTermico.replace('temperatura >= 80', 'temperatura > 80');
+await verificar('Límite térmico: >= 80 falla porque el caso 80 es normal', respuestaLimiteTermico, configLimiteTermico, false);
+await verificar('Límite térmico: > 80 coincide con las pruebas configuradas', solucionLimiteTermico, configLimiteTermico, true);
+
 console.log(JSON.stringify({ total: resultados.length, aprobadas: resultados.filter((r) => r.correcto === r.esperado).length, resultados }, null, 2));

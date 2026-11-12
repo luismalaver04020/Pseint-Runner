@@ -2,6 +2,7 @@
 import { crearJugador, actualizarFisica, actualizarLane } from './jugador';
 import { updateParticles, burst, renderParticles } from './particulas';
 import { renderCRT } from './psxPostProcess';
+import { renderHeartsV2 } from './vidas.js';
 import { DAY_SPEED } from './diaNoche';
 import { spawnObstaculosV2, checkColisionV2, Z_REMOVE } from './obstaculosV2';
 import { spawnPowerup, updatePowerups, actualizarRecuperacionVelocidad } from './powerups';
@@ -134,8 +135,4 @@ export function perderVidaV2(state) {
   if (state.lives > 0) state.obstacles = [];
 }
 
-export function renderHeartsV2(n, maxLives) {
-  const maxH = Math.ceil(maxLives / 2);
-  const full = Math.floor(n / 2), half = n % 2, empty = maxH - full - half;
-  return '❤️'.repeat(Math.max(0, full)) + (half ? '💔' : '') + '🖤'.repeat(Math.max(0, empty));
-}
+export { renderHeartsV2 };
