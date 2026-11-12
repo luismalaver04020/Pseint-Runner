@@ -44,6 +44,16 @@ const MONITOREO_PEDIDOS_HASTA_CERO = {
   comparacion: { modo: 'numeros', tolerancia: 0.000001 },
 };
 
+const CONTAR_PRODUCTOS_CANTIDAD_PAR = {
+  casos: [
+    { entradas: ['4', '2', '3', '6', '9'], salida: ['2'] },
+    { entradas: ['3', '1', '5', '7'], salida: ['0'] },
+    { entradas: ['5', '2', '4', '8', '10', '11'], salida: ['4'], visible: false },
+  ],
+  estructura: { requiere: ['DECLARACION', 'LECTURA', 'ESCRITURA', 'MIENTRAS', 'CONDICIONAL'] },
+  comparacion: { modo: 'numeros', tolerancia: 0.000001 },
+};
+
 let n = 0;
 async function caso(nombre, titulo, codigo, esperado, extra) {
   const r = await evaluarCodigo(codigo, typeof titulo === 'string' ? C(titulo) : titulo);
@@ -264,6 +274,24 @@ const codigoMonitoreoPedidos = `Algoritmo MonitoreoPedidosMinimos
 FinAlgoritmo`;
 await caso('Monitoreo: acepta centinela cero, estructura Repetir y pedido estrictamente mayor', MONITOREO_PEDIDOS_HASTA_CERO, codigoMonitoreoPedidos, true);
 
+const codigoProductosCantidadPar = `Algoritmo ProductosCantidadPar
+  Definir N, cantidad, contador, i Como Entero
+  contador <- 0
+  i <- 1
+  Escribir "Ingrese la cantidad de productos:"
+  Leer N
+  Mientras i <= N Hacer
+    Escribir "Ingrese la cantidad del producto ", i, ":"
+    Leer cantidad
+    Si cantidad MOD 2 = 0 Entonces
+      contador <- contador + 1
+    FinSi
+    i <- i + 1
+  FinMientras
+  Escribir "Cantidad de productos con cantidad par: ", contador
+FinAlgoritmo`;
+await caso('Productos: acepta conteo de cantidades pares con Mientras y Si', CONTAR_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar, true);
+
 // ── Soluciones incorrectas ──
 await caso('Suma: resta en vez de suma (salida distinta)', SUMA, `Proceso Suma
   Definir a, b, suma Como Entero
@@ -321,6 +349,7 @@ FinProceso`, false);
 await caso('CW: rechaza sumar X + 2 en vez de X - 2', SUMA_CONDICIONAL_CW, codigoSumaCondicionalCW.replace('(X * 1) + (-2)', '(X * 1) + 2'), false);
 await caso('Círculo: rechaza mostrar el perímetro antes del área', CIRCULO_AREA_PERIMETRO, codigoAreaPerimetroCirculo.replace('Escribir "ÁREA TOTAL CALCULADA: ", area\n    Escribir "PERÍMETRO CALCULADO: ", perimetro', 'Escribir "PERÍMETRO CALCULADO: ", perimetro\n    Escribir "ÁREA TOTAL CALCULADA: ", area'), false);
 await caso('Monitoreo: rechaza contar pedidos iguales al mínimo como válidos', MONITOREO_PEDIDOS_HASTA_CERO, codigoMonitoreoPedidos.replace('pedido > minimo', 'pedido >= minimo'), false);
+await caso('Productos: rechaza contar las cantidades impares', CONTAR_PRODUCTOS_CANTIDAD_PAR, codigoProductosCantidadPar.replace('cantidad MOD 2 = 0', 'cantidad MOD 2 <> 0'), false);
 await caso('Palabra clave solo en un comentario no cuenta', PAR, `Proceso ParImpar
   Definir n Como Entero
   // usar MOD
