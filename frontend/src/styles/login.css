@@ -33,6 +33,14 @@
 .password-rules span:first-child{grid-column:1/-1}
 .btn-demo{background:transparent;border:2px solid #757fee;color:#c2c8ff}
 .btn-demo:hover{background:#12134b}
+.signup-otp h2{color:#fff;font-size:13px;letter-spacing:1px;margin:4px 0 14px}
+.signup-otp>p{font:13px/1.55 Arial,Helvetica,sans-serif;color:#d7d9e8;margin:0 0 18px}
+.signup-otp>p b{color:#fff;overflow-wrap:anywhere}
+.signup-otp .field input{text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:25px;font-weight:700;letter-spacing:.42em;padding-left:calc(20px + .42em)}
+.otp-resend{width:100%;margin-top:10px}
+.otp-back{margin-top:14px;padding:7px 10px;background:transparent;border:0;color:#d1c9e4;text-decoration:underline;cursor:pointer;font:12px Arial,Helvetica,sans-serif}
+.otp-back:disabled{opacity:.6;cursor:wait}
+.login-info{font:13px/1.45 Arial,Helvetica,sans-serif;color:#b8f2d0;background:rgba(32,170,110,.12);border:1px solid rgba(87,220,155,.35);border-radius:10px;padding:9px 12px;text-align:center;margin-top:12px;overflow-wrap:anywhere}
 @media(max-width:440px){.password-rules{grid-template-columns:1fr}.password-rules span:first-child{grid-column:auto}}
 @keyframes login-enter{from{opacity:0;transform:translateY(22px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes login-mark{50%{transform:translateY(-4px) rotate(2deg);box-shadow:0 14px 34px rgba(200,16,46,.38),inset 0 2px rgba(255,255,255,.25)}}

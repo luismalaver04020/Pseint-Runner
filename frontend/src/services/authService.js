@@ -17,6 +17,7 @@ const traducir = (msg = '') => {
   if (m.includes('invalid login credentials')) return 'Correo o contraseña incorrectos';
   if (m.includes('already registered') || m.includes('already been registered')) return 'Ese correo ya está registrado';
   if (m.includes('rate limit')) return 'Demasiados intentos. Espera unos minutos';
+  if (m.includes('otp') || m.includes('token has expired') || m.includes('invalid token')) return 'El código es incorrecto o venció. Revisa el correo e inténtalo nuevamente';
   if (m.includes('failed to fetch') || m.includes('networkerror') || m.includes('network request failed') || m.includes('load failed')) return MSG_CONEXION;
   if (m.includes('email not confirmed')) return 'Confirma tu correo antes de entrar';
   if (m.includes('weak_password') || m.includes('password should be')) return 'La contraseña no cumple la política de seguridad de la cuenta';
@@ -64,9 +65,46 @@ export async function register(nombre, password, extra = {}) {
       options: { data: { username: nombre, rol: rol === 'docente' ? 'docente' : 'jugador', carrera, codigo: codigo.trim().toUpperCase() } },
     });
     if (error) return { ok: false, error: traducir(error.message) };
-    if (!data.session) return { ok: true, confirmar: true };   // el proyecto exige confirmar el correo
+    if (!data.session) return { ok: true, confirmar: true, correo: email };
+    // Un signup que devuelve sesión indica que Supabase tiene la confirmación desactivada.
+    // No permitimos continuar en ese estado: hay que exigir verificación por correo.
+    await cerrarSesionLocal();
+    return { ok: false, error: 'La confirmación por correo está desactivada en Supabase. Actívala para que el registro envíe un código antes de jugar.' };
+  } catch (e) {
+    return { ok: false, error: traducir(e.message) };
+  }
+}
+
+export async function verificarCodigoRegistro(correo, codigo) {
+  if (!supabaseListo) return { ok: false, error: MSG_CONEXION };
+  try {
+    const { error } = await supabase.auth.verifyOtp({
+      email: correo.trim().toLowerCase(),
+      token: codigo.trim(),
+      type: 'email',
+    });
+    if (error) return { ok: false, error: traducir(error.message) };
+
     const p = await cargarPerfil();
-    return { ok: true, usuario: p.usuario };
+    if (p.cuenta === 'suspendido') {
+      await cerrarSesion();
+      return { ok: false, error: 'Tu cuenta está suspendida' };
+    }
+    return { ok: true, usuario: p.usuario, avatar: p.avatar || null, zonas: p.zonas };
+  } catch (e) {
+    return { ok: false, error: traducir(e.message) };
+  }
+}
+
+export async function reenviarCodigoRegistro(correo) {
+  if (!supabaseListo) return { ok: false, error: MSG_CONEXION };
+  try {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: correo.trim().toLowerCase(),
+    });
+    if (error) return { ok: false, error: traducir(error.message) };
+    return { ok: true };
   } catch (e) {
     return { ok: false, error: traducir(e.message) };
   }

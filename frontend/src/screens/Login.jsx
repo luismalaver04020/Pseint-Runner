@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { register, login } from '../services/authService';
+import { register, login, verificarCodigoRegistro, reenviarCodigoRegistro } from '../services/authService';
 import { PASSWORD_MIN_LENGTH, requisitosContrasena, validarCorreoRegistro, mensajeContrasenaInvalida } from '../services/validacionesRegistro';
 import { CARRERAS } from '../services/carreras';
 import { useStore } from '../store/useStore';
@@ -21,6 +21,9 @@ export default function Login() {
   const [rol, setRol]     = useState('jugador');
   const [carrera, setCarrera] = useState('');
   const [codigo, setCodigo]   = useState(codigoInicial);
+  const [esperandoCodigo, setEsperandoCodigo] = useState(false);
+  const [codigoOtp, setCodigoOtp] = useState('');
+  const [avisoCodigo, setAvisoCodigo] = useState('');
   const [err, setErr]     = useState('');
   const [cargando, setCargando] = useState(false);
 
@@ -54,8 +57,46 @@ export default function Login() {
     const r = await register(user.trim(), pass, { rol, correo: correo.trim(), carrera, codigo });
     setCargando(false);
     if (!r.ok) { setErr(r.error); return; }
-    if (r.confirmar) { setTab('login'); setErr('Cuenta creada. Revisa tu correo para confirmarla y luego inicia sesión.'); return; }
+    if (r.confirmar) {
+      setCorreo(r.correo || correo.trim());
+      setCodigoOtp('');
+      setAvisoCodigo(`Enviamos un código de verificación a ${r.correo || correo.trim()}. Ingrésalo para activar tu cuenta y jugar.`);
+      setErr('');
+      setEsperandoCodigo(true);
+      return;
+    }
     storeLogin(r.usuario, null, null);
+  };
+
+  const doVerifyCodigo = async () => {
+    setErr('');
+    setAvisoCodigo('');
+    const token = codigoOtp.trim();
+    if (!/^\d{6}$/.test(token)) { setErr('Ingresa el código numérico de 6 dígitos'); return; }
+    setCargando(true);
+    const r = await verificarCodigoRegistro(correo, token);
+    setCargando(false);
+    if (!r.ok) { setErr(r.error); return; }
+    setEsperandoCodigo(false);
+    storeLogin(r.usuario, r.avatar, r.zonas);
+  };
+
+  const doReenviarCodigo = async () => {
+    setErr('');
+    setAvisoCodigo('');
+    setCargando(true);
+    const r = await reenviarCodigoRegistro(correo);
+    setCargando(false);
+    if (!r.ok) { setErr(r.error); return; }
+    setAvisoCodigo(`Enviamos otro código a ${correo}. Revisa también la carpeta de spam.`);
+  };
+
+  const volverAlRegistro = () => {
+    setEsperandoCodigo(false);
+    setCodigoOtp('');
+    setAvisoCodigo('');
+    setErr('');
+    setTab('reg');
   };
 
   // Demo: se juega tal cual, sin cuenta; no guarda ranking ni estadísticas.
@@ -74,11 +115,36 @@ export default function Login() {
         <div className="login-badge">🏃</div>
         <h1 className="login-title">PSeInt RUNNER</h1>
         <p className="login-sub">CONQUISTA LAS 4 ZONAS DEL PERÚ</p>
-        <div className="tab-row">
+        {!esperandoCodigo && <div className="tab-row">
           <button className={`tab-btn${tab==='login'?' active':''}`} onClick={()=>cambiarTab('login')}>INICIAR SESIÓN</button>
           <button className={`tab-btn${tab==='reg'?' active':''}`}   onClick={()=>cambiarTab('reg')}>REGISTRARSE</button>
-        </div>
-        {tab === 'login' ? (
+        </div>}
+        {esperandoCodigo ? (
+          <section className="signup-otp" aria-labelledby="otp-title">
+            <h2 id="otp-title">VERIFICA TU CORREO</h2>
+            <p>Escribe el código numérico de 6 dígitos que enviamos a <b>{correo}</b>. Necesitas verificarlo para activar tu cuenta y jugar.</p>
+            <div className="field">
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                aria-label="Código de verificación de seis dígitos"
+                placeholder="000000"
+                value={codigoOtp}
+                maxLength={6}
+                onChange={e => setCodigoOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                onKeyDown={e => e.key === 'Enter' && doVerifyCodigo()}
+              />
+            </div>
+            <button className="btn-main btn-cyan" disabled={cargando} onClick={doVerifyCodigo}>
+              {cargando ? 'VERIFICANDO…' : '✔ VERIFICAR Y CONTINUAR'}
+            </button>
+            <button className="btn-main btn-demo otp-resend" disabled={cargando} onClick={doReenviarCodigo}>
+              {cargando ? 'ENVIANDO…' : 'REENVIAR CÓDIGO'}
+            </button>
+            <button className="otp-back" disabled={cargando} onClick={volverAlRegistro}>Volver al registro</button>
+          </section>
+        ) : tab === 'login' ? (
           <>
             <div className="field"><input type="email" value={correo} onChange={e=>setCorreo(e.target.value)} placeholder="Correo institucional" onKeyDown={e=>e.key==='Enter'&&doLogin()} /></div>
             <div className="field"><PasswordInput value={pass} onChange={e=>setPass(e.target.value)} placeholder="Contraseña" autoComplete="current-password" onKeyDown={e=>e.key==='Enter'&&doLogin()} /></div>
@@ -112,9 +178,10 @@ export default function Login() {
             <button className="btn-main btn-cyan" disabled={cargando} onClick={doRegister}>{cargando ? 'CREANDO…' : '✔ CREAR CUENTA'}</button>
           </>
         )}
+        {avisoCodigo && <p className="login-info" role="status">{avisoCodigo}</p>}
         {err && <p className="login-err" role="alert">{err}</p>}
-        <button className="btn-main btn-demo" onClick={doDemo}>👀 VER DEMO (SIN CUENTA)</button>
-        <p className="login-foot">¿No tienes cuenta? <a onClick={()=>cambiarTab(tab==='login'?'reg':'login')}>{tab==='login'?'Regístrate':'Inicia sesión'}</a></p>
+        {!esperandoCodigo && <button className="btn-main btn-demo" onClick={doDemo}>👀 VER DEMO (SIN CUENTA)</button>}
+        {!esperandoCodigo && <p className="login-foot">¿No tienes cuenta? <a onClick={()=>cambiarTab(tab==='login'?'reg':'login')}>{tab==='login'?'Regístrate':'Inicia sesión'}</a></p>}
       </div>
     </div>
   );

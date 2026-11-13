@@ -6,8 +6,11 @@ a través del backend, así que **no hace falta ejecutar ningún SQL del monorep
 
 ## 1. Ajustes en el panel de Supabase
 - **Settings → API → Exposed schemas**: debe estar `algoritmos`.
-- **Authentication → Providers → Email**: para probar rápido, desactiva *Confirm email*.
-  (Si lo dejas activo, cada alumno debe confirmar su correo antes de entrar.)
+- **Authentication → Providers → Email**: activa *Confirm email* para exigir la verificación antes de iniciar una sesión de juego.
+- **Authentication → Email Templates → Confirm signup**: usa `{{ .Token }}` para mostrar el código OTP numérico y quita `{{ .ConfirmationURL }}` de esa plantilla para que el mensaje priorice el código, no el enlace.
+- Configura un servidor SMTP para producción y confirma que Supabase pueda enviar los mensajes. El servicio de correo de prueba tiene límites de envío.
+
+El flujo del frontend espera un OTP de seis dígitos con `supabase.auth.verifyOtp`. Si el registro devuelve una sesión inmediata, la app detecta que *Confirm email* está desactivado, cierra la sesión local y muestra un error de configuración en vez de permitir jugar.
 
 ## 2. Backend (Terminal 1)
 ```
