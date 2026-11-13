@@ -845,7 +845,7 @@ rafRef.current = requestAnimationFrame(loop);
  sessionRef.current = sessionId;
 
 // Precargar pregunta de rescate en segundo plano
-preguntaRescateRef.current = (modoDemo
+preguntaRescateRef.current = Promise.resolve(modoDemo
   ? obtenerSiguientePreguntaDemo(sessionId)
   : obtenerSiguientePreguntaMixta(sessionId))
   .catch((error) => {
