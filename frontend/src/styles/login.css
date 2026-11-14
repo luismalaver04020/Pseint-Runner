@@ -16,7 +16,7 @@
 .field input::placeholder{color:#9a95a5}
 .field input:focus{box-shadow:inset 0 0 0 2px #e63946}
 .login-err{font:600 13px/1.45 Arial,Helvetica,sans-serif;color:#ffb0b0;background:rgba(232,52,74,.12);border:1px solid rgba(232,52,74,.4);border-radius:10px;padding:9px 12px;text-align:center;margin-top:12px}
-.login-foot{margin-top:25px;font-size:6.5px;color:#a09aad}
+.login-foot{margin-top:25px;font-size:15px;color:#a09aad}
 .login-foot a{color:#ffb4a8;cursor:pointer;text-decoration:underline}
 
 /* ── Registro con rol / carrera / código + demo ── */
