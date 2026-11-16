@@ -47,7 +47,7 @@ export default function Login() {
         setSolicitarRecuperacion(false);
         setTab('login');
         setErr('');
-        setAvisoCodigo('Escribe una contraseña nueva para recuperar tu cuenta.');
+        setAvisoCodigo('');
       }
     });
     return () => subscription.unsubscribe();
@@ -116,8 +116,7 @@ export default function Login() {
     const r = await enviarCorreoRecuperacion(correo);
     setCargando(false);
     if (!r.ok) { setErr(r.error); return; }
-    setSolicitarRecuperacion(false);
-    setAvisoCodigo('Si existe una cuenta con ese correo, recibirás un enlace para crear una contraseña nueva. Revisa también spam.');
+    setAvisoCodigo('Si el correo está asociado a una cuenta, recibirás un enlace. Ábrelo para elegir tu contraseña nueva. Revisa también spam.');
   };
 
   const doGuardarContrasena = async () => {
