@@ -181,7 +181,7 @@ export default function Login() {
         {avisoCodigo && <p className="login-info" role="status">{avisoCodigo}</p>}
         {err && <p className="login-err" role="alert">{err}</p>}
         {!esperandoCodigo && <button className="btn-main btn-demo" onClick={doDemo}>👀 VER DEMO (SIN CUENTA)</button>}
-        {!esperandoCodigo && <p className="login-foot">¿No tienes cuenta? <a onClick={()=>cambiarTab(tab==='login'?'reg':'login')}>{tab==='login'?'Regístrate':'Inicia sesión'}</a></p>}
+        {!esperandoCodigo && <p className="login-foot">¿No tienes cuenta? <button type="button" onClick={()=>cambiarTab(tab==='login'?'reg':'login')}>{tab==='login'?'Regístrate':'Inicia sesión'}</button></p>}
       </div>
     </div>
   );

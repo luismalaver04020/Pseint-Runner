@@ -16,8 +16,10 @@
 .field input::placeholder{color:#9a95a5}
 .field input:focus{box-shadow:inset 0 0 0 2px #e63946}
 .login-err{font:600 13px/1.45 Arial,Helvetica,sans-serif;color:#ffb0b0;background:rgba(232,52,74,.12);border:1px solid rgba(232,52,74,.4);border-radius:10px;padding:9px 12px;text-align:center;margin-top:12px}
-.login-foot{margin-top:25px;font-size:20px;color:#a09aad}
-.login-foot a{color:#ffb4a8;cursor:pointer;text-decoration:underline}
+.login-foot{margin:18px 0 0;font:20px/1.5 Arial,Helvetica,sans-serif;color:#c4c0ce}
+.login-foot button{display:inline-block;margin-left:4px;padding:8px 10px;border:0;border-radius:7px;background:transparent;color:#ffb4a8;font:700 20px/1.3 Arial,Helvetica,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.login-foot button:hover{color:#fff;background:rgba(255,255,255,.08)}
+.login-foot button:focus-visible{outline:2px solid #ffb4a8;outline-offset:2px}
 
 /* ── Registro con rol / carrera / código + demo ── */
 .rol-row{display:flex;gap:6px;margin-bottom:6px}
