@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { ZONAS_ORDEN } from '../game/zonas';
 import { AVATAR_REF } from '../game/spritePersonaje';
 import { esDificultadValida } from '../services/validacionesPartida';
-import { restaurarSesion, cerrarSesion, cerrarSesionLocal, saveAvatar as guardarAvatarRemoto, guardarProgresoRemoto } from '../services/authService';
+import { restaurarSesion, cerrarSesion, cerrarSesionLocal, esFlujoRecuperacion, saveAvatar as guardarAvatarRemoto, guardarProgresoRemoto } from '../services/authService';
 
 const StoreCtx = createContext(null);
 
@@ -77,6 +77,10 @@ export function StoreProvider({ children }) {
   // Al abrir la página: si ya había una sesión de Supabase, entra directo.
   useEffect(() => {
     let vivo = true;
+    if (esFlujoRecuperacion()) {
+      setCargando(false);
+      return () => { vivo = false; };
+    }
     restaurarSesion().then(async (p) => {
       if (!vivo) return;
       if (p && p.cuenta !== 'suspendido') {

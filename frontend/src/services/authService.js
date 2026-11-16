@@ -12,6 +12,14 @@ let perfilActual = null;
 
 const dominioOk = (c) => !DOMINIO || c.endsWith('@' + DOMINIO) || c.endsWith('.' + DOMINIO);
 
+// Supabase vuelve a la misma app con este parámetro después de validar el enlace.
+export function esFlujoRecuperacion() {
+  if (typeof window === 'undefined') return false;
+  const query = new URLSearchParams(window.location.search);
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  return query.get('flujo') === 'recuperar' || query.get('type') === 'recovery' || hash.get('type') === 'recovery';
+}
+
 const traducir = (msg = '') => {
   const m = msg.toLowerCase();
   if (m.includes('invalid login credentials')) return 'Correo o contraseña incorrectos';
@@ -104,6 +112,35 @@ export async function reenviarCodigoRegistro(correo) {
       email: correo.trim().toLowerCase(),
     });
     if (error) return { ok: false, error: traducir(error.message) };
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: traducir(e.message) };
+  }
+}
+
+export async function enviarCorreoRecuperacion(correo) {
+  if (!supabaseListo) return { ok: false, error: MSG_CONEXION };
+  const email = correo.trim().toLowerCase();
+  if (!validarCorreoRegistro(email)) return { ok: false, error: 'Escribe un correo válido' };
+  try {
+    const destino = new URL(window.location.origin);
+    destino.searchParams.set('flujo', 'recuperar');
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: destino.toString() });
+    if (error) return { ok: false, error: traducir(error.message) };
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: traducir(e.message) };
+  }
+}
+
+export async function guardarNuevaContrasena(password) {
+  if (!supabaseListo) return { ok: false, error: MSG_CONEXION };
+  try {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) return { ok: false, error: traducir(error.message) };
+    await supabase.auth.signOut({ scope: 'local' });
+    perfilActual = null;
+    window.history.replaceState({}, document.title, window.location.pathname);
     return { ok: true };
   } catch (e) {
     return { ok: false, error: traducir(e.message) };

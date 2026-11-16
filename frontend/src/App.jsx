@@ -9,7 +9,7 @@ import Ranking       from './screens/Ranking';
 import PanelDocente  from './screens/PanelDocente';
 import PanelAdmin    from './screens/PanelAdmin';
 import EsperaDocente from './screens/EsperaDocente';
-import { getAvatar, getPerfil, refrescarPerfil } from './services/authService';
+import { esFlujoRecuperacion, getAvatar, getPerfil, refrescarPerfil } from './services/authService';
 import { setSinRegistro } from './services/sesionService';
 import { esDificultadValida } from './services/validacionesPartida';
 import ConfirmModal from './components/ConfirmModal';
@@ -21,7 +21,7 @@ function Inner() {
   const [confirmandoSalida, setConfirmandoSalida] = useState(false);   // modal «¿Cerrar sesión?»
   const [version, setVersion] = useState(0);   // sube al refrescar el perfil desde el servidor
   // La landing se ve al abrir el juego sin sesión; un link de invitación (?unirse=CODIGO) va directo al registro.
-  const [verLanding, setVerLanding] = useState(() => !new URLSearchParams(window.location.search).get('unirse'));
+  const [verLanding, setVerLanding] = useState(() => !new URLSearchParams(window.location.search).get('unirse') && !esFlujoRecuperacion());
 
   const esDemo = usuario === 'demo';
   const perfil = usuario && !esDemo ? getPerfil(usuario) : null;

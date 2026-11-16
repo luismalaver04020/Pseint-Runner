@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { register, login, verificarCodigoRegistro, reenviarCodigoRegistro } from '../services/authService';
+import { register, login, verificarCodigoRegistro, reenviarCodigoRegistro, enviarCorreoRecuperacion, guardarNuevaContrasena, esFlujoRecuperacion } from '../services/authService';
 import { PASSWORD_MIN_LENGTH, requisitosContrasena, validarCorreoRegistro, mensajeContrasenaInvalida } from '../services/validacionesRegistro';
 import { CARRERAS } from '../services/carreras';
 import { useStore } from '../store/useStore';
 import PasswordInput from '../components/PasswordInput';
+import { supabase, supabaseListo } from '../services/supabase';
 import mapaImg from '../assets/mapa-peru.png';
 import '../styles/login.css';
 
@@ -22,6 +23,8 @@ export default function Login() {
   const [carrera, setCarrera] = useState('');
   const [codigo, setCodigo]   = useState(codigoInicial);
   const [esperandoCodigo, setEsperandoCodigo] = useState(false);
+  const [modoRecuperacion, setModoRecuperacion] = useState(esFlujoRecuperacion);
+  const [solicitarRecuperacion, setSolicitarRecuperacion] = useState(false);
   const [codigoOtp, setCodigoOtp] = useState('');
   const [avisoCodigo, setAvisoCodigo] = useState('');
   const [err, setErr]     = useState('');
@@ -34,6 +37,20 @@ export default function Login() {
         setErr('Tu sesión se cerró tras 10 minutos sin actividad. Inicia sesión nuevamente.');
       }
     } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (!supabaseListo || !supabase) return undefined;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setModoRecuperacion(true);
+        setSolicitarRecuperacion(false);
+        setTab('login');
+        setErr('');
+        setAvisoCodigo('Escribe una contraseña nueva para recuperar tu cuenta.');
+      }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   const doLogin = async () => {
@@ -91,6 +108,34 @@ export default function Login() {
     setAvisoCodigo(`Enviamos otro código a ${correo}. Revisa también la carpeta de spam.`);
   };
 
+  const doEnviarRecuperacion = async () => {
+    setErr('');
+    setAvisoCodigo('');
+    if (!correo.trim()) { setErr('Escribe el correo asociado a tu cuenta'); return; }
+    setCargando(true);
+    const r = await enviarCorreoRecuperacion(correo);
+    setCargando(false);
+    if (!r.ok) { setErr(r.error); return; }
+    setSolicitarRecuperacion(false);
+    setAvisoCodigo('Si existe una cuenta con ese correo, recibirás un enlace para crear una contraseña nueva. Revisa también spam.');
+  };
+
+  const doGuardarContrasena = async () => {
+    setErr('');
+    setAvisoCodigo('');
+    const errorContrasena = mensajeContrasenaInvalida(pass);
+    if (errorContrasena) { setErr(errorContrasena); return; }
+    if (pass !== pass2) { setErr('Las contraseñas no coinciden'); return; }
+    setCargando(true);
+    const r = await guardarNuevaContrasena(pass);
+    setCargando(false);
+    if (!r.ok) { setErr(r.error); return; }
+    setModoRecuperacion(false);
+    setPass('');
+    setPass2('');
+    setAvisoCodigo('Contraseña actualizada. Ya puedes iniciar sesión con tu nueva contraseña.');
+  };
+
   const volverAlRegistro = () => {
     setEsperandoCodigo(false);
     setCodigoOtp('');
@@ -105,7 +150,7 @@ export default function Login() {
     storeLogin('demo', null, null);
   };
 
-  const cambiarTab = (t) => { setTab(t); setErr(''); };
+  const cambiarTab = (t) => { setTab(t); setErr(''); setAvisoCodigo(''); setSolicitarRecuperacion(false); };
 
   return (
     <div className="login-bg">
@@ -115,11 +160,32 @@ export default function Login() {
         <div className="login-badge">🏃</div>
         <h1 className="login-title">PSeInt RUNNER</h1>
         <p className="login-sub">CONQUISTA LAS 4 ZONAS DEL PERÚ</p>
-        {!esperandoCodigo && <div className="tab-row">
+        {!esperandoCodigo && !modoRecuperacion && <div className="tab-row">
           <button className={`tab-btn${tab==='login'?' active':''}`} onClick={()=>cambiarTab('login')}>INICIAR SESIÓN</button>
           <button className={`tab-btn${tab==='reg'?' active':''}`}   onClick={()=>cambiarTab('reg')}>REGISTRARSE</button>
         </div>}
-        {esperandoCodigo ? (
+        {modoRecuperacion ? (
+          <section className="password-recovery" aria-labelledby="recovery-title">
+            <h2 id="recovery-title">{solicitarRecuperacion ? 'RECUPERA TU CUENTA' : 'NUEVA CONTRASEÑA'}</h2>
+            {solicitarRecuperacion ? (
+              <>
+                <p>Te enviaremos un enlace seguro al correo registrado para que puedas crear otra contraseña.</p>
+                <div className="field"><input type="email" value={correo} onChange={e=>setCorreo(e.target.value)} placeholder="Correo asociado a tu cuenta" autoComplete="email" maxLength={254} onKeyDown={e=>e.key==='Enter'&&doEnviarRecuperacion()} /></div>
+                <button className="btn-main btn-cyan" disabled={cargando} onClick={doEnviarRecuperacion}>{cargando ? 'ENVIANDO…' : 'ENVIAR ENLACE DE RECUPERACIÓN'}</button>
+              </>
+            ) : (
+              <>
+                <p>Elige una contraseña nueva para volver a entrar a tu cuenta.</p>
+                <div className="field password-field"><PasswordInput value={pass} onChange={e=>setPass(e.target.value)} placeholder="Nueva contraseña" autoComplete="new-password" minLength={PASSWORD_MIN_LENGTH} maxLength={128} aria-describedby="recovery-password-rules" />
+                  <div id="recovery-password-rules" className="password-rules" aria-live="polite">{requisitosContrasena(pass).map(r => <span key={r.id} className={r.cumple ? 'cumple' : ''}><b>{r.cumple ? '✓' : '○'}</b>{r.texto}</span>)}</div>
+                </div>
+                <div className="field"><PasswordInput value={pass2} onChange={e=>setPass2(e.target.value)} placeholder="Confirmar contraseña" autoComplete="new-password" maxLength={128} onKeyDown={e=>e.key==='Enter'&&doGuardarContrasena()} /></div>
+                <button className="btn-main btn-cyan" disabled={cargando} onClick={doGuardarContrasena}>{cargando ? 'GUARDANDO…' : '✔ GUARDAR CONTRASEÑA'}</button>
+              </>
+            )}
+            <button className="otp-back" disabled={cargando} onClick={() => { setModoRecuperacion(false); setSolicitarRecuperacion(false); setPass(''); setPass2(''); setErr(''); setAvisoCodigo(''); window.history.replaceState({}, document.title, window.location.pathname); }}>Volver al inicio de sesión</button>
+          </section>
+        ) : esperandoCodigo ? (
           <section className="signup-otp" aria-labelledby="otp-title">
             <h2 id="otp-title">VERIFICA TU CORREO</h2>
             <p>Escribe el código numérico de 6 dígitos que enviamos a <b>{correo}</b>. Necesitas verificarlo para activar tu cuenta y jugar.</p>
@@ -149,6 +215,7 @@ export default function Login() {
             <div className="field"><input type="email" value={correo} onChange={e=>setCorreo(e.target.value)} placeholder="Correo institucional" onKeyDown={e=>e.key==='Enter'&&doLogin()} /></div>
             <div className="field"><PasswordInput value={pass} onChange={e=>setPass(e.target.value)} placeholder="Contraseña" autoComplete="current-password" onKeyDown={e=>e.key==='Enter'&&doLogin()} /></div>
             <button className="btn-main btn-cyan" disabled={cargando} onClick={doLogin}>{cargando ? 'ENTRANDO…' : '▶ ENTRAR'}</button>
+            <button className="login-forgot" type="button" onClick={() => { setModoRecuperacion(true); setSolicitarRecuperacion(true); setErr(''); setAvisoCodigo(''); }}>¿Olvidaste tu contraseña?</button>
           </>
         ) : (
           <>
@@ -180,8 +247,8 @@ export default function Login() {
         )}
         {avisoCodigo && <p className="login-info" role="status">{avisoCodigo}</p>}
         {err && <p className="login-err" role="alert">{err}</p>}
-        {!esperandoCodigo && <button className="btn-main btn-demo" onClick={doDemo}>👀 VER DEMO (SIN CUENTA)</button>}
-        {!esperandoCodigo && <p className="login-foot">¿No tienes cuenta? <button type="button" onClick={()=>cambiarTab(tab==='login'?'reg':'login')}>{tab==='login'?'Regístrate':'Inicia sesión'}</button></p>}
+        {!esperandoCodigo && !modoRecuperacion && <button className="btn-main btn-demo" onClick={doDemo}>👀 VER DEMO (SIN CUENTA)</button>}
+        {!esperandoCodigo && !modoRecuperacion && <p className="login-foot">¿No tienes cuenta? <button type="button" onClick={()=>cambiarTab(tab==='login'?'reg':'login')}>{tab==='login'?'Regístrate':'Inicia sesión'}</button></p>}
       </div>
     </div>
   );
