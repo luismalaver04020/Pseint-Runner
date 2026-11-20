@@ -2,7 +2,14 @@
 // Login con CORREO institucional. El nombre de usuario es el nombre visible en el juego.
 // getPerfil/getAvatar siguen siendo síncronos: leen la caché que se llena al iniciar sesión.
 import { supabase, supabaseListo, rpc, MSG_CONEXION } from './supabase';
-import { validarCorreoRegistro, mensajeContrasenaInvalida } from './validacionesRegistro';
+import {
+  GENEROS_REGISTRO,
+  normalizarNombrePersona,
+  validarCorreoRegistro,
+  validarFechaNacimiento,
+  validarNombrePersona,
+  mensajeContrasenaInvalida,
+} from './validacionesRegistro';
 
 const RESERVADOS = ['demo', 'admin'];
 // Opcional: dominio institucional permitido, ej. "utp.edu.pe". Vacío = cualquier correo.
@@ -50,15 +57,27 @@ export async function restaurarSesion() {
   }
 }
 
-// extra = { rol: 'jugador'|'docente', correo, carrera, codigo }
+// extra = { rol, correo, carrera, codigo, nombres, apellidos, fechaNacimiento, genero }
 export async function register(nombre, password, extra = {}) {
-  const { rol = 'jugador', correo = '', carrera = '', codigo = '' } = extra;
+  const {
+    rol = 'jugador', correo = '', carrera = '', codigo = '',
+    nombres = '', apellidos = '', fechaNacimiento = '', genero = '',
+  } = extra;
   const email = correo.trim().toLowerCase();
   if (!supabaseListo) { console.error('Falta configurar Supabase'); return { ok: false, error: MSG_CONEXION }; }
   if (!nombre || nombre.length < 2) return { ok: false, error: 'Mínimo 2 caracteres' };
   if (RESERVADOS.includes(nombre.toLowerCase())) return { ok: false, error: 'Ese nombre está reservado' };
   if (!validarCorreoRegistro(email)) return { ok: false, error: 'Escribe un correo válido' };
   if (!dominioOk(email)) return { ok: false, error: `Usa tu correo institucional (@${DOMINIO})` };
+  if (!validarNombrePersona(nombres) || !validarNombrePersona(apellidos)) {
+    return { ok: false, error: 'Escribe nombres y apellidos válidos (de 2 a 80 caracteres, sin números).' };
+  }
+  if (!validarFechaNacimiento(fechaNacimiento)) {
+    return { ok: false, error: 'Ingresa una fecha de nacimiento válida que no sea posterior a hoy.' };
+  }
+  if (!GENEROS_REGISTRO.some(opcion => opcion.valor === genero)) {
+    return { ok: false, error: 'Elige una opción de género.' };
+  }
   const errorContrasena = mensajeContrasenaInvalida(password);
   if (errorContrasena) return { ok: false, error: errorContrasena };
   if (!carrera) return { ok: false, error: 'Elige tu carrera' };
@@ -70,7 +89,18 @@ export async function register(nombre, password, extra = {}) {
     }
     const { data, error } = await supabase.auth.signUp({
       email, password,
-      options: { data: { username: nombre, rol: rol === 'docente' ? 'docente' : 'jugador', carrera, codigo: codigo.trim().toUpperCase() } },
+      options: {
+        data: {
+          username: nombre.trim(),
+          nombres: normalizarNombrePersona(nombres),
+          apellidos: normalizarNombrePersona(apellidos),
+          fecha_nacimiento: fechaNacimiento,
+          genero,
+          rol: rol === 'docente' ? 'docente' : 'jugador',
+          carrera,
+          codigo: codigo.trim().toUpperCase(),
+        },
+      },
     });
     if (error) return { ok: false, error: traducir(error.message) };
     if (!data.session) return { ok: true, confirmar: true, correo: email };

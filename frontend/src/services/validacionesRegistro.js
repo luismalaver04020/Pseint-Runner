@@ -5,6 +5,37 @@ export function validarCorreoRegistro(correo) {
   return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
+export function normalizarNombrePersona(nombre = '') {
+  return nombre.trim().replace(/\s+/g, ' ');
+}
+
+export function validarNombrePersona(nombre = '') {
+  const valor = normalizarNombrePersona(nombre);
+  return [...valor].length >= 2
+    && [...valor].length <= 80
+    && /^[\p{L}\p{M}][\p{L}\p{M} .'-]*$/u.test(valor);
+}
+
+export function validarFechaNacimiento(fecha = '') {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return false;
+  const [anio, mes, dia] = fecha.split('-').map(Number);
+  const nacimiento = new Date(Date.UTC(anio, mes - 1, dia));
+  if (nacimiento.getUTCFullYear() !== anio || nacimiento.getUTCMonth() !== mes - 1 || nacimiento.getUTCDate() !== dia) {
+    return false;
+  }
+  const hoy = new Date();
+  const hoyLocal = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+  return nacimiento <= new Date(Date.UTC(hoyLocal.getFullYear(), hoyLocal.getMonth(), hoyLocal.getDate()));
+}
+
+export const GENEROS_REGISTRO = [
+  { valor: 'mujer', etiqueta: 'Mujer' },
+  { valor: 'hombre', etiqueta: 'Hombre' },
+  { valor: 'no_binario', etiqueta: 'No binario' },
+  { valor: 'otro', etiqueta: 'Otro' },
+  { valor: 'prefiero_no_decir', etiqueta: 'Prefiero no decirlo' },
+];
+
 export function requisitosContrasena(password = '') {
   const longitud = [...password].length >= PASSWORD_MIN_LENGTH;
   return [

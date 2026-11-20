@@ -23,6 +23,9 @@ CREATE TABLE algoritmos.users (
     auth_provider VARCHAR NOT NULL DEFAULT 'local',
     external_id TEXT,
     display_name VARCHAR NOT NULL,
+    nombres VARCHAR(80),
+    apellidos VARCHAR(80),
+    fecha_nacimiento DATE,
     gender VARCHAR,
     account_status VARCHAR NOT NULL DEFAULT 'activo',
     is_trial BOOLEAN NOT NULL DEFAULT FALSE,
@@ -30,6 +33,14 @@ CREATE TABLE algoritmos.users (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- El nombre visible del ranking y el correo identifican una sola cuenta,
+-- sin permitir duplicados que solo cambien mayúsculas.
+CREATE UNIQUE INDEX uq_users_username_lower ON algoritmos.users (lower(username));
+CREATE UNIQUE INDEX uq_users_email_lower ON algoritmos.users (lower(email));
+CREATE UNIQUE INDEX uq_users_provider_external
+    ON algoritmos.users (auth_provider, external_id)
+    WHERE external_id IS NOT NULL;
 
 CREATE TABLE algoritmos.user_roles (
     user_id UUID NOT NULL REFERENCES algoritmos.users(user_id),

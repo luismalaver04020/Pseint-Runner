@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { register, login, verificarCodigoRegistro, reenviarCodigoRegistro, enviarCorreoRecuperacion, guardarNuevaContrasena, esFlujoRecuperacion } from '../services/authService';
-import { PASSWORD_MIN_LENGTH, requisitosContrasena, validarCorreoRegistro, mensajeContrasenaInvalida } from '../services/validacionesRegistro';
+import { PASSWORD_MIN_LENGTH, GENEROS_REGISTRO, requisitosContrasena, validarCorreoRegistro, validarFechaNacimiento, validarNombrePersona, mensajeContrasenaInvalida } from '../services/validacionesRegistro';
 import { CARRERAS } from '../services/carreras';
 import { useStore } from '../store/useStore';
 import PasswordInput from '../components/PasswordInput';
@@ -16,6 +16,10 @@ export default function Login() {
   const codigoInicial = codigoDeLink();
   const [tab, setTab]     = useState(codigoInicial ? 'reg' : 'login');
   const [user, setUser]   = useState('');
+  const [nombres, setNombres] = useState('');
+  const [apellidos, setApellidos] = useState('');
+  const [fechaNacimiento, setFechaNacimiento] = useState('');
+  const [genero, setGenero] = useState('');
   const [pass, setPass]   = useState('');
   const [pass2, setPass2] = useState('');
   const [correo, setCorreo] = useState('');
@@ -29,6 +33,9 @@ export default function Login() {
   const [avisoCodigo, setAvisoCodigo] = useState('');
   const [err, setErr]     = useState('');
   const [cargando, setCargando] = useState(false);
+  const hoy = new Date();
+  hoy.setMinutes(hoy.getMinutes() - hoy.getTimezoneOffset());
+  const fechaMaxima = hoy.toISOString().slice(0, 10);
 
   useEffect(() => {
     try {
@@ -66,12 +73,24 @@ export default function Login() {
   const doRegister = async () => {
     setErr('');
     if (!user.trim() || !correo.trim() || !carrera || !pass || !pass2) { setErr('Completa todos los campos obligatorios'); return; }
+    if (!validarNombrePersona(nombres) || !validarNombrePersona(apellidos)) {
+      setErr('Escribe nombres y apellidos válidos (de 2 a 80 caracteres, sin números).');
+      return;
+    }
+    if (!validarFechaNacimiento(fechaNacimiento)) {
+      setErr('Ingresa una fecha de nacimiento válida que no sea posterior a hoy.');
+      return;
+    }
+    if (!GENEROS_REGISTRO.some(opcion => opcion.valor === genero)) { setErr('Elige una opción de género.'); return; }
     if (!validarCorreoRegistro(correo)) { setErr('Escribe un correo válido'); return; }
     const errorContrasena = mensajeContrasenaInvalida(pass);
     if (errorContrasena) { setErr(errorContrasena); return; }
     if (pass !== pass2) { setErr('Las contraseñas no coinciden'); return; }
     setCargando(true);
-    const r = await register(user.trim(), pass, { rol, correo: correo.trim(), carrera, codigo });
+    const r = await register(user.trim(), pass, {
+      rol, correo: correo.trim(), carrera, codigo,
+      nombres, apellidos, fechaNacimiento, genero,
+    });
     setCargando(false);
     if (!r.ok) { setErr(r.error); return; }
     if (r.confirmar) {
@@ -222,6 +241,15 @@ export default function Login() {
               <button className={`tab-btn${rol==='jugador'?' active':''}`} onClick={()=>setRol('jugador')}>SOY ALUMNO</button>
               <button className={`tab-btn${rol==='docente'?' active':''}`} onClick={()=>setRol('docente')}>SOY DOCENTE</button>
             </div>
+            <div className="field"><input value={nombres} onChange={e=>setNombres(e.target.value)} placeholder="Nombres" autoComplete="given-name" maxLength={80} /></div>
+            <div className="field"><input value={apellidos} onChange={e=>setApellidos(e.target.value)} placeholder="Apellidos" autoComplete="family-name" maxLength={80} /></div>
+            <div className="field"><input type="date" value={fechaNacimiento} onChange={e=>setFechaNacimiento(e.target.value)} max={fechaMaxima} aria-label="Fecha de nacimiento" autoComplete="bday" /></div>
+            <div className="field">
+              <select value={genero} onChange={e=>setGenero(e.target.value)} aria-label="Género">
+                <option value="">Elige tu género</option>
+                {GENEROS_REGISTRO.map(opcion => <option key={opcion.valor} value={opcion.valor}>{opcion.etiqueta}</option>)}
+              </select>
+            </div>
             <div className="field"><input value={user} onChange={e=>setUser(e.target.value)} placeholder="Nombre de usuario (el que verán en el ranking)" autoComplete="username" maxLength={32} /></div>
             <div className="field"><input type="email" value={correo} onChange={e=>setCorreo(e.target.value)} placeholder="Correo institucional" autoComplete="email" maxLength={254} /></div>
             <div className="field">
@@ -233,6 +261,7 @@ export default function Login() {
             {rol === 'jugador' && (
               <div className="field"><input value={codigo} onChange={e=>setCodigo(e.target.value.toUpperCase())} placeholder="Código de sección (opcional)" /></div>
             )}
+            <p className="personal-data-note">Tus datos personales se guardarán en tu perfil.</p>
             <div className="field password-field">
               <PasswordInput value={pass} onChange={e=>setPass(e.target.value)} placeholder="Contraseña" autoComplete="new-password" minLength={PASSWORD_MIN_LENGTH} maxLength={128} aria-describedby="password-rules" />
               <div id="password-rules" className="password-rules" aria-live="polite">
