@@ -11,6 +11,55 @@ const etiquetaRol = (u) => {
   return u.rol || '—';
 };
 
+const COLORES_GRAFICO = ['#38d6ff', '#ff7a45', '#9b8cff', '#3ddc84', '#ffc83d', '#ff5d73', '#76a9ff'];
+
+function GraficoGenero({ datos = [], total = 0 }) {
+  let acumulado = 0;
+  const segmentos = datos.map((d, i) => {
+    const inicio = acumulado;
+    acumulado += Math.max(0, Number(d.porcentaje) || 0);
+    return `${COLORES_GRAFICO[i % COLORES_GRAFICO.length]} ${inicio}% ${acumulado}%`;
+  });
+  return <div className="pn-gender-chart">
+    <div className="pn-donut" style={{ background: segmentos.length ? `conic-gradient(${segmentos.join(',')})` : '#26345f' }} role="img" aria-label="Distribución de usuarios por género">
+      <div className="pn-donut-center"><b>{total}</b><span>usuarios</span></div>
+    </div>
+    <ul className="pn-legend">{datos.map((d, i) => <li key={d.categoria}><i style={{ '--swatch': COLORES_GRAFICO[i % COLORES_GRAFICO.length] }} /><span>{d.categoria}</span><b>{d.cantidad}<small>{d.porcentaje}%</small></b></li>)}</ul>
+  </div>;
+}
+
+function GraficoRegistros({ datos = [] }) {
+  if (!datos.length) return <p className="pn-vacio">Aún no hay registros en este periodo.</p>;
+  const ancho = 640, alto = 220, izquierda = 38, derecha = 14, arriba = 16, abajo = 42;
+  const maximo = Math.max(1, ...datos.map((d) => Number(d.cantidad) || 0));
+  const x = (i) => izquierda + (datos.length < 2 ? (ancho - izquierda - derecha) / 2 : i * (ancho - izquierda - derecha) / (datos.length - 1));
+  const y = (n) => alto - abajo - (Number(n) / maximo) * (alto - arriba - abajo);
+  const puntos = datos.map((d, i) => `${x(i)},${y(d.cantidad)}`).join(' ');
+  const etiquetaMes = (mes) => {
+    const [anio, numero] = String(mes).split('-').map(Number);
+    const corto = new Intl.DateTimeFormat('es-PE', { month: 'short' }).format(new Date(anio, numero - 1, 1)).replace('.', '');
+    return `${corto} '${String(anio).slice(-2)}`;
+  };
+  return <div className="pn-line-wrap"><svg className="pn-line-chart" viewBox={`0 0 ${ancho} ${alto}`} role="img" aria-label="Nuevas cuentas registradas por mes">
+    {[0, .5, 1].map((ratio) => { const yy = arriba + ratio * (alto - arriba - abajo); return <g key={ratio}><line x1={izquierda} x2={ancho - derecha} y1={yy} y2={yy} className="pn-chart-grid"/><text x={izquierda - 9} y={yy + 4} textAnchor="end" className="pn-chart-axis">{Math.round(maximo * (1 - ratio))}</text></g>; })}
+    <polygon points={`${izquierda},${alto - abajo} ${puntos} ${x(datos.length - 1)},${alto - abajo}`} className="pn-line-area" />
+    <polyline points={puntos} className="pn-line-path" />
+    {datos.map((d, i) => <g key={d.mes}><circle cx={x(i)} cy={y(d.cantidad)} r="4" className="pn-line-point"><title>{`${etiquetaMes(d.mes)} ${d.mes}: ${d.cantidad} registros`}</title></circle><text x={x(i)} y={alto - 16} textAnchor="middle" className="pn-chart-axis">{etiquetaMes(d.mes)}</text></g>)}
+  </svg></div>;
+}
+
+function GraficoBarras({ datos = [], total = 0, modo = 'cantidad' }) {
+  const maximo = Math.max(1, ...datos.map((d) => Number(d.cantidad) || 0));
+  return <div className="pn-report-list">{datos.map((d, i) => {
+    const cantidad = Number(d.cantidad) || 0;
+    const porcentaje = total ? Math.round(cantidad * 1000 / total) / 10 : 0;
+    return <div className="pn-report-row" key={d.categoria} title={`${d.categoria}: ${cantidad} usuarios (${porcentaje}%)`}>
+      <div><span>{d.categoria}</span><b>{modo === 'porcentaje' ? `${porcentaje}%` : cantidad}</b></div>
+      <div className="pn-report-track"><i style={{ width: `${(cantidad / maximo) * 100}%`, '--bar-color': COLORES_GRAFICO[i % COLORES_GRAFICO.length] }} /></div>
+    </div>;
+  })}</div>;
+}
+
 export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo = false, initialTab = 'solicitudes' }) {
   const [tab, setTab] = useState(initialTab || 'solicitudes');
   const [sols, setSols] = useState([]);
@@ -21,6 +70,8 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo 
   const [confirmar, setConfirmar] = useState(null);   // { titulo, mensaje, textoConfirmar, accion }
   const [ocupado, setOcupado] = useState(false);
   const [reporte, setReporte] = useState(null);
+  const [modoReporte, setModoReporte] = useState('cantidad');
+  const [mesesReporte, setMesesReporte] = useState(12);
 
   const cargar = useCallback(async () => {
     if (demo) {
@@ -154,10 +205,12 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo 
           </>
         )}
 
-        {tab === 'reportes' && reporte && <section className="pn-report" aria-label="Reportes demográficos agregados">
-          <div className="pn-report-top"><div><span className="pn-eyebrow">DATOS AGREGADOS</span><h2>Quiénes usan PSeInt Runner</h2><p>Resumen de cuentas registradas. No se muestran nombres ni fechas de nacimiento individuales.</p></div><div className="pn-report-total"><b>{reporte.total ?? 0}</b><span>usuarios registrados</span></div></div>
+        {tab === 'reportes' && reporte && <section className="pn-report" aria-label="Reportes de usuarios">
+          <div className="pn-report-top"><div><span className="pn-eyebrow">PANEL DE USUARIOS</span><h2>Registro y comunidad</h2><p>Vista general del crecimiento y composición de las cuentas.</p></div><div className="pn-report-total"><b>{reporte.total ?? 0}</b><span>cuentas registradas</span></div></div>
+          <article className="pn-report-card pn-trend-card"><div className="pn-chart-heading"><div><h3>Nuevos registros</h3><p>Altas por mes</p></div><div className="pn-chart-tools" role="group" aria-label="Periodo del gráfico"><button className={mesesReporte === 6 ? 'selected' : ''} onClick={() => setMesesReporte(6)}>6 meses</button><button className={mesesReporte === 12 ? 'selected' : ''} onClick={() => setMesesReporte(12)}>12 meses</button></div></div><GraficoRegistros datos={(reporte.registrosMensuales || []).slice(-mesesReporte)} /></article>
           <div className="pn-report-grid">
-            {[['Género', reporte.porGenero, true],['Edades', reporte.porEdad],['Carreras', reporte.porCarrera],['Tipo de cuenta', reporte.porRol],['Registros por mes', reporte.registrosMensuales]].map(([titulo, items, porcentaje]) => <article className="pn-report-card" key={titulo}><h3>{titulo}</h3>{(items || []).length ? <div className="pn-report-list">{items.map((i) => { const max = Math.max(1, ...items.map((x) => x.cantidad || 0)); return <div className="pn-report-row" key={i.categoria || i.mes}><div><span>{i.categoria || i.mes}</span><b>{i.cantidad} {porcentaje && <small>· {i.porcentaje}%</small>}</b></div><div className="pn-report-track"><i style={{ width: `${(i.cantidad / max) * 100}%` }} /></div></div>; })}</div> : <p className="pn-vacio">Todavía no hay datos para mostrar.</p>}</article>)}
+            <article className="pn-report-card"><div className="pn-chart-heading"><div><h3>Género</h3><p>Distribución de cuentas</p></div></div><GraficoGenero datos={reporte.porGenero || []} total={reporte.total || 0} /></article>
+            {[['Edades', reporte.porEdad],['Carreras', reporte.porCarrera],['Tipo de cuenta', reporte.porRol]].map(([titulo, items]) => <article className="pn-report-card" key={titulo}><div className="pn-chart-heading"><div><h3>{titulo}</h3><p>Usuarios registrados</p></div><div className="pn-chart-tools" role="group" aria-label={`Mostrar ${titulo.toLowerCase()} como`}><button className={modoReporte === 'cantidad' ? 'selected' : ''} onClick={() => setModoReporte('cantidad')}>N.º</button><button className={modoReporte === 'porcentaje' ? 'selected' : ''} onClick={() => setModoReporte('porcentaje')}>%</button></div></div>{items?.length ? <GraficoBarras datos={items} total={reporte.total || 0} modo={modoReporte} /> : <p className="pn-vacio">Todavía no hay datos para mostrar.</p>}</article>)}
           </div>
         </section>}
 

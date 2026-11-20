@@ -131,8 +131,10 @@ BEGIN
         FROM (SELECT COALESCE(r.name,'Sin rol') categoria, count(DISTINCT u.user_id) cantidad
           FROM users u LEFT JOIN user_roles ur ON ur.user_id=u.user_id LEFT JOIN roles r ON r.role_id=ur.role_id GROUP BY 1) x), '[]'::jsonb),
       'registrosMensuales', COALESCE((SELECT jsonb_agg(jsonb_build_object('mes', mes, 'cantidad', cantidad) ORDER BY mes)
-        FROM (SELECT to_char(date_trunc('month',created_at),'YYYY-MM') mes, count(*) cantidad
-          FROM users WHERE created_at >= date_trunc('month', current_date) - interval '11 months' GROUP BY 1) x), '[]'::jsonb)
+        FROM (SELECT to_char(meses.mes,'YYYY-MM') mes, COALESCE(registros.cantidad,0) cantidad
+          FROM generate_series(date_trunc('month', current_date) - interval '11 months', date_trunc('month', current_date), interval '1 month') AS meses(mes)
+          LEFT JOIN (SELECT date_trunc('month',created_at) mes, count(*) cantidad FROM users GROUP BY 1) registros
+            ON registros.mes = meses.mes) x), '[]'::jsonb)
     ) INTO salida;
     RETURN salida;
 END;
