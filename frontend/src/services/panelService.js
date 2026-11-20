@@ -66,6 +66,10 @@ export async function listarUsuarios(_u, q = '') {
   return (await rpc('api_listar_usuarios', { p_q: q })) || [];
 }
 
+export async function reporteUsuarios() {
+  return rpc('api_reporte_usuarios');
+}
+
 export async function cambiarCuenta(_u, objetivo, cuenta) {
   await rpc('api_cambiar_cuenta', { p_username: objetivo, p_cuenta: cuenta });
 }

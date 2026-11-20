@@ -1,7 +1,7 @@
 import SeccionesVista from './SeccionesVista';
 import '../styles/paneles.css';
 
-export default function PanelDocente({ usuario, onProbar, onSalir, demo = false }) {
+export default function PanelDocente({ usuario, onProbar, onSalir, onPerfil, demo = false }) {
   return (
     <div className="pn-root">
       <header className="pn-head pn-head-teacher">
@@ -14,6 +14,7 @@ export default function PanelDocente({ usuario, onProbar, onSalir, demo = false 
           </div>
           <div className="pn-acts">
             <button className="pn-btn pn-btn-primary" onClick={onProbar}>🎮 Probar el juego</button>
+            {onPerfil && <button className="pn-btn ghost" onClick={onPerfil}>Mi perfil</button>}
             <button className="pn-btn ghost" onClick={onSalir}>Cerrar sesión</button>
           </div>
         </div>

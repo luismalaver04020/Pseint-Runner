@@ -13,6 +13,9 @@ export const FUNCIONES = {
   // Perfil y partidas del alumno
   api_iniciar: 'sesion',
   api_mi_perfil: 'sesion',
+  api_perfil_personal: 'sesion',
+  api_actualizar_username: 'sesion',
+  api_completar_datos_personales: 'sesion',
   api_guardar_avatar: 'sesion',
   api_guardar_progreso: 'sesion',
   api_registrar_partida: 'sesion',
@@ -38,6 +41,7 @@ api_siguiente_pregunta_v2: 'sesion',
   api_solicitudes_docente: 'sesion',
   api_resolver_solicitud: 'sesion',
   api_listar_usuarios: 'sesion',
+  api_reporte_usuarios: 'sesion',
   api_cambiar_cuenta: 'sesion',
   api_asignar_docente: 'sesion',
 };

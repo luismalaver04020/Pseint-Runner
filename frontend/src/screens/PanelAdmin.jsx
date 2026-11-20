@@ -11,7 +11,7 @@ const etiquetaRol = (u) => {
   return u.rol || '—';
 };
 
-export default function PanelAdmin({ usuario, onProbar, onSalir, demo = false, initialTab = 'solicitudes' }) {
+export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo = false, initialTab = 'solicitudes' }) {
   const [tab, setTab] = useState(initialTab || 'solicitudes');
   const [sols, setSols] = useState([]);
   const [users, setUsers] = useState([]);       // lista según la búsqueda
@@ -20,21 +20,24 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, demo = false, i
   const [msg, setMsg] = useState('');
   const [confirmar, setConfirmar] = useState(null);   // { titulo, mensaje, textoConfirmar, accion }
   const [ocupado, setOcupado] = useState(false);
+  const [reporte, setReporte] = useState(null);
 
   const cargar = useCallback(async () => {
     if (demo) {
       const muestra = [{ usuario:'ana.m', correo:'ana.m@ejemplo.edu.pe', rol:'jugador', cuenta:'activo', seccion:'2041' }, { usuario:'prof.lucia', correo:'lucia@ejemplo.edu.pe', rol:'docente', aprobacion:'aprobada', cuenta:'activo', seccion:'—' }, { usuario:'carlos.p', correo:'carlos.p@ejemplo.edu.pe', rol:'jugador', cuenta:'suspendido', seccion:'—' }];
       setSols([{ usuario:'mariana.r', correo:'mariana.r@ejemplo.edu.pe', carrera:'Ingeniería de Software' }, { usuario:'diego.q', correo:'diego.q@ejemplo.edu.pe', carrera:'Ciencias de la Computación' }]);
       setUsers(muestra); setTodos(muestra);
+      setReporte({ total: 128, porGenero: [{ categoria:'Mujer', cantidad:66, porcentaje:51.6 },{ categoria:'Hombre', cantidad:55, porcentaje:43 },{ categoria:'Prefiero no decirlo', cantidad:4, porcentaje:3.1 },{ categoria:'Sin dato', cantidad:3, porcentaje:2.3 }], porEdad: [{categoria:'Menor de 18',cantidad:10},{categoria:'18–24',cantidad:93},{categoria:'25–34',cantidad:20},{categoria:'35 o más',cantidad:2},{categoria:'Sin dato',cantidad:3}], porCarrera: [{categoria:'Ingeniería de Software',cantidad:64},{categoria:'Ingeniería de Sistemas',cantidad:38},{categoria:'Sin carrera',cantidad:26}], porRol: [{categoria:'Jugador',cantidad:115},{categoria:'Docente',cantidad:11},{categoria:'Administrador',cantidad:2}], registrosMensuales: [{mes:'2026-06',cantidad:12},{mes:'2026-07',cantidad:20},{mes:'2026-08',cantidad:34},{mes:'2026-09',cantidad:27},{mes:'2026-10',cantidad:35}] });
       return;
     }
     try {
       setSols(await P.solicitudesDocente(usuario));
+      if (tab === 'reportes') setReporte(await P.reporteUsuarios());
       const lista = await P.listarUsuarios(usuario, q);
       setUsers(lista);
       if (!q.trim()) setTodos(lista);
     } catch (e) { setMsg(e.message); }
-  }, [usuario, q, demo]);
+  }, [usuario, q, demo, tab]);
   useEffect(() => { cargar(); }, [cargar]);
 
   const run = async (fn) => {
@@ -73,6 +76,7 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, demo = false, i
           </div>
           <div className="pn-acts">
             <button className="pn-btn pn-btn-primary" onClick={onProbar}> Probar el juego</button>
+            {onPerfil && <button className="pn-btn ghost" onClick={onPerfil}>Mi perfil</button>}
             <button className="pn-btn ghost" onClick={onSalir}>Cerrar sesión</button>
           </div>
         </div>
@@ -89,6 +93,7 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, demo = false, i
         <div className="pn-tabs" role="tablist">
           <button role="tab" aria-selected={tab === 'solicitudes'} className={tab === 'solicitudes' ? 'on' : ''} onClick={() => setTab('solicitudes')}>Solicitudes <span className="pn-tab-count">{sols.length}</span></button>
           <button role="tab" aria-selected={tab === 'usuarios'} className={tab === 'usuarios' ? 'on' : ''} onClick={() => setTab('usuarios')}>Usuarios <span className="pn-tab-count">{todos.length}</span></button>
+          <button role="tab" aria-selected={tab === 'reportes'} className={tab === 'reportes' ? 'on' : ''} onClick={() => setTab('reportes')}>Reportes</button>
           <button role="tab" aria-selected={tab === 'secciones'} className={tab === 'secciones' ? 'on' : ''} onClick={() => setTab('secciones')}>Secciones</button>
         </div>
         {msg && <div className="pn-msg" role="status">{msg}</div>}
@@ -148,6 +153,13 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, demo = false, i
             </div>
           </>
         )}
+
+        {tab === 'reportes' && reporte && <section className="pn-report" aria-label="Reportes demográficos agregados">
+          <div className="pn-report-top"><div><span className="pn-eyebrow">DATOS AGREGADOS</span><h2>Quiénes usan PSeInt Runner</h2><p>Resumen de cuentas registradas. No se muestran nombres ni fechas de nacimiento individuales.</p></div><div className="pn-report-total"><b>{reporte.total ?? 0}</b><span>usuarios registrados</span></div></div>
+          <div className="pn-report-grid">
+            {[['Género', reporte.porGenero, true],['Edades', reporte.porEdad],['Carreras', reporte.porCarrera],['Tipo de cuenta', reporte.porRol],['Registros por mes', reporte.registrosMensuales]].map(([titulo, items, porcentaje]) => <article className="pn-report-card" key={titulo}><h3>{titulo}</h3>{(items || []).length ? <div className="pn-report-list">{items.map((i) => { const max = Math.max(1, ...items.map((x) => x.cantidad || 0)); return <div className="pn-report-row" key={i.categoria || i.mes}><div><span>{i.categoria || i.mes}</span><b>{i.cantidad} {porcentaje && <small>· {i.porcentaje}%</small>}</b></div><div className="pn-report-track"><i style={{ width: `${(i.cantidad / max) * 100}%` }} /></div></div>; })}</div> : <p className="pn-vacio">Todavía no hay datos para mostrar.</p>}</article>)}
+          </div>
+        </section>}
 
         {tab === 'secciones' && <SeccionesVista usuario={usuario} demo={demo} />}
       </div>

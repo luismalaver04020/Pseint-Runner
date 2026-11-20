@@ -20,7 +20,7 @@ const PIN_POS = {
   ciudad:  { x: 51, y: 50 },  // parque central
 };
 
-export default function Mapa({ onIniciar, onRanking, onAvatar, onLogout, onPanel }) {
+export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogout, onPanel }) {
   const { usuario, dificultad, setDificultad, setZona, estaDesbloqueada } = useStore();
   const [guiaAbierta, setGuiaAbierta] = useState(() => sessionStorage.getItem('pseint-runner-guia-v1') !== 'vista');
   // La dificultad vive en el store (null hasta que el jugador elige); no hay valor por defecto.
@@ -118,6 +118,7 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onLogout, onPanel
           <button className="map-btn" onClick={()=>setGuiaAbierta(true)}>CÓMO JUGAR</button>
           {onPanel && <button className="map-btn" onClick={onPanel}>🧑‍🏫 PANEL</button>}
           <button className="map-btn" onClick={onRanking}>🏆 RANKING</button>
+          {onPerfil && <button className="map-btn" onClick={onPerfil}>👤 PERFIL</button>}
           <button className="map-btn" onClick={onAvatar}>🧑 AVATAR</button>
           <button className="map-btn map-btn-out" onClick={onLogout}>⬅ SALIR</button>
         </div>

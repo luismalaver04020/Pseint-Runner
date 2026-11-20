@@ -3,6 +3,7 @@ import { StoreProvider, useStore } from './store/useStore';
 import Landing       from './screens/Landing';
 import Login         from './screens/Login';
 import EditorAvatar  from './screens/EditorAvatar';
+import Perfil        from './screens/Perfil';
 import Mapa          from './screens/Mapa';
 import JuegoV2       from './components/JuegoV2';
 import Ranking       from './screens/Ranking';
@@ -39,6 +40,7 @@ function Inner() {
   const entrar = () => {
     if (!usuario) { setPantalla('login'); return; }
     if (cuentaEliminada || perfil?.cuenta === 'suspendido') { logout(); setPantalla('login'); return; }
+    if (!perfil?.nombres || !perfil?.apellidos || !perfil?.fechaNacimiento || !perfil?.genero) { setPantalla('perfil-completar'); return; }
     if (esStaff) { setPantalla('panel'); return; }
     if (perfil?.rol === 'docente') { setPantalla('espera'); return; }
     const av = getAvatar(usuario);
@@ -81,17 +83,18 @@ function Inner() {
     if (previewUI === 'docente') return <PanelDocente usuario="prof.lucia" onProbar={() => {}} onSalir={() => { window.location.href = '/'; }} demo />;
     if (!usuario)                return verLanding ? <Landing onJugar={() => setVerLanding(false)} /> : <Login />;
     if (pantalla === 'panel')    return esAdmin
-      ? <PanelAdmin   usuario={usuario} onProbar={probar} onSalir={pedirSalir} />
-      : <PanelDocente usuario={usuario} onProbar={probar} onSalir={pedirSalir} />;
+      ? <PanelAdmin   usuario={usuario} onProbar={probar} onPerfil={() => setPantalla('perfil')} onSalir={pedirSalir} />
+      : <PanelDocente usuario={usuario} onProbar={probar} onPerfil={() => setPantalla('perfil')} onSalir={pedirSalir} />;
     if (pantalla === 'espera')   return <EsperaDocente perfil={perfil} onActualizar={async () => { await refrescarPerfil(); setVersion((v) => v + 1); }} onSalir={pedirSalir} />;
     if (pantalla === 'avatar')   return <EditorAvatar onDone={() => setPantalla('mapa')} />;
+    if (pantalla === 'perfil' || pantalla === 'perfil-completar') return <Perfil obligatorio={pantalla === 'perfil-completar'} onVolver={() => setPantalla('mapa')} onCompletado={() => setVersion((v) => v + 1)} />;
     if (pantalla === 'juego' && !juegoSinDificultad) return <JuegoV2
       key={zona || 'rocosa'}
       onMapa={() => setPantalla('mapa')}
       onRanking={() => setPantalla('ranking')}
       onSiguienteNivel={(zonaId) => { setZona(zonaId); setPantalla('juego'); }}
     />;
-    if (pantalla === 'mapa' || juegoSinDificultad) return <Mapa onIniciar={() => setPantalla('juego')} onRanking={() => setPantalla('ranking')} onAvatar={() => setPantalla('avatar')} onLogout={pedirSalir} onPanel={esStaff ? () => setPantalla('panel') : undefined} />;
+    if (pantalla === 'mapa' || juegoSinDificultad) return <Mapa onIniciar={() => setPantalla('juego')} onRanking={() => setPantalla('ranking')} onAvatar={() => setPantalla('avatar')} onPerfil={() => setPantalla('perfil')} onLogout={pedirSalir} onPanel={esStaff ? () => setPantalla('panel') : undefined} />;
     if (pantalla === 'ranking')  return <Ranking onVolver={() => setPantalla('mapa')} />;
     return null;
   };

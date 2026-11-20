@@ -41,6 +41,7 @@ const traducir = (msg = '') => {
 
 export async function cargarPerfil() {
   perfilActual = await rpc('api_iniciar');       // crea el perfil la primera vez
+  try { perfilActual = { ...perfilActual, ...(await rpc('api_perfil_personal')) }; } catch (e) { console.warn('No se pudo cargar la información personal del perfil', e); }
   return perfilActual;
 }
 
@@ -207,6 +208,23 @@ export function getPerfil() { return perfilActual; }
 // Vuelve a pedir el perfil al servidor (p. ej. el docente esperando su aprobación).
 export async function refrescarPerfil() {
   try { perfilActual = await rpc('api_mi_perfil'); } catch { perfilActual = null; }
+  return perfilActual;
+}
+
+export async function guardarUsername(username) {
+  const actualizado = await rpc('api_actualizar_username', { p_username: username.trim() });
+  perfilActual = { ...perfilActual, ...actualizado };
+  return perfilActual;
+}
+
+export async function completarDatosPersonales(datos) {
+  const actualizado = await rpc('api_completar_datos_personales', {
+    p_nombres: datos.nombres,
+    p_apellidos: datos.apellidos,
+    p_fecha_nacimiento: datos.fechaNacimiento,
+    p_genero: datos.genero,
+  });
+  perfilActual = { ...perfilActual, ...actualizado };
   return perfilActual;
 }
 

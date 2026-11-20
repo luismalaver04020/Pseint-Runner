@@ -60,6 +60,11 @@ export function StoreProvider({ children }) {
 
   // Solo acepta una de las tres dificultades válidas; cualquier otro valor limpia la selección.
   const setDificultad = useCallback((d) => setDificultadState(esDificultadValida(d) ? d : null), []);
+  const updateUsername = useCallback((nuevo) => {
+    if (!nuevo || !usuario || usuario === 'demo') return;
+    try { const ultima = localStorage.getItem(actividadKey(usuario)); localStorage.removeItem(actividadKey(usuario)); if (ultima) localStorage.setItem(actividadKey(nuevo), ultima); } catch {}
+    setUsuario(nuevo);
+  }, [usuario]);
 
   const logout = useCallback(({ localOnly = false, inactivity = false } = {}) => {
     if (usuario && usuario !== 'demo') {
@@ -191,7 +196,7 @@ export function StoreProvider({ children }) {
 
   const estaDesbloqueada = useCallback((zonaId) => unlocked.includes(zonaId), [unlocked]);
 
-  return React.createElement(StoreCtx.Provider, { value: { usuario, cargando, avatar, dificultad, zona, unlocked, login, logout, saveAvatar, setDificultad, setZona, unlockZona, desbloquearTodas, estaDesbloqueada } }, children);
+  return React.createElement(StoreCtx.Provider, { value: { usuario, cargando, avatar, dificultad, zona, unlocked, login, logout, updateUsername, saveAvatar, setDificultad, setZona, unlockZona, desbloquearTodas, estaDesbloqueada } }, children);
 }
 
 export function useStore() { return useContext(StoreCtx); }
