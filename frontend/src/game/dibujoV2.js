@@ -121,16 +121,19 @@ export function drawCelestialV2(ctx, W, horizonY, t, frame) {
 // ─── TERRENO ───
 export function drawTerrainV2(ctx, W, H, horizonY, t, dist, zonaCfg) {
   const night = nightBlend(t);
+  const region = zonaCfg?.id || 'rocosa';
+  const groundDay = zonaCfg?.groundDay || '#5cab61';
+  const groundNight = zonaCfg?.groundNight || '#18385b';
+  const ground = mixColor(groundDay, groundNight, night);
+  const horizonTones = { rocosa: '#858978', selva: '#52714b', costera: '#789eaa', ciudad: '#858b89' };
+  const horizonTone = mixColor(horizonTones[region] || horizonTones.rocosa, groundNight, night * 0.65);
   const g = ctx.createLinearGradient(0, horizonY, 0, H);
-  g.addColorStop(0, mixColor(zonaCfg?.groundDay || '#5cab61', zonaCfg?.groundNight || '#18385b', night));
+  // El color del terreno nace cerca del tono de las colinas y se mezcla con
+  // el suelo en los primeros metros para evitar una costura recta en el horizonte.
+  g.addColorStop(0, mixColor(ground, horizonTone, 0.52));
+  g.addColorStop(0.14, mixColor(ground, horizonTone, 0.08));
   g.addColorStop(1, mixColor('#257248', '#0a1a2a', night));
   ctx.fillStyle = g; ctx.fillRect(0, horizonY, W, H - horizonY);
-  const groundHeight = Math.max(1, H - horizonY);
-  for (let i = 0; i < 13; i++) {
-    const y = horizonY + ((i * 37 + dist * 0.7) % groundHeight);
-    ctx.fillStyle = night > 0.5 ? 'rgba(173,190,190,.06)' : 'rgba(248,229,196,.10)';
-    ctx.fillRect(0, y, W, Math.max(1, (y - horizonY) * 0.018));
-  }
 
   // Manchas y pequeños detalles de suelo cambian por bioma y viajan con la pista.
   const palettes = {
