@@ -38,7 +38,7 @@ export default function Perfil({ onVolver, obligatorio = false, onCompletado }) 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#0a1628';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    drawPersonaje(ctx, 60, 112, avatarPerfil, { vista: 'frente', P: 3 });
+    drawPersonaje(ctx, 72, 144, avatarPerfil, { vista: 'frente', P: 4 });
   }, [avatarPerfil]);
 
   const guardar = async (e) => {
@@ -61,9 +61,23 @@ export default function Perfil({ onVolver, obligatorio = false, onCompletado }) 
     <h1>{faltanPersonales ? 'Completa tu perfil' : 'Mi perfil'}</h1>
     <p className="perfil-intro">{faltanPersonales ? 'Tu cuenta es anterior al registro de datos personales. Completa los campos pendientes una sola vez.' : 'Consulta tus datos personales y actualiza el nombre que aparece en el juego.'}</p>
 
-    <section className="perfil-avatar" aria-label="Avatar seleccionado para el juego">
-      <canvas ref={avatarCanvasRef} width={120} height={128} aria-label="Vista previa de tu avatar" />
-      <div><strong>Tu avatar en el juego</strong><span>Este es el personaje que elegiste y guardaste en tu cuenta.</span></div>
+    <section className="perfil-player-card" aria-label="Tarjeta de jugador">
+      <div className="perfil-player-portrait">
+        <canvas ref={avatarCanvasRef} width={144} height={164} aria-label="Vista previa de tu avatar" />
+      </div>
+      <div className="perfil-player-info">
+        <span className="perfil-player-kicker">PERFIL DE JUGADOR</span>
+        <strong className="perfil-player-name">{username || 'Jugador'}</strong>
+        <div className="perfil-player-details">
+          <span><small>AVATAR</small><b>Personalizado</b></span>
+          <span><small>GÉNERO</small><b>{avatarPerfil.genero === 'mujer' ? 'Mujer' : 'Hombre'}</b></span>
+        </div>
+      </div>
+      <div className="perfil-player-stats" aria-label="Detalles del avatar">
+        <span><b className="perfil-stat-icon">✦</b><small>AVATAR</small><strong>Activo</strong></span>
+        <span><b className="perfil-stat-icon">♟</b><small>GÉNERO</small><strong>{avatarPerfil.genero === 'mujer' ? 'Mujer' : 'Hombre'}</strong></span>
+        <span><b className="perfil-stat-icon">◈</b><small>VESTIMENTA</small><strong>{avatarPerfil.ropa || 'Pantalón'}</strong></span>
+      </div>
     </section>
 
     <label>Nombre de usuario <input value={username} maxLength={32} minLength={2} onChange={(e) => setUsername(e.target.value)} required /></label>
