@@ -127,7 +127,7 @@ export function useJuegoV2({
   // periódico es lo que protege el avance si el cierre ocurre sin conexión.
   useEffect(() => {
     if (modoDemo || typeof window === 'undefined') return undefined;
-    const guardar = () => {
+    const guardar = (keepalive = false) => {
       const s = stateRef.current;
       const sessionId = sessionRef.current;
       if (!s || !sessionId || s.ended || s.finishing || s.lives <= 0 || checkpointSavingRef.current) return;
@@ -140,6 +140,7 @@ export function useJuegoV2({
         speed: s.speed,
         distancia: s.distancia,
         dayTime: s.dayTime,
+        keepalive,
       }).catch((error) => {
         if (window.navigator.onLine) console.warn('No se pudo guardar el checkpoint; se reintentará', error);
       }).finally(() => { checkpointSavingRef.current = false; });
@@ -148,12 +149,13 @@ export function useJuegoV2({
     const alVolverInternet = () => guardar();
     const timer = window.setInterval(guardar, 10000);
     document.addEventListener('visibilitychange', alCambiarVisibilidad);
-    window.addEventListener('pagehide', guardar);
+    const alCerrarPagina = () => guardar(true);
+    window.addEventListener('pagehide', alCerrarPagina);
     window.addEventListener('online', alVolverInternet);
     return () => {
       window.clearInterval(timer);
       document.removeEventListener('visibilitychange', alCambiarVisibilidad);
-      window.removeEventListener('pagehide', guardar);
+      window.removeEventListener('pagehide', alCerrarPagina);
       window.removeEventListener('online', alVolverInternet);
     };
   }, [modoDemo]);

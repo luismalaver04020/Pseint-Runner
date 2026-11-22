@@ -20,7 +20,7 @@ export const supabase = supabaseListo
 
 // Llama a una función api_* a través del backend y devuelve sus datos.
 // Si falla, lanza Error con el mensaje en español que devolvió la base de datos.
-export async function rpc(nombre, args = {}) {
+export async function rpc(nombre, args = {}, { keepalive = false } = {}) {
   if (!supabaseListo) { console.error('Falta configurar Supabase (VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY)'); throw new Error(MSG_CONEXION); }
 
   const headers = { 'Content-Type': 'application/json' };
@@ -32,6 +32,7 @@ export async function rpc(nombre, args = {}) {
     respuesta = await fetch(`${API_BASE}/api/rpc/${nombre}`, {
       method: 'POST',
       headers,
+      keepalive,
       body: JSON.stringify(args ?? {}),
     });
   } catch (e) {

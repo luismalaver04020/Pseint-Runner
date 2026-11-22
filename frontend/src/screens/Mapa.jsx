@@ -29,13 +29,17 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
   const [aviso, setAviso] = useState('');
   const [sacudir, setSacudir] = useState(false);
   const [checkpoint, setCheckpoint] = useState(null);
+  const [errorCheckpoint, setErrorCheckpoint] = useState(false);
   const panelDifRef = useRef(null);
   useEffect(() => { if (!sacudir) return undefined; const t = setTimeout(() => setSacudir(false), 600); return () => clearTimeout(t); }, [sacudir]);
   useEffect(() => {
     let vigente = true;
     obtenerCheckpointDisponible()
       .then((guardado) => { if (vigente) setCheckpoint(guardado || null); })
-      .catch((error) => console.warn('No se pudo revisar si hay una partida guardada', error));
+      .catch((error) => {
+        console.warn('No se pudo revisar si hay una partida guardada', error);
+        if (vigente) setErrorCheckpoint(true);
+      });
     return () => { vigente = false; };
   }, []);
 
@@ -125,6 +129,7 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
             </button>
           </section>
         )}
+        {errorCheckpoint && <p className="mapa-checkpoint-error" role="status">No se pudo consultar la partida guardada. Revisa tu conexión e inténtalo de nuevo.</p>}
         <div ref={panelDifRef} className={`mapa-diff-panel${sacudir ? ' sacudir' : ''}${aviso ? ' con-aviso' : ''}`}>
           <h3><span className={`mapa-flow-arrow${difElegida ? ' completado' : ''}`}>{difElegida ? '✓' : '↓'}</span> 1 · ELIGE DIFICULTAD</h3>
           <div role="group" aria-label="Dificultad">

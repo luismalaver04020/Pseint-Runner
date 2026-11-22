@@ -95,6 +95,7 @@
 .mapa-perfil-top{display:flex;align-items:center;gap:8px;min-width:0}.mapa-perfil-top b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff;font-size:14px}
 .mapa-perfil-avatar{display:grid;place-items:center;flex:0 0 28px;height:28px;border-radius:50%;background:#12274b;font-size:14px}
 .mapa-checkpoint{display:grid;gap:6px;padding:12px;border:1px solid rgba(82,219,245,.52);border-left:4px solid #52dbf5;border-radius:10px;background:linear-gradient(120deg,rgba(15,70,95,.7),rgba(255,255,255,.035));color:#cfe8ff;font:600 12px/1.4 Arial,Helvetica,sans-serif}
+.mapa-checkpoint-error{margin:0;padding:9px 11px;border:1px solid rgba(255,178,93,.4);border-radius:8px;background:rgba(100,54,27,.24);color:#ffd7b3;font:600 11px/1.4 Arial,Helvetica,sans-serif}
 .mapa-checkpoint strong{color:#fff;font-size:14px}.mapa-checkpoint .map-btn-continuar{margin-top:4px;border-color:#52dbf5;background:#0d4864;color:#fff;font-size:9px}
 .mapa-checkpoint .map-btn-continuar:hover{background:#116183;box-shadow:0 0 16px rgba(82,219,245,.25)}
 .mapa-perfil-prog{display:flex;justify-content:space-between;margin:10px 0 6px;color:#b9c9e2;font-size:12px}.mapa-perfil-prog b{color:#7cfc9c}

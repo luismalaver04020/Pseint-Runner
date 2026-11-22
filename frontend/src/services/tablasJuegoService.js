@@ -1,7 +1,12 @@
-import { rpc } from './supabase';
+import { rpc, supabase } from './supabase';
 import { esSinRegistro } from './sesionService';
 
 const registrado = () => !esSinRegistro();
+const tieneSesionAutenticada = async () => {
+  if (!supabase) return false;
+  const { data, error } = await supabase.auth.getSession();
+  return !error && Boolean(data.session?.access_token);
+};
 
 export async function registrarEventoJuego(evento, metadata = {}) {
   if (!registrado()) return false;
@@ -24,18 +29,18 @@ export async function registrarIntentoJuego({
   });
 }
 
-export async function guardarCheckpointJuego({ sessionId, score, lives, lane, speed, distancia, dayTime }) {
-  if (!registrado() || !sessionId || String(sessionId).startsWith('demo-')) return null;
+export async function guardarCheckpointJuego({ sessionId, score, lives, lane, speed, distancia, dayTime, keepalive = false }) {
+  if (!sessionId || String(sessionId).startsWith('demo-') || !(await tieneSesionAutenticada())) return null;
   return rpc('api_guardar_checkpoint_juego', {
     p_session_id: sessionId,
     p_payload: { carril: lane, velocidad: speed, distancia, dayTime },
     p_score: Math.max(0, Math.floor(score || 0)),
     p_lives: Math.max(0, Math.floor(lives || 0)),
-  });
+  }, { keepalive });
 }
 
 export async function recuperarCheckpointJuego(zoneCode, difficultyCode) {
-  if (!registrado()) return null;
+  if (!(await tieneSesionAutenticada())) return null;
   return rpc('api_recuperar_checkpoint', {
     p_zone_code: zoneCode,
     p_difficulty_code: difficultyCode,
@@ -43,12 +48,12 @@ export async function recuperarCheckpointJuego(zoneCode, difficultyCode) {
 }
 
 export async function obtenerCheckpointDisponible() {
-  if (!registrado()) return null;
+  if (!(await tieneSesionAutenticada())) return null;
   return rpc('api_checkpoint_disponible');
 }
 
 export async function descartarCheckpointJuego(sessionId) {
-  if (!registrado() || !sessionId) return false;
+  if (!sessionId || !(await tieneSesionAutenticada())) return false;
   return rpc('api_descartar_checkpoint', { p_session_id: sessionId });
 }
 
