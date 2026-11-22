@@ -29,24 +29,34 @@ function mixColor(a, b, amount) {
 // ─── CIELO ───
 export function drawSkyV2(ctx, W, horizonY, t, zonaCfg) {
   const night = nightBlend(t);
-  const g = ctx.createLinearGradient(0, 0, 0, horizonY);
+  const region = zonaCfg?.id || 'rocosa';
+  const tonosHorizonte = { rocosa: '#858978', selva: '#52714b', costera: '#789eaa', ciudad: '#858b89' };
+  const cieloBase = mixColor(zonaCfg?.skyBot || '#87ceeb', '#1a2a4a', night);
+  const cieloHorizonte = mixColor(cieloBase, mixColor(tonosHorizonte[region] || tonosHorizonte.rocosa, '#182331', night * 0.65), 0.34);
+  const cieloFinalY = horizonY + Math.max(8, horizonY * 0.1);
+  const g = ctx.createLinearGradient(0, 0, 0, cieloFinalY);
   g.addColorStop(0, mixColor(zonaCfg?.skyTop || '#1a6eaf', '#03050f', night));
   g.addColorStop(0.55, mixColor(zonaCfg?.skyMid || '#4ab0f0', '#08122e', night));
-  g.addColorStop(1, mixColor(zonaCfg?.skyBot || '#87ceeb', '#1a2a4a', night));
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, horizonY);
+  g.addColorStop(1, cieloHorizonte);
+  // El fondo se prolonga un poco bajo la altura de fuga para mezclar el cielo
+  // con la silueta lejana, en vez de terminar en una costura horizontal.
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, cieloFinalY);
 
   // Colinas distantes: el corrimiento lento separa el horizonte de la pista.
   const drawRidge = (baseY, amp, period, offset, color) => {
-    ctx.beginPath(); ctx.moveTo(0, horizonY);
+    const bordeSuave = ctx.createLinearGradient(0, baseY - amp, 0, cieloFinalY);
+    bordeSuave.addColorStop(0, color);
+    bordeSuave.addColorStop(0.72, color);
+    bordeSuave.addColorStop(1, mixColor(color, tonosHorizonte[region] || tonosHorizonte.rocosa, 0.32));
+    ctx.beginPath(); ctx.moveTo(0, cieloFinalY);
     for (let x = 0; x <= W + 8; x += 8) {
       const y = baseY - (Math.sin((x + offset) / period) * 0.5 + 0.5) * amp
         - Math.max(0, Math.sin((x + offset * 0.42) / (period * 0.42))) * amp * 0.32;
       ctx.lineTo(x, y);
     }
-    ctx.lineTo(W, horizonY); ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+    ctx.lineTo(W, cieloFinalY); ctx.closePath(); ctx.fillStyle = bordeSuave; ctx.fill();
   };
   const ridgeNight = Math.min(1, night * 1.3);
-  const region = zonaCfg?.id || 'rocosa';
   if (region === 'rocosa') {
     const far = mixColor('#b6b4a6', '#202b3a', ridgeNight);
     const near = mixColor('#858978', '#182331', ridgeNight);
