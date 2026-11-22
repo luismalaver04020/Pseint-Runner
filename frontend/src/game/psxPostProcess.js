@@ -16,27 +16,20 @@ export function snapPSX(value, step = 1) {
 export function renderCRT(ctx, W, H, frame) {
   ctx.save();
 
-  // Scanlines: alternan luminosidad por línea, visibles al escalar 320×240.
-  ctx.fillStyle = "rgba(1, 7, 20, .16)";
-  for (let y = frame % 2; y < H; y += 2) ctx.fillRect(0, y, W, 1);
+  // Conserva un toque retro sin las franjas RGB que formaban una cuadrícula
+  // muy visible al ampliar el canvas en pantallas grandes.
+  ctx.fillStyle = 'rgba(4, 9, 20, .035)';
+  for (let y = frame % 4; y < H; y += 4) ctx.fillRect(0, y, W, 1);
 
-  // Máscara RGB discreta, equivalente a la separación cromática de una CRT.
-  ctx.globalAlpha = .10;
-  for (let x = 0; x < W; x += 3) {
-    ctx.fillStyle = x % 9 === 0 ? "#ff376e" : x % 9 === 3 ? "#4ce5ff" : "#667cff";
-    ctx.fillRect(x, 0, 1, H);
-  }
-
-  // Viñeta y esquinas curvas de televisión antigua.
-  ctx.globalAlpha = 1;
-  const vignette = ctx.createRadialGradient(W / 2, H / 2, H * .18, W / 2, H / 2, W * .72);
+  // Viñeta suave: enmarca la escena sin apagar el cielo ni los bordes.
+  const vignette = ctx.createRadialGradient(W / 2, H * .46, H * .2, W / 2, H * .46, W * .78);
   vignette.addColorStop(0, "rgba(0,0,0,0)");
-  vignette.addColorStop(.72, "rgba(0,4,18,.05)");
-  vignette.addColorStop(1, "rgba(0,0,0,.48)");
+  vignette.addColorStop(.72, "rgba(3,10,24,.025)");
+  vignette.addColorStop(1, "rgba(3,10,24,.22)");
   ctx.fillStyle = vignette;
   ctx.fillRect(0, 0, W, H);
-  ctx.strokeStyle = "rgba(110, 235, 255, .25)";
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(190, 224, 238, .08)';
+  ctx.lineWidth = 1;
   ctx.strokeRect(1, 1, W - 2, H - 2);
   ctx.restore();
 }

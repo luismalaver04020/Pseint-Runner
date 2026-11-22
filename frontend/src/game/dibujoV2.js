@@ -186,7 +186,13 @@ export function drawRoadV2(ctx, W, GND, horizonY, cx, t, dist, zonaCfg) {
   };
   fill(1.24, 1.24, night > 0.5 ? '#463f37' : '#b5a58e');
   // Bordes de seguridad alternados: bandas cortas en perspectiva, sin tocar colisiones.
-  const curbColors = night > 0.5 ? ['#65564b', '#332f2d'] : ['#f0e6d7', '#8d4650'];
+  const curbPalette = {
+    rocosa: { day: ['#eee1cb', '#a9534d'], night: ['#726b62', '#493d3e'] },
+    selva: { day: ['#d4d3ae', '#4c8057'], night: ['#667568', '#294b3c'] },
+    costera: { day: ['#f1e4c6', '#4f91a2'], night: ['#77786e', '#345a69'] },
+    ciudad: { day: ['#d6d8d3', '#4385a0'], night: ['#747982', '#334d68'] },
+  };
+  const curbColors = (curbPalette[zonaCfg?.id] || curbPalette.rocosa)[night > 0.5 ? 'night' : 'day'];
   const bands = 20, phase = Math.floor(dist / 44);
   for (let i = 0; i < bands; i++) {
     const a = pt(i / bands, 1.22), b = pt((i + 1) / bands, 1.22);
@@ -207,7 +213,15 @@ export function drawRoadV2(ctx, W, GND, horizonY, cx, t, dist, zonaCfg) {
   for (let i = 0; i <= steps; i++) { const p = pt(i / steps); if (i === 0) ctx.moveTo(p.x - p.half, p.y); else ctx.lineTo(p.x - p.half, p.y); }
   for (let i = steps; i >= 0; i--) { const p = pt(i / steps); ctx.lineTo(p.x + p.half, p.y); }
   ctx.closePath(); ctx.fillStyle = rg; ctx.fill();
-  ctx.strokeStyle = night > 0.5 ? 'rgba(244,216,174,.7)' : 'rgba(255,248,233,.88)'; ctx.lineWidth = 2;
+  // Una luz tenue en el centro del asfalto separa carriles sin convertir la
+  // carretera en una superficie plana o demasiado brillante.
+  const sheen = ctx.createLinearGradient(cx - rH * 0.42, 0, cx + rH * 0.42, 0);
+  sheen.addColorStop(0, 'rgba(255,255,255,0)');
+  sheen.addColorStop(0.5, night > 0.5 ? 'rgba(130,207,219,.055)' : 'rgba(255,248,225,.10)');
+  sheen.addColorStop(1, 'rgba(255,255,255,0)');
+  fill(0.34, 0.66, sheen);
+  const edgeLight = zonaCfg?.id === 'selva' ? 'rgba(183,222,157,.58)' : zonaCfg?.id === 'costera' ? 'rgba(150,221,231,.66)' : zonaCfg?.id === 'ciudad' ? 'rgba(157,203,225,.68)' : 'rgba(255,229,195,.7)';
+  ctx.strokeStyle = night > 0.5 ? 'rgba(190,212,218,.52)' : edgeLight; ctx.lineWidth = 1.5;
   [-1, 1].forEach(side => {
     const phase = Math.floor(dist / 34) % 5;
     for (let i = 2 + phase; i < steps; i += 5) {
@@ -387,7 +401,7 @@ export function drawFogV2(ctx, W, H, horizonY, t, zonaCfg) {
   const night = isNight(t);
   const fc = zonaCfg ? (night ? zonaCfg.fogNight : zonaCfg.fogDay) : (night ? '9,24,53' : '84,170,213');
   const fg = ctx.createLinearGradient(0, horizonY - 18, 0, H * 0.72);
-  fg.addColorStop(0, `rgba(${fc},.6)`); fg.addColorStop(0.2, `rgba(${fc},.28)`); fg.addColorStop(0.68, `rgba(${fc},0)`);
+  fg.addColorStop(0, `rgba(${fc},.38)`); fg.addColorStop(0.2, `rgba(${fc},.16)`); fg.addColorStop(0.68, `rgba(${fc},0)`);
   ctx.fillStyle = fg; ctx.fillRect(0, horizonY - 18, W, H - horizonY + 18);
 }
 

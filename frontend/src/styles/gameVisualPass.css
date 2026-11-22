@@ -1,0 +1,73 @@
+/* Capa visual de la partida: limpia la imagen y la acerca al tema del juego. */
+.game-screen {
+  --sand: #e8f1f5;
+  --sand-muted: #a5b8c6;
+  --wine: #9b3f4c;
+  --wine-bright: #ff7958;
+  --line: rgba(157, 207, 231, .24);
+  --panel: rgba(8, 17, 30, .96);
+  background: #07111f;
+}
+
+.game-wrap { background: #0b1826; }
+.game-screen .hud {
+  border-top-color: rgba(89, 217, 243, .48);
+  border-radius: 14px;
+  background: rgba(7, 18, 34, .84);
+  box-shadow: 0 10px 32px rgba(2, 9, 20, .3), inset 0 1px rgba(255, 255, 255, .035);
+}
+.hud-bar {
+  background: linear-gradient(90deg, #36c8e6, #8de1d0 70%, #f5c66a);
+  box-shadow: 0 0 12px rgba(54, 200, 230, .3);
+}
+.hud-score { color: #f5fbff; text-shadow: 0 1px 12px rgba(71, 207, 238, .18); }
+.hud-zone { color: #d8eaf2; }
+.zona-banner {
+  color: #e7f7fc;
+  background: rgba(9, 28, 47, .9);
+  border-color: rgba(103, 207, 230, .42);
+}
+.q-alert {
+  color: #fff4ed;
+  background: linear-gradient(110deg, #9e3d4c, #d85b52);
+  border-color: rgba(255, 224, 204, .35);
+}
+.power-banner {
+  color: #fff0ca;
+  background: rgba(48, 42, 27, .94);
+  border-color: rgba(244, 199, 102, .4);
+}
+.power-banner.slow {
+  color: #ccfaff;
+  background: rgba(10, 43, 57, .94);
+  border-color: rgba(83, 217, 237, .48);
+}
+.game-screen .hud-pause-btn {
+  background: rgba(111, 184, 208, .09);
+  border-color: rgba(157, 207, 231, .28);
+  border-radius: 9px;
+  color: #e9f7fb;
+  transition: background .18s, border-color .18s, transform .18s;
+}
+.game-screen .hud-pause-btn:hover {
+  background: rgba(64, 181, 210, .2);
+  border-color: rgba(106, 225, 245, .62);
+  transform: translateY(-1px);
+}
+.game-screen .overlay { background: rgba(3, 10, 22, .74); }
+
+@media (max-width: 760px), (pointer: coarse) {
+  .touch-btn {
+    border-color: rgba(135, 218, 239, .42);
+    border-radius: 13px;
+    background: rgba(7, 20, 36, .84);
+    color: #eefaff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .32), inset 0 1px rgba(255, 255, 255, .05);
+    backdrop-filter: blur(7px);
+  }
+  .touch-btn span { color: #9fbccc; }
+  .touch-btn:active {
+    background: rgba(18, 89, 111, .94);
+    border-color: #7be5f5;
+  }
+}

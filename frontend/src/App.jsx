@@ -15,6 +15,7 @@ import { setSinRegistro } from './services/sesionService';
 import { esDificultadValida } from './services/validacionesPartida';
 import ConfirmModal from './components/ConfirmModal';
 import './index.css';
+import './styles/gameVisualPass.css';
 
 function Inner() {
   const { usuario, cargando, saveAvatar, logout, desbloquearTodas, setZona, zona, dificultad } = useStore();
