@@ -45,24 +45,41 @@ function elegirCarrilSeguro(anterior) {
   return opciones[Math.floor(Math.random() * opciones.length)] ?? anterior;
 }
 
-function crearGrupoObstaculos(estado, pool, vehiculos, zonaCfg, score) {
+function familiaObstaculo(type) {
+  if (['combi', 'taxi', 'mototaxi'].includes(type)) return 'vehiculo';
+  if (['cono', 'tronco', 'hueco'].includes(type)) return 'salto';
+  return 'bloqueo';
+}
+
+function elegirParejaVariada(pool, anteriores) {
+  const disponibles = [...new Set(pool.filter(type => type !== 'bajo'))];
+  if (!disponibles.length) return ['cono', 'hueco'];
+  const sinRepetir = disponibles.filter(type => !anteriores.includes(type));
+  const candidatos = sinRepetir.length >= 2 ? sinRepetir : disponibles;
+  const primero = candidatos[(Math.random() * candidatos.length) | 0];
+  const otrasFamilias = candidatos.filter(type => type !== primero && familiaObstaculo(type) !== familiaObstaculo(primero));
+  const otrosTipos = candidatos.filter(type => type !== primero);
+  const opcionesSegundo = otrasFamilias.length ? otrasFamilias : otrosTipos;
+  const segundo = opcionesSegundo[(Math.random() * opcionesSegundo.length) | 0] ?? primero;
+  return [primero, segundo];
+}
+
+function crearGrupoObstaculos(estado, pool, zonaCfg, score) {
   const filas = score < 350 ? 2 : 3;
-  const opciones = pool.filter(type => type !== 'bajo');
-  const mezcla = opciones.length ? opciones : vehiculos;
   let safeLane = estado.lastSafeLane;
+  let tiposAnteriores = [];
 
   for (let fila = 0; fila < filas; fila++) {
     safeLane = elegirCarrilSeguro(safeLane);
     const carrilesOcupados = LANES.filter(lane => lane !== safeLane);
-    const z = Z_SPAWN - fila * 380;
+    const z = Z_SPAWN - fila * 420;
+    const tipos = elegirParejaVariada(pool, tiposAnteriores);
 
     carrilesOcupados.forEach((lane, index) => {
-      // La primera fila es tráfico; las siguientes mezclan tráfico y objetos
-      // propios de la zona (conos, huecos, troncos, rocas, etc.).
-      const tipos = fila === 0 && vehiculos.length ? vehiculos : mezcla;
-      const type = tipos[(Math.random() * tipos.length) | 0];
+      const type = tipos[index];
       crearObstaculo(estado, type, zonaCfg, lane, z);
     });
+    tiposAnteriores = tipos;
   }
   estado.lastSafeLane = safeLane;
 }
@@ -74,13 +91,11 @@ export function spawnObstaculosV2(estado, score, distancia, zonaCfg) {
   estado.distSpawn = distancia + gap;
   const pool = zonaCfg?.obsPool || ['cono', 'combi', 'hueco'];
 
-  // Tráfico en formación: dos vehículos en carriles distintos dejan siempre
-  // una ruta libre. La ruta segura cambia entre formaciones para exigir decisión.
-  const vehiculos = pool.filter(type => type === 'combi' || type === 'taxi');
+  // Los grupos mezclan obstáculos de la zona y mantienen una ruta libre por fila.
   const progreso = Math.max(0, Math.min(1, score / 1000));
   const probabilidadGrupo = 0.25 + progreso * 0.4;
   if (Math.random() < probabilidadGrupo) {
-    crearGrupoObstaculos(estado, pool, vehiculos, zonaCfg, score);
+    crearGrupoObstaculos(estado, pool, zonaCfg, score);
     return;
   }
 
