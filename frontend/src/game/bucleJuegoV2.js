@@ -1,7 +1,6 @@
 // ─── BUCLE PRINCIPAL v2 ───
 import { crearJugador, actualizarFisica, actualizarLane } from './jugador';
 import { updateParticles, burst, renderParticles } from './particulas';
-import { renderCRT } from './psxPostProcess';
 import { renderHeartsV2 } from './vidas.js';
 import { DAY_SPEED } from './diaNoche';
 import { spawnObstaculosV2, checkColisionV2, Z_REMOVE } from './obstaculosV2';
@@ -122,7 +121,6 @@ export function renderJuegoV2(ctx, state) {
   renderParticles(ctx, parts);
   const runFrame = finishing ? Math.floor(finishFrames * 0.36) : frame;
   renderPlayerV2(ctx, jugador, W, GND, centerX, runFrame, speed, distancia, avatar, finishing ? finishFrames : 0, horizonY);
-  renderCRT(ctx, W, H);
 }
 
 export function perderVidaV2(state) {

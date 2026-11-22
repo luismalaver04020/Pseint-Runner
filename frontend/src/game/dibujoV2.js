@@ -213,13 +213,6 @@ export function drawRoadV2(ctx, W, GND, horizonY, cx, t, dist, zonaCfg) {
   for (let i = 0; i <= steps; i++) { const p = pt(i / steps); if (i === 0) ctx.moveTo(p.x - p.half, p.y); else ctx.lineTo(p.x - p.half, p.y); }
   for (let i = steps; i >= 0; i--) { const p = pt(i / steps); ctx.lineTo(p.x + p.half, p.y); }
   ctx.closePath(); ctx.fillStyle = rg; ctx.fill();
-  // Una luz tenue en el centro del asfalto separa carriles sin convertir la
-  // carretera en una superficie plana o demasiado brillante.
-  const sheen = ctx.createLinearGradient(cx - rH * 0.42, 0, cx + rH * 0.42, 0);
-  sheen.addColorStop(0, 'rgba(255,255,255,0)');
-  sheen.addColorStop(0.5, night > 0.5 ? 'rgba(130,207,219,.055)' : 'rgba(255,248,225,.10)');
-  sheen.addColorStop(1, 'rgba(255,255,255,0)');
-  fill(0.34, 0.66, sheen);
   const edgeLight = zonaCfg?.id === 'selva' ? 'rgba(183,222,157,.58)' : zonaCfg?.id === 'costera' ? 'rgba(150,221,231,.66)' : zonaCfg?.id === 'ciudad' ? 'rgba(157,203,225,.68)' : 'rgba(255,229,195,.7)';
   ctx.strokeStyle = night > 0.5 ? 'rgba(190,212,218,.52)' : edgeLight; ctx.lineWidth = 1.5;
   [-1, 1].forEach(side => {
