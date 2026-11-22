@@ -18,6 +18,7 @@ export const FUNCIONES = {
   api_completar_datos_personales: 'sesion',
   api_guardar_avatar: 'sesion',
   api_guardar_avatar_y_estado: 'sesion',
+  api_obtener_avatar: 'sesion',
   api_registrar_intento_juego: 'sesion',
   api_registrar_evento_juego: 'sesion',
   api_guardar_checkpoint_juego: 'sesion',

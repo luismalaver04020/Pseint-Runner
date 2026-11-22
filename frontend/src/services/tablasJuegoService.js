@@ -52,6 +52,11 @@ export async function obtenerCheckpointDisponible() {
   return rpc('api_checkpoint_disponible');
 }
 
+export async function obtenerAvatarGuardado() {
+  if (!(await tieneSesionAutenticada())) return null;
+  return rpc('api_obtener_avatar');
+}
+
 export async function descartarCheckpointJuego(sessionId) {
   if (!sessionId || !(await tieneSesionAutenticada())) return false;
   return rpc('api_descartar_checkpoint', { p_session_id: sessionId });
