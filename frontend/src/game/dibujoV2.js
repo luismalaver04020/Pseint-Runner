@@ -26,35 +26,39 @@ function mixColor(a, b, amount) {
   return `#${ca.map((v, i) => Math.round(v + (cb[i] - v) * p).toString(16).padStart(2, '0')).join('')}`;
 }
 
+const TONOS_HORIZONTE = { rocosa: '#858978', selva: '#52714b', costera: '#789eaa', ciudad: '#858b89' };
+
+function colorHorizonte(zonaCfg, night) {
+  const region = zonaCfg?.id || 'rocosa';
+  const cielo = mixColor(zonaCfg?.skyBot || '#87ceeb', '#1a2a4a', night);
+  const terreno = mixColor(TONOS_HORIZONTE[region] || TONOS_HORIZONTE.rocosa, zonaCfg?.groundNight || '#18385b', night * 0.65);
+  return mixColor(cielo, terreno, 0.34);
+}
+
 // ─── CIELO ───
 export function drawSkyV2(ctx, W, horizonY, t, zonaCfg) {
   const night = nightBlend(t);
   const region = zonaCfg?.id || 'rocosa';
-  const tonosHorizonte = { rocosa: '#858978', selva: '#52714b', costera: '#789eaa', ciudad: '#858b89' };
-  const cieloBase = mixColor(zonaCfg?.skyBot || '#87ceeb', '#1a2a4a', night);
-  const cieloHorizonte = mixColor(cieloBase, mixColor(tonosHorizonte[region] || tonosHorizonte.rocosa, '#182331', night * 0.65), 0.34);
-  const cieloFinalY = horizonY + Math.max(8, horizonY * 0.1);
-  const g = ctx.createLinearGradient(0, 0, 0, cieloFinalY);
+  const cieloHorizonte = colorHorizonte(zonaCfg, night);
+  const g = ctx.createLinearGradient(0, 0, 0, horizonY);
   g.addColorStop(0, mixColor(zonaCfg?.skyTop || '#1a6eaf', '#03050f', night));
   g.addColorStop(0.55, mixColor(zonaCfg?.skyMid || '#4ab0f0', '#08122e', night));
   g.addColorStop(1, cieloHorizonte);
-  // El fondo se prolonga un poco bajo la altura de fuga para mezclar el cielo
-  // con la silueta lejana, en vez de terminar en una costura horizontal.
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, cieloFinalY);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, horizonY);
 
   // Colinas distantes: el corrimiento lento separa el horizonte de la pista.
   const drawRidge = (baseY, amp, period, offset, color) => {
-    const bordeSuave = ctx.createLinearGradient(0, baseY - amp, 0, cieloFinalY);
+    const bordeSuave = ctx.createLinearGradient(0, baseY - amp, 0, horizonY);
     bordeSuave.addColorStop(0, color);
     bordeSuave.addColorStop(0.72, color);
-    bordeSuave.addColorStop(1, mixColor(color, tonosHorizonte[region] || tonosHorizonte.rocosa, 0.32));
-    ctx.beginPath(); ctx.moveTo(0, cieloFinalY);
+    bordeSuave.addColorStop(1, cieloHorizonte);
+    ctx.beginPath(); ctx.moveTo(0, horizonY);
     for (let x = 0; x <= W + 8; x += 8) {
       const y = baseY - (Math.sin((x + offset) / period) * 0.5 + 0.5) * amp
         - Math.max(0, Math.sin((x + offset * 0.42) / (period * 0.42))) * amp * 0.32;
       ctx.lineTo(x, y);
     }
-    ctx.lineTo(W, cieloFinalY); ctx.closePath(); ctx.fillStyle = bordeSuave; ctx.fill();
+    ctx.lineTo(W, horizonY); ctx.closePath(); ctx.fillStyle = bordeSuave; ctx.fill();
   };
   const ridgeNight = Math.min(1, night * 1.3);
   if (region === 'rocosa') {
@@ -135,12 +139,11 @@ export function drawTerrainV2(ctx, W, H, horizonY, t, dist, zonaCfg) {
   const groundDay = zonaCfg?.groundDay || '#5cab61';
   const groundNight = zonaCfg?.groundNight || '#18385b';
   const ground = mixColor(groundDay, groundNight, night);
-  const horizonTones = { rocosa: '#858978', selva: '#52714b', costera: '#789eaa', ciudad: '#858b89' };
-  const horizonTone = mixColor(horizonTones[region] || horizonTones.rocosa, groundNight, night * 0.65);
+  const horizonTone = mixColor(TONOS_HORIZONTE[region] || TONOS_HORIZONTE.rocosa, groundNight, night * 0.65);
   const g = ctx.createLinearGradient(0, horizonY, 0, H);
-  // El color del terreno nace cerca del tono de las colinas y se mezcla con
-  // el suelo en los primeros metros para evitar una costura recta en el horizonte.
-  g.addColorStop(0, mixColor(ground, horizonTone, 0.52));
+  // Cielo y suelo comparten el color exacto en la altura de fuga; el terreno
+  // abandona ese tono poco a poco para que no aparezca una franja recta.
+  g.addColorStop(0, colorHorizonte(zonaCfg, night));
   g.addColorStop(0.14, mixColor(ground, horizonTone, 0.08));
   g.addColorStop(1, mixColor('#257248', '#0a1a2a', night));
   ctx.fillStyle = g; ctx.fillRect(0, horizonY, W, H - horizonY);
