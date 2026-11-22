@@ -231,7 +231,9 @@ export async function completarDatosPersonales(datos) {
 export function saveAvatar(nombre, avatar) {
   if (!perfilActual || nombre === 'demo') return;
   perfilActual = { ...perfilActual, avatar };
-  rpc('api_guardar_avatar', { p_avatar: avatar }).catch(() => {});
+  rpc('api_guardar_avatar_y_estado', { p_avatar: avatar }).catch((error) => {
+    console.warn('No se pudo guardar el avatar en el perfil del jugador', error);
+  });
 }
 
 export function getAvatar() { return perfilActual?.avatar || null; }

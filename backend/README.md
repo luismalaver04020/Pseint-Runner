@@ -51,6 +51,12 @@ Los errores que lanza la base de datos (`RAISE EXCEPTION`) llegan al frontend co
 
 Para agregar una función nueva de la base de datos, primero debe existir allí, y luego se añade una línea a `src/lib/funciones.js`.
 
+## Tablas de juego integradas
+
+Las migraciones `024_integrar_avatar_jugador.sql` y `025_integrar_partidas_y_aprendizaje.sql` conectan las tablas de avatar, intentos, eventos, checkpoints, niveles, preguntas por nivel, materiales, prerrequisitos y feedback con la API autenticada. La migración 025 crea niveles iniciales por zona/dificultad si faltan y sincroniza en ellos las preguntas publicadas según `zone_units`, tema y dificultad. El juego guarda el último checkpoint cada 10 segundos y al ocultar/cerrar la pestaña; al iniciar con la misma zona y dificultad, recupera la sesión, puntaje, vidas, carril, velocidad y distancia guardados. El selector anterior por zona queda como respaldo si una zona no tiene preguntas mapeadas.
+
+Aplica esas migraciones en Supabase antes de publicar el frontend/backend actualizado. `question_assignments` se incluye como definición base local porque ya existe en la base activa pero faltaba en las migraciones del repositorio.
+
 ## Preguntas de código (Prolog)
 
 Las preguntas de tipo código se validan ejecutando el algoritmo del alumno con casos de prueba y juzgándolo con

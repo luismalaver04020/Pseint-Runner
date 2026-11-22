@@ -22,7 +22,7 @@ Navegador ──(registro / inicio de sesión)──► Supabase Auth
 - Todo lo demás (perfil, avatar, progreso, partidas, ranking, paneles) pasa por `POST /api/rpc/:funcion`
   del backend, que llama a la función `api_*` **con el token del usuario**, así que la base de datos
   sigue validando rol, sección y permisos.
-- Las zonas, dificultades y preguntas viven en el código del frontend, igual que en el proyecto `main`.
+- Las zonas y la dificultad se seleccionan en el frontend. Las preguntas publicadas viven en Supabase; `game_levels` y `level_questions` organizan el banco por zona, unidad y dificultad. El selector anterior por zona queda como respaldo cuando todavía no existe una pregunta mapeada a un nivel.
 
 ## Ejecutar el proyecto
 

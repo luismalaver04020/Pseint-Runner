@@ -2,6 +2,7 @@ import { rpc } from './supabase';
 import { QUESTIONS } from '../data/preguntas';
 import { ZONAS, ZONAS_ORDEN } from '../game/zonas';
 import { esDificultadValida, MSG_FALTA_DIFICULTAD } from './validacionesPartida';
+import { recuperarCheckpointJuego } from './tablasJuegoService';
 
 // Evita crear dos sesiones iguales si se pide la misma partida mientras la primera sigue en curso
 // (doble clic, doble montaje de React, reintentos rápidos).
@@ -53,13 +54,26 @@ export async function iniciarPartida(zona, dificultad) {
   if (enCurso.has(clave)) return enCurso.get(clave);
 
   const promesa = (async () => {
+    try {
+      const checkpoint = await recuperarCheckpointJuego(zona, dificultad);
+      if (checkpoint?.session_id) {
+        return { sessionId: checkpoint.session_id, checkpoint, recuperada: true };
+      }
+    } catch (error) {
+      console.warn('No se pudo buscar un checkpoint; se iniciará una partida nueva', error);
+    }
+
     const sessionId = await rpc('api_iniciar_partida', {
       p_zone_code: zona,
       p_difficulty_code: dificultad,
       p_mode: 'ruta',
     });
     if (!sessionId) throw new Error('No se pudo iniciar la partida. Inténtalo nuevamente');
-    return sessionId;
+    // Si existe un nivel configurado en game_levels, lo vincula a esta sesión.
+    // La falta de configuración mantiene el recorrido actual por zona.
+    try { await rpc('api_asignar_nivel_partida', { p_session_id: sessionId }); }
+    catch (error) { console.warn('No se pudo asociar el nivel a la partida; se usará el banco por zona', error); }
+    return { sessionId, checkpoint: null, recuperada: false };
   })().finally(() => enCurso.delete(clave));
 
   enCurso.set(clave, promesa);
@@ -75,10 +89,18 @@ export async function obtenerSiguientePreguntaMixta(sessionId) {
     throw new Error('No existe un identificador de partida');
   }
 
-  const pregunta = await rpc('api_siguiente_pregunta_v2', {
-    p_session_id: sessionId,
-    p_question_mode: 'mixto',
-  });
+  let pregunta = null;
+  try {
+    pregunta = await rpc('api_siguiente_pregunta_nivel', { p_session_id: sessionId });
+  } catch (error) {
+    console.warn('No se pudo consultar el banco del nivel; se usará el banco por zona', error);
+  }
+  if (!pregunta) {
+    pregunta = await rpc('api_siguiente_pregunta_v2', {
+      p_session_id: sessionId,
+      p_question_mode: 'mixto',
+    });
+  }
 
   if (!pregunta) {
     throw new Error('Supabase no devolvió una pregunta');

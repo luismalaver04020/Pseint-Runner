@@ -12,7 +12,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 async function validarAsignacion({ userId, sessionId, preguntaId }) {
   if (!privado) throw new HttpError(501, 'El backend necesita SUPABASE_SERVICE_ROLE_KEY para validar la partida.');
   const { data: partida, error: errorPartida } = await privado
-    .from('game_sessions').select('session_id')
+    .from('game_sessions').select('session_id, level_id')
     .eq('session_id', sessionId).eq('user_id', userId).eq('status', 'en_curso').maybeSingle();
   if (errorPartida) {
     console.error('[evaluacion] error al validar partida:', errorPartida.message);
@@ -27,7 +27,21 @@ async function validarAsignacion({ userId, sessionId, preguntaId }) {
     console.error('[evaluacion] error al validar asignación:', errorAsignacion.message);
     throw new HttpError(502, 'No se pudo verificar la pregunta asignada.');
   }
-  if (!asignacion) throw new HttpError(403, 'Esta pregunta no está asignada a tu partida.');
+  if (!asignacion) {
+    // Los niveles estáticos asignan preguntas mediante level_questions;
+    // las preguntas del selector dinámico siguen validándose con question_assignments.
+    if (partida.level_id) {
+      const { data: preguntaNivel, error: errorNivel } = await privado
+        .from('level_questions').select('question_id')
+        .eq('level_id', partida.level_id).eq('question_id', preguntaId).maybeSingle();
+      if (errorNivel) {
+        console.error('[evaluacion] error al validar pregunta del nivel:', errorNivel.message);
+        throw new HttpError(502, 'No se pudo verificar la pregunta del nivel.');
+      }
+      if (preguntaNivel) return;
+    }
+    throw new HttpError(403, 'Esta pregunta no está asignada a tu partida.');
+  }
 }
 
 async function ejecutar(codigo, config, referencia, enunciado = '') {
@@ -61,9 +75,33 @@ router.post('/codigo', async (req, res) => {
   if (typeof codigo !== 'string' || !codigo.trim()) throw new HttpError(400, 'Escribe tu código antes de enviarlo.');
 
   const preguntaId = String(preguntaIdRaw);
+  const inicioEvaluacion = Date.now();
   await validarAsignacion({ userId: usuario.id, sessionId, preguntaId });
   const { config, referencia, enunciado } = await obtenerEvaluacion(preguntaId);
-  res.json(await ejecutar(codigo, config, referencia, enunciado));
+  const resultado = await ejecutar(codigo, config, referencia, enunciado);
+
+  // El evaluador registra los retos de código desde el servidor para que el
+  // cliente no pueda alterar el resultado guardado en answer_attempts.
+  if (privado) {
+    const respuestaSegundos = Math.max(0, (Date.now() - inicioEvaluacion) / 1000);
+    const { error: errorIntento } = await privado.from('answer_attempts').insert({
+      session_id: sessionId,
+      question_id: preguntaId,
+      answer_text: codigo.slice(0, 12000),
+      is_correct: Boolean(resultado?.correcto),
+      response_seconds: respuestaSegundos,
+      points_awarded: 0,
+    });
+    if (errorIntento) console.warn('[evaluacion] no se pudo registrar answer_attempts:', errorIntento.message);
+    const { error: errorEvento } = await privado.from('activity_events').insert({
+      user_id: usuario.id,
+      event_type: 'respuesta_registrada',
+      metadata: { session_id: sessionId, question_id: preguntaId, correcta: Boolean(resultado?.correcto), tipo: 'codigo' },
+    });
+    if (errorEvento) console.warn('[evaluacion] no se pudo registrar activity_events:', errorEvento.message);
+  }
+
+  res.json(resultado);
 });
 
 // Herramienta local para que el docente/desarrollador pruebe configuraciones.

@@ -65,6 +65,13 @@
 .game-screen .q-fb{font-size:15px;text-align:center;padding:12px;margin-top:12px;border-radius:9px;line-height:1.5}
 .game-screen .q-fb.ok{background:#263229;color:#e0eadc;border:1px solid #79917b}.game-screen .q-fb.no{background:#382528;color:#f0d2d0;border:1px solid #b66b72}
 .game-screen .q-fb.info{background:#302c25;color:#f0e6d5;border:1px solid #9a876f}
+.game-screen .q-code-cases{margin-top:12px;text-align:left;border:1px solid rgba(231,222,206,.2);border-radius:10px;padding:12px;background:rgba(0,0,0,.16)}
+.game-screen .q-code-cases h3{margin:0 0 9px;color:#f0e6d5;font-size:14px}
+.game-screen .q-code-case{display:grid;gap:5px;margin-top:8px;padding:10px;border-radius:8px;background:rgba(231,222,206,.055);font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+.game-screen .q-code-case>b{color:#e4cda9}
+.game-screen .q-code-case span{color:#c4b7a5}
+.game-screen .q-code-case code{font-family:Consolas,monospace;color:#f3eadc;white-space:pre-wrap}
+.game-screen .q-fb-hint{margin:10px 0 0;color:#c4b7a5;font-size:12px;line-height:1.45;text-align:left}
 .game-screen .btn{font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:800;padding:12px 18px;border:1px solid rgba(231,222,206,.28);cursor:pointer;margin:3px;min-width:148px;text-align:center;transition:transform .12s,background .15s,border-color .15s;letter-spacing:.045em;border-radius:9px;background:#282522;color:#eee5d9}
 .game-screen .btn:hover{transform:translateY(-1px);background:#38332e;border-color:rgba(231,222,206,.52)}
 .game-screen .btn-g{background:#343029;border-color:#867967;color:#f0e6d5}.game-screen .btn-r{background:#482a30;border-color:#9b5660;color:#f3dadd}.game-screen .btn-y{background:#45352d;border-color:#b18c6e;color:#f3e4ce}.game-screen .btn-b{background:#292725;border-color:#746c60;color:#e9dfd1}
@@ -90,3 +97,10 @@
 .touch-btn{transition:transform .12s,background .16s,box-shadow .16s}.touch-btn:active{box-shadow:0 2px 8px #0005}
 @media(prefers-reduced-motion:reduce){.game-screen *{animation:none!important;transition:none!important;scroll-behavior:auto!important}.game-screen .fin-stars{animation:none}}
 .game-screen .q-fb.error{background:#302c25;color:#f0e6d5;border:1px solid #9a876f}
+.game-screen .q-topic-support,.game-screen .fin-feedback{margin:14px 0;padding:12px 14px;border:1px solid rgba(231,222,206,.22);border-radius:12px;background:rgba(30,28,26,.72);color:#e8dfd2;text-align:left}
+.game-screen .q-topic-support summary,.game-screen .fin-feedback summary{cursor:pointer;font-weight:700;color:#f1c4a7}
+.game-screen .q-topic-support article{margin-top:10px;padding-top:9px;border-top:1px solid rgba(231,222,206,.16)}
+.game-screen .q-topic-support p{margin:6px 0 0;line-height:1.5;color:#d4c9bb}
+.game-screen .fin-feedback select,.game-screen .fin-feedback textarea{display:block;width:100%;margin-top:9px;padding:10px;border:1px solid rgba(231,222,206,.28);border-radius:8px;background:#171614;color:#f4eadb;font:inherit}
+.game-screen .fin-feedback textarea{min-height:65px;resize:vertical}
+.game-screen .fin-feedback .btn{margin-top:9px}

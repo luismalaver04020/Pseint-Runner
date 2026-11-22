@@ -1,6 +1,7 @@
 import { useStore } from '../store/useStore';
 import { useJuegoV2 } from '../hooks/useJuegoV2';
 import { registrarPartida } from '../services/statsService';
+import { cargarApoyoTema, enviarFeedbackPartida, listarMotivosSalida } from '../services/tablasJuegoService';
 import { ZONAS, ZONAS_ORDEN, DIFICULTAD_CONFIG } from '../game/zonas';
 import { useEffect, useState } from 'react';
 import '../styles/juegov2.css';
@@ -87,6 +88,21 @@ function PreguntaModal({
   onResponderCodigo
 }) {
   const [codigo, setCodigo] = useState('');
+  const [materiales, setMateriales] = useState([]);
+  const [prerrequisitos, setPrerrequisitos] = useState([]);
+  useEffect(() => {
+    const topicId = pregunta.topic_id ?? pregunta.topicId;
+    if (!topicId) { setMateriales([]); setPrerrequisitos([]); return; }
+    let vigente = true;
+    cargarApoyoTema(topicId)
+      .then((apoyo) => {
+        if (!vigente) return;
+        setMateriales(Array.isArray(apoyo?.materiales) ? apoyo.materiales : []);
+        setPrerrequisitos(Array.isArray(apoyo?.prerrequisitos?.pendientes) ? apoyo.prerrequisitos.pendientes : []);
+      })
+      .catch((error) => console.warn('No se pudo cargar el apoyo del tema', error));
+    return () => { vigente = false; };
+  }, [pregunta.topic_id, pregunta.topicId]);
 
   const esCodigo = pregunta.tipo === 'codigo';
 
@@ -95,6 +111,36 @@ function PreguntaModal({
     pregunta.t || pregunta.q || pregunta.prompt || pregunta.enunciado || '';
 
   const opciones = pregunta.opciones || [];
+
+  const renderDetalleCodigo = () => {
+    if (feedback?.status !== 'no') return null;
+    const fallidosVisibles = (feedback.casos || []).filter((caso) => caso.visible && !caso.paso);
+    if (!fallidosVisibles.length) {
+      return <p className="q-fb-hint">Revisa también las estructuras que pide el enunciado. Las pruebas ocultas no se muestran.</p>;
+    }
+    const mostrarLista = (valor) => {
+      if (!Array.isArray(valor)) return String(valor ?? 'sin salida');
+      return valor.length ? valor.join(' | ') : 'sin salida';
+    };
+    return (
+      <div className="q-code-cases" aria-label="Detalle de pruebas visibles">
+        <h3>Revisa estas pruebas</h3>
+        {fallidosVisibles.map((caso) => (
+          <section className="q-code-case" key={caso.id}>
+            <b>Prueba {caso.id}</b>
+            <div><span>Entrada:</span> <code>{mostrarLista(caso.entradas)}</code></div>
+            {caso.error
+              ? <div><span>Error:</span> <code>{caso.error}</code></div>
+              : <>
+                  <div><span>Se esperaba:</span> <code>{mostrarLista(caso.esperado)}</code></div>
+                  <div><span>Tu programa mostró:</span> <code>{mostrarLista(caso.obtenido)}</code></div>
+                </>}
+          </section>
+        ))}
+        <p className="q-fb-hint">Solo se muestran las pruebas públicas; las pruebas ocultas siguen protegidas.</p>
+      </div>
+    );
+  };
 
   return (
     <div className="overlay">
@@ -116,6 +162,21 @@ function PreguntaModal({
             className="q-code"
             dangerouslySetInnerHTML={{ __html: pregunta.code }}
           />
+        )}
+
+        {(materiales.length > 0 || prerrequisitos.length > 0) && (
+          <details className="q-topic-support">
+            <summary>Material de apoyo del tema</summary>
+            {prerrequisitos.length > 0 && (
+              <p>Para dominar este tema, repasa primero: {prerrequisitos.map((item) => item.tema).join(', ')}.</p>
+            )}
+            {materiales.map((item) => (
+              <article key={item.id}>
+                <strong>{item.titulo}</strong>
+                <p>{item.contenido}</p>
+              </article>
+            ))}
+          </details>
         )}
 
         {esCodigo ? (
@@ -144,12 +205,17 @@ function PreguntaModal({
               </button>
             </>
           ) : (
-            <div
-              className={`q-fb ${feedback.status}`}
-              style={{ whiteSpace: 'pre-wrap' }}
-            >
-              {feedback.texto}
-            </div>
+            <>
+              <div
+                className={`q-fb ${feedback.status}`}
+                style={{ whiteSpace: 'pre-wrap' }}
+                role="status"
+                aria-live="polite"
+              >
+                {feedback.texto}
+              </div>
+              {renderDetalleCodigo()}
+            </>
           )
         ) : (
           <>
@@ -197,6 +263,49 @@ function PreguntaModal({
 }
 
 // ── Fin Juego ──
+function FeedbackPartida({ sessionId }) {
+  const [motivos, setMotivos] = useState([]);
+  const [motivo, setMotivo] = useState('');
+  const [comentario, setComentario] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  const [enviado, setEnviado] = useState(false);
+  useEffect(() => {
+    if (!sessionId || String(sessionId).startsWith('demo-')) return;
+    listarMotivosSalida()
+      .then((items) => setMotivos(Array.isArray(items) ? items : []))
+      .catch((error) => console.warn('No se pudieron cargar los motivos de salida', error));
+  }, [sessionId]);
+  if (!sessionId || String(sessionId).startsWith('demo-')) return null;
+  const enviar = async () => {
+    if (!motivo || enviando || enviado) return;
+    setEnviando(true);
+    try {
+      await enviarFeedbackPartida(sessionId, motivo, comentario);
+      setEnviado(true);
+    } catch (error) {
+      console.warn('No se pudo guardar el comentario de la partida', error);
+    } finally {
+      setEnviando(false);
+    }
+  };
+  return (
+    <details className="fin-feedback">
+      <summary>{enviado ? 'Gracias por tus comentarios' : '¿Cómo estuvo esta partida? (opcional)'}</summary>
+      {!enviado && <>
+        <select value={motivo} onChange={(event) => setMotivo(event.target.value)} aria-label="Motivo de comentarios">
+          <option value="">Elige un motivo</option>
+          {motivos.map((item) => <option key={item.codigo} value={item.codigo}>{item.motivo}</option>)}
+        </select>
+        <textarea value={comentario} onChange={(event) => setComentario(event.target.value)} maxLength={1000}
+          placeholder="Comentario opcional" aria-label="Comentario sobre la partida" />
+        <button type="button" className="btn btn-b" onClick={enviar} disabled={!motivo || enviando}>
+          {enviando ? 'ENVIANDO…' : 'ENVIAR COMENTARIO'}
+        </button>
+      </>}
+    </details>
+  );
+}
+
 function FinJuego({ fin, dificultad, zonaId, onReintentar, onMapa, onRanking, onSiguienteNivel, vistaLlegada }) {
   const { unlockZona } = useStore();
   const win = fin.tipo === 'win';
@@ -227,6 +336,7 @@ function FinJuego({ fin, dificultad, zonaId, onReintentar, onMapa, onRanking, on
           {win && <><br/>Corazones: <b>{fin.hearts}</b></>}
           {win && !esUltima && <><br/><span style={{color:'#9de5b2'}}>🔓 Zona desbloqueada</span></>}
         </div>
+        <FeedbackPartida sessionId={fin.sessionId} />
         <div className="fin-btns">
           {win ? (
             <button className="btn btn-g" onClick={irSiguiente ? () => onSiguienteNivel(siguienteZona.id) : onMapa}>

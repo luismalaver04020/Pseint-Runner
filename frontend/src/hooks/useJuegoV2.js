@@ -29,6 +29,7 @@ import {
 import { esDificultadValida } from '../services/validacionesPartida';
 
 import { registrarRespuesta } from '../services/statsService';
+import { descartarCheckpointJuego, guardarCheckpointJuego, registrarEventoJuego, registrarIntentoJuego } from '../services/tablasJuegoService';
 import { evaluarCodigoPregunta } from '../services/evaluacionService';
 import { ZONAS, DIFICULTAD_CONFIG } from '../game/zonas';
 
@@ -89,6 +90,7 @@ export function useJuegoV2({
   const bannerTORef = useRef(null);
 
   const sessionRef = useRef(null);
+  const checkpointSavingRef = useRef(false);
   const inicioRef = useRef(0);
   const solicitudRef = useRef(false);
 
@@ -120,6 +122,41 @@ export function useJuegoV2({
   const [revival, setRevival] = useState(null);
   const [revivalUsed, setRevivalUsed] = useState(false);
   const [pausado, setPausado] = useState(false);
+
+  // Guarda cada 10 s y también al ocultar/cerrar la pestaña. El guardado
+  // periódico es lo que protege el avance si el cierre ocurre sin conexión.
+  useEffect(() => {
+    if (modoDemo || typeof window === 'undefined') return undefined;
+    const guardar = () => {
+      const s = stateRef.current;
+      const sessionId = sessionRef.current;
+      if (!s || !sessionId || s.ended || s.finishing || s.lives <= 0 || checkpointSavingRef.current) return;
+      checkpointSavingRef.current = true;
+      guardarCheckpointJuego({
+        sessionId,
+        score: s.score,
+        lives: s.lives,
+        lane: s.jugador.lane,
+        speed: s.speed,
+        distancia: s.distancia,
+        dayTime: s.dayTime,
+      }).catch((error) => {
+        if (window.navigator.onLine) console.warn('No se pudo guardar el checkpoint; se reintentará', error);
+      }).finally(() => { checkpointSavingRef.current = false; });
+    };
+    const alCambiarVisibilidad = () => { if (document.visibilityState === 'hidden') guardar(); };
+    const alVolverInternet = () => guardar();
+    const timer = window.setInterval(guardar, 10000);
+    document.addEventListener('visibilitychange', alCambiarVisibilidad);
+    window.addEventListener('pagehide', guardar);
+    window.addEventListener('online', alVolverInternet);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', alCambiarVisibilidad);
+      window.removeEventListener('pagehide', guardar);
+      window.removeEventListener('online', alVolverInternet);
+    };
+  }, [modoDemo]);
 
   // ── Limpieza ──
 
@@ -200,6 +237,14 @@ export function useJuegoV2({
 
     limpiar();
     cerrarQ();
+    registrarEventoJuego(tipo === 'win' ? 'partida_completada' : 'partida_perdida', {
+      session_id: sessionRef.current,
+      puntaje: Math.floor(s.score),
+    }).catch((error) => console.warn('No se pudo guardar el evento de cierre', error));
+    if (sessionRef.current && !modoDemo) {
+      descartarCheckpointJuego(sessionRef.current)
+        .catch((error) => console.warn('No se pudo cerrar el checkpoint de la partida', error));
+    }
 
     const dc =
       DIFICULTAD_CONFIG[dificultad] ||
@@ -210,15 +255,17 @@ export function useJuegoV2({
         tipo: 'over',
         score: Math.floor(s.score),
         corazonesP: dc.lives - s.lives,
+        sessionId: sessionRef.current,
       });
     } else {
       setFinJuego({
         tipo: 'win',
         score: Math.floor(s.score),
         hearts: renderHeartsV2(s.lives, dc.lives),
+        sessionId: sessionRef.current,
       });
     }
-  }, [limpiar, cerrarQ, dificultad]);
+  }, [limpiar, cerrarQ, dificultad, modoDemo]);
 
   // ── Programar siguiente pregunta ──
 
@@ -333,6 +380,13 @@ const scheduleQ = useCallback((primera = false, retrasoRestante = null) => {
           q.t || q.prompt || q.enunciado,
           false
         );
+        if (q.tipo !== 'codigo' && q.question_type !== 'codigo') {
+          registrarIntentoJuego({
+            sessionId: sessionRef.current,
+            questionId: q.question_id ?? q.id,
+            correcto: false,
+          }).catch((error) => console.warn('No se pudo guardar el intento', error));
+        }
 
         perderVidaV2(stateRef.current);
         actuHUD();
@@ -424,7 +478,8 @@ const scheduleQ = useCallback((primera = false, retrasoRestante = null) => {
     ok,
     fb,
     msOk,
-    msNo
+    msNo,
+    respuesta = {},
   ) => {
     if (doneRef.current) return;
 
@@ -442,6 +497,15 @@ const scheduleQ = useCallback((primera = false, retrasoRestante = null) => {
     if (!s) return;
 
     registrarRespuesta(pregunta.t, ok);
+    if (!respuesta.texto) {
+      registrarIntentoJuego({
+        sessionId: sessionRef.current,
+        questionId: pregunta.question_id ?? pregunta.id,
+        correcto: ok,
+        opcionId: respuesta.opcionId ?? null,
+        opcionKey: respuesta.opcionKey ?? null,
+      }).catch((error) => console.warn('No se pudo guardar el intento', error));
+    }
     setFeedback(fb);
 
     if (ok) {
@@ -507,7 +571,8 @@ const scheduleQ = useCallback((primera = false, retrasoRestante = null) => {
       !!opcion.ok,
       fb,
       1400,
-      1800
+      1800,
+      { opcionId: opcion.option_id ?? opcion.id ?? null, opcionKey: opcion.l ?? opcion.key ?? null },
     );
 
   }, [pregunta, resolverRespuesta]);
@@ -532,9 +597,14 @@ const scheduleQ = useCallback((primera = false, retrasoRestante = null) => {
       if (doneRef.current || solicitudId !== evaluacionCodigoIdRef.current) return; // La pregunta pudo expirar o cambiar.
       resolverRespuesta(
         !!resultado.correcto,
-        { status: resultado.correcto ? 'ok' : 'no', texto: resultado.mensaje || (resultado.correcto ? '¡Correcto!' : 'El algoritmo no cumple el ejercicio.') },
+        {
+          status: resultado.correcto ? 'ok' : 'no',
+          texto: resultado.mensaje || (resultado.correcto ? '¡Correcto!' : 'El algoritmo no cumple el ejercicio.'),
+          casos: Array.isArray(resultado.casos) ? resultado.casos : [],
+        },
         3200,
-        6000,
+        9000,
+        { texto },
       );
     } catch (error) {
       if (!doneRef.current && solicitudId === evaluacionCodigoIdRef.current) setErrorEvaluacion(error?.message || 'No se pudo evaluar el código. Inténtalo nuevamente.');
@@ -836,13 +906,37 @@ rafRef.current = requestAnimationFrame(loop);
     if (vistaLlegada) return;
 
     try {
-      const sessionId = modoDemo
-        ? iniciarPartidaDemo(zonaId)
+      const partida = modoDemo
+        ? { sessionId: iniciarPartidaDemo(zonaId), checkpoint: null, recuperada: false }
         : await iniciarPartida(zonaId, dificultad);
+      const sessionId = typeof partida === 'string' ? partida : partida.sessionId;
+      const checkpoint = typeof partida === 'object' ? partida.checkpoint : null;
 
       if (intento !== inicioRef.current) return;
 
  sessionRef.current = sessionId;
+      if (checkpoint && stateRef.current) {
+        const s = stateRef.current;
+        const payload = checkpoint.payload || {};
+        s.score = Math.max(0, Number(checkpoint.score) || 0);
+        s.lives = Math.max(0, Number(checkpoint.lives_remaining) || 0);
+        s.speed = Math.max(0, Number(payload.velocidad) || s.speed);
+        s.distancia = Math.max(0, Number(payload.distancia) || 0);
+        s.dayTime = Number.isFinite(Number(payload.dayTime)) ? Number(payload.dayTime) : s.dayTime;
+        const lane = Math.max(-1, Math.min(1, Number(payload.carril) || 0));
+        s.jugador.lane = lane;
+        s.jugador.laneVisual = lane;
+        actuHUD();
+        setZonaBanner('Partida recuperada desde tu último guardado');
+      }
+      if (!modoDemo) {
+        registrarEventoJuego(checkpoint ? 'partida_reanudada' : 'partida_iniciada', {
+          session_id: sessionId,
+          zona: zonaId,
+          dificultad,
+          recuperada: Boolean(checkpoint),
+        }).catch((error) => console.warn('No se pudo guardar el inicio de partida', error));
+      }
 
 // Precargar pregunta de rescate en segundo plano
 preguntaRescateRef.current = Promise.resolve(modoDemo
@@ -908,6 +1002,8 @@ scheduleQ(true);
 
     s.paused = false;
     setPausado(false);
+    if (!modoDemo) registrarEventoJuego('partida_reanudada', { session_id: sessionRef.current })
+      .catch((error) => console.warn('No se pudo guardar la reanudación', error));
 
     if (s.ended || s.questionOpen || s.finishing) return;
 
@@ -924,7 +1020,7 @@ scheduleQ(true);
       scheduleQ(false, restante);
     }
 
-  }, [abrirQ, scheduleQ]);
+  }, [abrirQ, scheduleQ, modoDemo]);
 
   const togglePausa = useCallback(() => {
     const s = stateRef.current;
@@ -951,12 +1047,29 @@ scheduleQ(true);
       s.paused = true;
       setAlerta(false);
       setPausado(true);
+      if (!modoDemo && sessionRef.current) {
+        registrarEventoJuego('partida_pausada', { session_id: sessionRef.current })
+          .catch((error) => console.warn('No se pudo guardar la pausa', error));
+        if (s.lives > 0 && !s.finishing && !checkpointSavingRef.current) {
+          checkpointSavingRef.current = true;
+          guardarCheckpointJuego({
+            sessionId: sessionRef.current,
+            score: s.score,
+            lives: s.lives,
+            lane: s.jugador.lane,
+            speed: s.speed,
+            distancia: s.distancia,
+            dayTime: s.dayTime,
+          }).catch((error) => console.warn('No se pudo guardar el checkpoint', error))
+            .finally(() => { checkpointSavingRef.current = false; });
+        }
+      }
       return;
     }
 
     reanudar();
 
-  }, [reanudar]);
+  }, [reanudar, modoDemo]);
 
   // ── Teclado ──
 

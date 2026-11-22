@@ -2,6 +2,7 @@ import { useStore } from '../store/useStore';
 import { useEffect, useRef, useState } from 'react';
 import { esDificultadValida, MSG_FALTA_DIFICULTAD, MSG_ELIGE_DIFICULTAD } from '../services/validacionesPartida';
 import { ZONAS, ZONAS_ORDEN } from '../game/zonas';
+import { obtenerCheckpointDisponible } from '../services/tablasJuegoService';
 import mapaImg from '../assets/mapa-peru.png';
 import '../styles/mapa.css';
 
@@ -27,8 +28,16 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
   const difElegida = esDificultadValida(dificultad);
   const [aviso, setAviso] = useState('');
   const [sacudir, setSacudir] = useState(false);
+  const [checkpoint, setCheckpoint] = useState(null);
   const panelDifRef = useRef(null);
   useEffect(() => { if (!sacudir) return undefined; const t = setTimeout(() => setSacudir(false), 600); return () => clearTimeout(t); }, [sacudir]);
+  useEffect(() => {
+    let vigente = true;
+    obtenerCheckpointDisponible()
+      .then((guardado) => { if (vigente) setCheckpoint(guardado || null); })
+      .catch((error) => console.warn('No se pudo revisar si hay una partida guardada', error));
+    return () => { vigente = false; };
+  }, []);
 
   const cerrarGuia = () => {
     sessionStorage.setItem('pseint-runner-guia-v1', 'vista');
@@ -47,6 +56,13 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
       return;
     }
     setZona(id);
+    onIniciar();
+  };
+
+  const continuarCheckpoint = () => {
+    if (!checkpoint || !ZONAS[checkpoint.zone_code] || !esDificultadValida(checkpoint.difficulty_code)) return;
+    setZona(checkpoint.zone_code);
+    setDificultad(checkpoint.difficulty_code);
     onIniciar();
   };
 
@@ -99,6 +115,16 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
           <div className="mapa-perfil-prog"><span>Zonas desbloqueadas</span><b>{zonasAbiertas}/{ZONAS_ORDEN.length}</b></div>
           <div className="mapa-perfil-barra" role="progressbar" aria-valuemin={0} aria-valuemax={ZONAS_ORDEN.length} aria-valuenow={zonasAbiertas}><div style={{ width: `${(zonasAbiertas / ZONAS_ORDEN.length) * 100}%` }} /></div>
         </div>
+        {checkpoint && (
+          <section className="mapa-checkpoint" aria-label="Partida guardada disponible">
+            <strong>Partida guardada</strong>
+            <span>{checkpoint.zone_name || ZONAS[checkpoint.zone_code]?.nombre} · {checkpoint.difficulty_name || checkpoint.difficulty_code}</span>
+            <span>Puntaje {checkpoint.score} / 1000</span>
+            <button type="button" className="map-btn mapa-btn-continuar" onClick={continuarCheckpoint}>
+              ▶ CONTINUAR PARTIDA
+            </button>
+          </section>
+        )}
         <div ref={panelDifRef} className={`mapa-diff-panel${sacudir ? ' sacudir' : ''}${aviso ? ' con-aviso' : ''}`}>
           <h3><span className={`mapa-flow-arrow${difElegida ? ' completado' : ''}`}>{difElegida ? '✓' : '↓'}</span> 1 · ELIGE DIFICULTAD</h3>
           <div role="group" aria-label="Dificultad">
