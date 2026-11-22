@@ -141,10 +141,12 @@ export function drawTerrainV2(ctx, W, H, horizonY, t, dist, zonaCfg) {
   const ground = mixColor(groundDay, groundNight, night);
   const horizonTone = mixColor(TONOS_HORIZONTE[region] || TONOS_HORIZONTE.rocosa, groundNight, night * 0.65);
   const g = ctx.createLinearGradient(0, horizonY, 0, H);
-  // Cielo y suelo comparten el color exacto en la altura de fuga; el terreno
-  // abandona ese tono poco a poco para que no aparezca una franja recta.
+  // Cielo y suelo comparten el color exacto en la altura de fuga. La transición
+  // ocupa suficiente distancia vertical para que no se lea como una franja.
   g.addColorStop(0, colorHorizonte(zonaCfg, night));
-  g.addColorStop(0.14, mixColor(ground, horizonTone, 0.08));
+  g.addColorStop(0.2, mixColor(horizonTone, ground, 0.18));
+  g.addColorStop(0.42, mixColor(horizonTone, ground, 0.72));
+  g.addColorStop(0.62, ground);
   g.addColorStop(1, mixColor('#257248', '#0a1a2a', night));
   ctx.fillStyle = g; ctx.fillRect(0, horizonY, W, H - horizonY);
 
@@ -409,9 +411,17 @@ export function drawRoadsideGreenery(ctx, W, GND, horizonY, cx, dayTime, dist, z
 export function drawFogV2(ctx, W, H, horizonY, t, zonaCfg) {
   const night = isNight(t);
   const fc = zonaCfg ? (night ? zonaCfg.fogNight : zonaCfg.fogDay) : (night ? '9,24,53' : '84,170,213');
-  const fg = ctx.createLinearGradient(0, horizonY - 18, 0, H * 0.72);
-  fg.addColorStop(0, `rgba(${fc},.38)`); fg.addColorStop(0.2, `rgba(${fc},.16)`); fg.addColorStop(0.68, `rgba(${fc},0)`);
-  ctx.fillStyle = fg; ctx.fillRect(0, horizonY - 18, W, H - horizonY + 18);
+  // La niebla nace transparente por encima del horizonte; iniciar con alpha
+  // alto en una Y fija dibujaba una franja horizontal sobre todo el escenario.
+  const fogTop = Math.max(0, horizonY - H * 0.16);
+  const fogBottom = Math.min(H, horizonY + H * 0.3);
+  const fg = ctx.createLinearGradient(0, fogTop, 0, fogBottom);
+  fg.addColorStop(0, `rgba(${fc},0)`);
+  fg.addColorStop(0.28, `rgba(${fc},.08)`);
+  fg.addColorStop(0.52, `rgba(${fc},.14)`);
+  fg.addColorStop(0.76, `rgba(${fc},.06)`);
+  fg.addColorStop(1, `rgba(${fc},0)`);
+  ctx.fillStyle = fg; ctx.fillRect(0, fogTop, W, fogBottom - fogTop);
 }
 
 // ─── EDIFICIO DE LLEGADA ───
