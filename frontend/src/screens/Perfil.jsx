@@ -66,22 +66,13 @@ export default function Perfil({ onVolver, obligatorio = false, onCompletado }) 
         <canvas ref={avatarCanvasRef} width={144} height={164} aria-label="Vista previa de tu avatar" />
       </div>
       <div className="perfil-player-info">
-        <span className="perfil-player-kicker">PERFIL DE JUGADOR</span>
-        <strong className="perfil-player-name">{username || 'Jugador'}</strong>
-        <div className="perfil-player-details">
-          <span><small>AVATAR</small><b>Personalizado</b></span>
-          <span><small>GÉNERO</small><b>{avatarPerfil.genero === 'mujer' ? 'Mujer' : 'Hombre'}</b></span>
-        </div>
-      </div>
-      <div className="perfil-player-stats" aria-label="Detalles del avatar">
-        <span><b className="perfil-stat-icon">✦</b><small>AVATAR</small><strong>Activo</strong></span>
-        <span><b className="perfil-stat-icon">♟</b><small>GÉNERO</small><strong>{avatarPerfil.genero === 'mujer' ? 'Mujer' : 'Hombre'}</strong></span>
-        <span><b className="perfil-stat-icon">◈</b><small>VESTIMENTA</small><strong>{avatarPerfil.ropa || 'Pantalón'}</strong></span>
+        <span className="perfil-player-kicker">TU PERSONAJE</span>
+        <label className="perfil-player-name-field">Nombre en el juego
+          <input value={username} maxLength={32} minLength={2} onChange={(e) => setUsername(e.target.value)} required />
+        </label>
+        <small className="perfil-player-hint">Este nombre aparece en el juego y el ranking.</small>
       </div>
     </section>
-
-    <label>Nombre de usuario <input value={username} maxLength={32} minLength={2} onChange={(e) => setUsername(e.target.value)} required /></label>
-    <small className="perfil-hint">Este nombre es único y aparece en el juego y el ranking.</small>
 
     {faltanPersonales && <div className="perfil-notice">Los datos personales que ya estén registrados aparecerán bloqueados. Solo completarás los que faltan.</div>}
     <div className="perfil-grid">
