@@ -40,8 +40,9 @@ function crearObstaculo(estado, type, zonaCfg, laneForzado, z = Z_SPAWN) {
 
 function elegirCarrilSeguro(anterior) {
   if (anterior == null) return LANES[Math.floor(Math.random() * LANES.length)];
-  // Solo cambia un carril por fila, para que la ruta siga siendo alcanzable.
-  const opciones = LANES.filter(lane => lane !== anterior && Math.abs(lane - anterior) === 1);
+  // A veces conserva la ruta y otras se desplaza un carril; nunca exige cruzar
+  // toda la pista de golpe entre dos filas.
+  const opciones = LANES.filter(lane => Math.abs(lane - anterior) <= 1);
   return opciones[Math.floor(Math.random() * opciones.length)] ?? anterior;
 }
 
@@ -64,22 +65,38 @@ function elegirParejaVariada(pool, anteriores) {
   return [primero, segundo];
 }
 
+function elegirCarrilesOcupados(safeLane, cantidad, anterior) {
+  if (cantidad >= 2) return LANES.filter(lane => lane !== safeLane);
+  const opciones = LANES.filter(lane => lane !== safeLane && lane !== anterior);
+  const alternativas = opciones.length ? opciones : LANES.filter(lane => lane !== safeLane);
+  return [alternativas[(Math.random() * alternativas.length) | 0]];
+}
+
 function crearGrupoObstaculos(estado, pool, zonaCfg, score) {
   const filas = score < 350 ? 2 : 3;
+  const patrones = filas === 2
+    ? [[1, 2], [2, 1], [1, 1], [2, 2]]
+    : [[1, 2, 1], [2, 1, 2], [2, 2, 1], [1, 2, 2], [2, 1, 1]];
+  const patron = patrones[(Math.random() * patrones.length) | 0];
   let safeLane = estado.lastSafeLane;
   let tiposAnteriores = [];
+  let carrilAnterior = null;
+  let z = Z_SPAWN;
 
   for (let fila = 0; fila < filas; fila++) {
     safeLane = elegirCarrilSeguro(safeLane);
-    const carrilesOcupados = LANES.filter(lane => lane !== safeLane);
-    const z = Z_SPAWN - fila * 420;
-    const tipos = elegirParejaVariada(pool, tiposAnteriores);
+    const cantidad = patron[fila];
+    const carrilesOcupados = elegirCarrilesOcupados(safeLane, cantidad, carrilAnterior);
+    const tipos = elegirParejaVariada(pool, tiposAnteriores).slice(0, cantidad);
 
     carrilesOcupados.forEach((lane, index) => {
       const type = tipos[index];
       crearObstaculo(estado, type, zonaCfg, lane, z);
     });
     tiposAnteriores = tipos;
+    carrilAnterior = carrilesOcupados[carrilesOcupados.length - 1];
+    // El intervalo cambia por fila para evitar una cadencia geométrica repetida.
+    z -= 340 + Math.random() * 160;
   }
   estado.lastSafeLane = safeLane;
 }
