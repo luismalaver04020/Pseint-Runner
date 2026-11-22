@@ -13,15 +13,10 @@ export function snapPSX(value, step = 1) {
   return Math.round(value / step) * step;
 }
 
-export function renderCRT(ctx, W, H, frame) {
+export function renderCRT(ctx, W, H) {
   ctx.save();
-
-  // Conserva un toque retro sin las franjas RGB que formaban una cuadrícula
-  // muy visible al ampliar el canvas en pantallas grandes.
-  ctx.fillStyle = 'rgba(4, 9, 20, .035)';
-  for (let y = frame % 4; y < H; y += 4) ctx.fillRect(0, y, W, 1);
-
-  // Viñeta suave: enmarca la escena sin apagar el cielo ni los bordes.
+  // Se conserva un sombreado apenas visible en los bordes; no se dibujan
+  // scanlines ni franjas RGB para que el pixel art se vea limpio al ampliarse.
   const vignette = ctx.createRadialGradient(W / 2, H * .46, H * .2, W / 2, H * .46, W * .78);
   vignette.addColorStop(0, "rgba(0,0,0,0)");
   vignette.addColorStop(.72, "rgba(3,10,24,.025)");

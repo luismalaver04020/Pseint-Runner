@@ -122,7 +122,7 @@ export function renderJuegoV2(ctx, state) {
   renderParticles(ctx, parts);
   const runFrame = finishing ? Math.floor(finishFrames * 0.36) : frame;
   renderPlayerV2(ctx, jugador, W, GND, centerX, runFrame, speed, distancia, avatar, finishing ? finishFrames : 0, horizonY);
-  renderCRT(ctx, W, H, frame);
+  renderCRT(ctx, W, H);
 }
 
 export function perderVidaV2(state) {
