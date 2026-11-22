@@ -99,8 +99,10 @@ export function actualizarJuegoV2(state) {
 export function renderJuegoV2(ctx, state) {
   const { W, H, GND, horizonY, centerX, dayTime, distancia, frame, obstacles, powerups, parts, jugador, speed, score, finishing, finishFrames, zonaCfg, avatar } = state;
   ctx.clearRect(0, 0, W, H);
-  drawSkyV2(ctx, W, horizonY, dayTime, zonaCfg);
+  // El suelo va detrás del cielo. Así las montañas y la silueta del horizonte
+  // pueden extenderse sobre el terreno sin quedar cortadas por una línea recta.
   drawTerrainV2(ctx, W, H, horizonY, dayTime, distancia, zonaCfg);
+  drawSkyV2(ctx, W, horizonY, dayTime, zonaCfg);
   drawCelestialV2(ctx, W, horizonY, dayTime, frame);
   const fadeEntorno = Math.max(0, Math.min(1, (score - 900) / 50));
   const entornoAlpha = 1 - fadeEntorno * fadeEntorno * (3 - 2 * fadeEntorno);
