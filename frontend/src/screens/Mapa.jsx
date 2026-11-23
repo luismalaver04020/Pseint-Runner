@@ -114,11 +114,16 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
       role="status"
       aria-live="polite"
     >
-      <strong>PASO {tutorialPaso} DE {pasosTour.length} · {pasoActual?.titulo}</strong>
-      <span>{pasoActual?.texto}</span>
+      <div className="mapa-tour-heading">
+        <span className="mapa-tour-label">GUÍA DEL JUGADOR</span>
+        <span className="mapa-tour-count">{String(tutorialPaso).padStart(2, '0')} / {String(pasosTour.length).padStart(2, '0')}</span>
+      </div>
+      <div className="mapa-tour-progress" aria-hidden="true"><span style={{ width: `${(tutorialPaso / pasosTour.length) * 100}%` }} /></div>
+      <h3>{pasoActual?.titulo}</h3>
+      <p>{pasoActual?.texto}</p>
       <div className="mapa-tour-actions">
-        <button type="button" onClick={omitirGuia}>OMITIR RECORRIDO</button>
-        <button type="button" onClick={avanzarTour}>{tutorialPaso === pasosTour.length ? 'TERMINAR Y JUGAR' : 'SIGUIENTE →'}</button>
+        <button type="button" className="mapa-tour-skip" onClick={omitirGuia}>Omitir recorrido</button>
+        <button type="button" className="mapa-tour-next" onClick={avanzarTour}>{tutorialPaso === pasosTour.length ? 'Terminar y jugar' : 'Continuar →'}</button>
       </div>
     </div>,
     document.body,

@@ -107,26 +107,36 @@
 .mapa-perfil-barra{height:7px;overflow:hidden;border-radius:6px;background:#050b23}.mapa-perfil-barra div{height:100%;border-radius:6px;background:linear-gradient(90deg,#3ddc84,#52dbf5);transition:width .3s}
 .mapa-diff-panel.con-aviso{outline:2px solid rgba(255,138,138,.55);outline-offset:6px;border-radius:10px}
 .mapa-aviso{margin:2px 0 8px;padding:9px 10px;border:1px solid rgba(255,138,138,.5);border-radius:8px;background:rgba(232,52,74,.14);color:#ffc4c4;font:700 12px/1.45 Arial,Helvetica,sans-serif;text-align:center}
-.tutorial-target{position:relative;z-index:5;outline:3px solid #ffe27a;outline-offset:5px;box-shadow:0 0 24px 7px rgba(255,226,122,.5)!important;animation:tour-pulse 1.1s ease-in-out infinite alternate}
-.mapa-tour-hint{position:fixed;z-index:9999;left:max(12px,calc((100vw - 320px)/2));top:clamp(120px,25vh,210px);display:grid;gap:9px;width:min(320px,calc(100vw - 24px));padding:16px 18px;border:2px solid #ffe27a;border-radius:22px 22px 22px 8px;background:linear-gradient(145deg,rgba(38,51,84,.98),rgba(12,24,50,.98));box-shadow:0 14px 38px #000c,0 0 22px #ffe27a44;color:#f5f8ff;font:13px/1.5 Arial,Helvetica,sans-serif;animation:tour-bubble-in .24s ease-out both}
-.mapa-tour-hint::before{position:absolute;width:0;height:0;content:""}
-.mapa-tour-hint.punta-izquierda::before{top:50%;left:-14px;transform:translateY(-50%);border-top:13px solid transparent;border-right:14px solid #ffe27a;border-bottom:13px solid transparent}
-.mapa-tour-hint.punta-derecha::before{top:50%;right:-14px;transform:translateY(-50%);border-top:13px solid transparent;border-bottom:13px solid transparent;border-left:14px solid #ffe27a}
-.mapa-tour-hint.punta-arriba::before{top:-14px;left:50%;transform:translateX(-50%);border-right:13px solid transparent;border-bottom:14px solid #ffe27a;border-left:13px solid transparent}
-.mapa-tour-hint.punta-abajo::before{bottom:-14px;left:50%;transform:translateX(-50%);border-top:14px solid #ffe27a;border-right:13px solid transparent;border-left:13px solid transparent}
-.mapa-tour-hint strong{color:#ffe27a;font-size:10px;letter-spacing:.06em}
+.tutorial-target{position:relative;z-index:5;outline:2px solid #f2cb69;outline-offset:4px;box-shadow:0 0 0 5px rgba(242,203,105,.16)!important;animation:tour-pulse 1.6s ease-in-out infinite alternate}
+.mapa-tour-hint{position:fixed;z-index:9999;left:max(12px,calc((100vw - 320px)/2));top:clamp(120px,25vh,210px);display:grid;gap:10px;width:min(330px,calc(100vw - 24px));padding:15px 17px;border:1px solid #4b8497;border-radius:16px 16px 16px 5px;background:#12243b;box-shadow:0 10px 28px rgba(0,0,0,.48);color:#eef4f7;font:14px/1.5 Arial,Helvetica,sans-serif;animation:tour-bubble-in .2s ease-out both}
+.mapa-tour-hint::before,.mapa-tour-hint::after{position:absolute;width:0;height:0;content:""}
+.mapa-tour-hint.punta-izquierda::before{top:50%;left:-12px;transform:translateY(-50%);border-top:11px solid transparent;border-right:12px solid #4b8497;border-bottom:11px solid transparent}
+.mapa-tour-hint.punta-izquierda::after{top:50%;left:-10px;transform:translateY(-50%);border-top:9px solid transparent;border-right:10px solid #12243b;border-bottom:9px solid transparent}
+.mapa-tour-hint.punta-derecha::before{top:50%;right:-12px;transform:translateY(-50%);border-top:11px solid transparent;border-bottom:11px solid transparent;border-left:12px solid #4b8497}
+.mapa-tour-hint.punta-derecha::after{top:50%;right:-10px;transform:translateY(-50%);border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:10px solid #12243b}
+.mapa-tour-hint.punta-arriba::before{top:-12px;left:50%;transform:translateX(-50%);border-right:11px solid transparent;border-bottom:12px solid #4b8497;border-left:11px solid transparent}
+.mapa-tour-hint.punta-arriba::after{top:-10px;left:50%;transform:translateX(-50%);border-right:9px solid transparent;border-bottom:10px solid #12243b;border-left:9px solid transparent}
+.mapa-tour-hint.punta-abajo::before{bottom:-12px;left:50%;transform:translateX(-50%);border-top:12px solid #4b8497;border-right:11px solid transparent;border-left:11px solid transparent}
+.mapa-tour-hint.punta-abajo::after{bottom:-10px;left:50%;transform:translateX(-50%);border-top:10px solid #12243b;border-right:9px solid transparent;border-left:9px solid transparent}
+.mapa-tour-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mapa-tour-label{color:#82d2dc;font-size:9px;font-weight:800;letter-spacing:.12em}
+.mapa-tour-count{padding:3px 7px;border-radius:999px;background:#1e354f;color:#b8cbd2;font-size:10px;font-weight:700;font-variant-numeric:tabular-nums}
+.mapa-tour-progress{height:3px;overflow:hidden;border-radius:3px;background:#263b51}
+.mapa-tour-progress span{display:block;height:100%;border-radius:inherit;background:#72c9d2;transition:width .25s ease}
+.mapa-tour-hint h3{margin:0;color:#fff;font-size:17px;line-height:1.25}
+.mapa-tour-hint p{margin:0;color:#d0dce3;font-size:13px;line-height:1.5}
 .mapa-tour-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px}
-.mapa-tour-actions button{padding:7px 9px;border:1px solid #8291b0;border-radius:7px;background:#182544;color:#d8e6ff;font:700 9px Arial,Helvetica,sans-serif;cursor:pointer}
-.mapa-tour-actions button:last-child{border-color:#52dbf5;background:#0d4864;color:#fff}
-.mapa-tour-actions button:hover{border-color:#ffe27a;color:#fff}
-@keyframes tour-bubble-in{from{opacity:0;transform:translateY(5px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.mapa-tour-actions button{padding:7px 9px;border:0;border-radius:7px;background:transparent;color:#b9c9d1;font:600 12px Arial,Helvetica,sans-serif;cursor:pointer}
+.mapa-tour-actions .mapa-tour-next{padding:8px 12px;border:1px solid #427e8b;background:#1d4857;color:#f3fbfc;font-weight:700}
+.mapa-tour-actions button:hover{color:#fff}.mapa-tour-actions .mapa-tour-next:hover{border-color:#72c9d2;background:#245867}
+@keyframes tour-bubble-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .guia-tour-preview{display:grid;gap:8px;margin:4px 0 12px}
 .guia-tour-preview span{padding:9px 12px;border:1px solid rgba(82,219,245,.24);border-radius:9px;background:rgba(255,255,255,.045);color:#e3f7ff;font-size:13px;font-weight:700}
 .guia-tour-note{margin:0;padding:10px 12px;border-left:3px solid #ffe27a;background:rgba(255,226,122,.08);color:#cad7ea;font-size:13px;line-height:1.5}
 .guia-tour-note b{color:#fff0b5}
-.mapa-pin.tutorial-inicio{z-index:6;border-color:#ffe27a;background:#392b13;box-shadow:0 0 0 5px rgba(255,226,122,.35),0 0 28px 10px rgba(255,226,122,.8);animation:tour-pin-pulse .8s ease-in-out infinite alternate}
-@keyframes tour-pin-pulse{to{transform:translate(-50%,-50%) scale(1.14);box-shadow:0 0 0 8px rgba(255,226,122,.2),0 0 38px 14px rgba(255,226,122,.95)}}
-@keyframes tour-pulse{to{outline-color:#fff4bc;box-shadow:0 0 32px 10px rgba(255,226,122,.72)!important}}
+.mapa-pin.tutorial-inicio{z-index:6;border-color:#f2cb69;background:#24394d;box-shadow:0 0 0 4px rgba(242,203,105,.2);animation:tour-pin-pulse 1.5s ease-in-out infinite alternate}
+@keyframes tour-pin-pulse{to{box-shadow:0 0 0 6px rgba(242,203,105,.1)}}
+@keyframes tour-pulse{to{outline-color:#ffe5a0;box-shadow:0 0 0 7px rgba(242,203,105,.1)!important}}
 .mapa-diff-panel.sacudir{animation:mapa-sacudir .5s}
 @keyframes mapa-sacudir{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 .diff-btn:focus-visible,.map-btn:focus-visible,.mapa-pin:focus-visible{outline:2px solid #ffe27a;outline-offset:2px}
