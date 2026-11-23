@@ -6,3 +6,29 @@
 .perfil-card label{display:flex;flex-direction:column;gap:7px;margin:13px 0;color:#dce5ff;font-size:13px;font-weight:750}.perfil-card input,.perfil-card select{width:100%;min-height:46px;padding:0 13px;border:1px solid #334778;border-radius:10px;background:#0a1228;color:#eef3ff;font:inherit}.perfil-card input:focus,.perfil-card select:focus{outline:2px solid #38d6ff;outline-offset:1px}.perfil-card input[readonly],.perfil-card select:disabled{opacity:.72;background:#17213d}
 .perfil-hint,.perfil-readonly{display:block;color:#8999c6;font-size:12px}.perfil-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;margin-top:8px}.perfil-notice{padding:12px 14px;border:1px solid #5274a8;border-radius:10px;background:#112b48;color:#c3eaff;font-size:13px;line-height:1.5}.perfil-error,.perfil-success{margin:14px 0 0;padding:11px 13px;border-radius:9px;font-size:13px}.perfil-error{border:1px solid #a44b62;background:#421f35;color:#ffc0ce}.perfil-success{border:1px solid #247354;background:#103528;color:#89f0ba}.perfil-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}.perfil-back,.perfil-save{min-height:44px;padding:0 18px;border:1px solid #405780;border-radius:10px;color:#edf4ff;font-weight:800;cursor:pointer}.perfil-back{background:#172440}.perfil-save{border-color:#168cb4;background:linear-gradient(100deg,#139bc1,#3763cc)}.perfil-save:disabled{opacity:.65;cursor:wait}
 @media(max-width:560px){.perfil-grid{grid-template-columns:1fr}.perfil-actions{flex-direction:column-reverse}.perfil-actions button{width:100%}.perfil-player-card{grid-template-columns:82px minmax(0,1fr);grid-template-rows:minmax(104px,auto);column-gap:11px;row-gap:9px;padding:10px;border-radius:18px}.perfil-player-portrait{width:82px;min-height:104px}.perfil-player-portrait canvas{width:92px;height:112px}.perfil-player-info{gap:6px}.perfil-player-kicker{font-size:7px;letter-spacing:.1em}.perfil-player-details{flex-direction:column;gap:4px}.perfil-player-details span{padding:5px 7px}.perfil-player-details small{font-size:7px}.perfil-player-details b{font-size:9px}.perfil-player-stats{gap:5px}.perfil-player-stats span{flex-wrap:wrap;gap:3px;padding:6px 4px}.perfil-player-stats small{font-size:6px}.perfil-player-stats strong{font-size:8px}.perfil-stat-icon{font-size:10px}.perfil-player-info .perfil-player-name-field{font-size:9px!important}.perfil-player-info .perfil-player-name-field input{min-height:38px;padding:0 9px;font-size:13px}.perfil-player-hint{font-size:9px}}
+
+/* Perfil: papel claro para la ficha y marcos de tinta/turquesa para el avatar. */
+.perfil-bg{background:radial-gradient(ellipse at 15% 8%,#2c747e66,transparent 40%),#14253a;color:#192b40}
+.perfil-card{border:3px solid #183049;border-top:6px solid #3c9e9e;border-radius:22px;background:#f3ead6;box-shadow:0 9px 0 rgba(7,20,34,.34)}
+.perfil-kicker{color:#287384}
+.perfil-card h1{color:#192b40}
+.perfil-intro{color:#536579}
+.perfil-player-card{border:2px solid #183049;border-radius:20px;background:#e4eee2;box-shadow:0 4px 0 #c1d4ca}
+.perfil-player-portrait{border:2px solid #183049;background:#d2e3dc}
+.perfil-player-info,.perfil-player-info *{color:#192b40}
+.perfil-player-kicker{color:#287384!important}
+.perfil-player-details span{border-color:#3c9e9e;background:#f3ead6}
+.perfil-player-details small,.perfil-player-stats small{color:#536579}
+.perfil-player-stats span{border:2px solid #183049;background:#f1c65d;color:#192b40}
+.perfil-player-info .perfil-player-name-field{color:#405167!important}
+.perfil-player-info .perfil-player-name-field input{border:2px solid #3c9e9e!important;background:#fffaf0!important;color:#192b40!important}
+.perfil-player-hint,.perfil-hint,.perfil-readonly{color:#536579}
+.perfil-card label{color:#263c4e}
+.perfil-card input,.perfil-card select{border:2px solid #aab8b0;border-radius:10px;background:#fffaf0;color:#192b40}
+.perfil-card input:focus,.perfil-card select:focus{outline:3px solid #3c9e9e;outline-offset:1px}
+.perfil-card input[readonly],.perfil-card select:disabled{background:#e5e9df;color:#536579}
+.perfil-notice{border:2px solid #3c9e9e;background:#e4f0e9;color:#294d50}
+.perfil-error{border-color:#bd7561;background:#f5e2d7;color:#6e302b}.perfil-success{border-color:#45a77b;background:#e1f0e4;color:#24583d}
+.perfil-back{border:2px solid #183049;background:#dce6db;color:#192b40}
+.perfil-save{border:2px solid #183049;background:#2c747e;color:white;box-shadow:0 3px 0 #183049}
+.perfil-save:hover{background:#368c95}

@@ -148,3 +148,42 @@
 @keyframes mapa-sacudir{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 .diff-btn:focus-visible,.map-btn:focus-visible,.mapa-pin:focus-visible{outline:2px solid #ffe27a;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.mapa-diff-panel.sacudir{animation:none}}
+
+/* Acabado de mapa inspirado en la guía del personaje: tinta, papel y turquesa. */
+.mapa-bg{background:#14253a;color:#f3ead6}
+.mapa-top-bar{background:#183049;border-bottom:2px solid #2c747e}
+.mapa-title{color:#f1c65d;text-shadow:none;font:800 12px/1.4 Arial,Helvetica,sans-serif;letter-spacing:.12em}
+.mapa-user{border:2px solid #3c9e9e;border-radius:999px;background:#102238;color:#f3ead6;font:700 12px Arial,Helvetica,sans-serif}
+.mapa-frame{border:4px solid #183049;border-radius:13px;box-shadow:0 0 0 2px #f1c65d,0 8px 0 #0d1a2a;background:#1c5266}
+.mapa-side{gap:11px;background:#183049;border-left:3px solid #2c747e;padding:16px;color:#f3ead6}
+.mapa-diff-panel h3{color:#f1c65d;font:800 11px/1.5 Arial,Helvetica,sans-serif;letter-spacing:.08em}
+.diff-btn{padding:13px 10px;border-width:2px;border-radius:12px;background:#102238;font:800 13px/1.25 Arial,Helvetica,sans-serif;box-shadow:0 3px 0 #0d1a2a}
+.diff-btn .diff-sub{font-size:12px}
+.d-easy{border-color:#45b982;color:#a9ebc7}.d-easy.selected,.d-easy:hover{background:#e8f3df;color:#194c3b;box-shadow:0 3px 0 #28664f}
+.d-med{border-color:#e9bb48;color:#ffdf8b}.d-med.selected,.d-med:hover{background:#fff0c8;color:#5a4313;box-shadow:0 3px 0 #b48a2f}
+.d-hard{border-color:#df786f;color:#ffc0b8}.d-hard.selected,.d-hard:hover{background:#f8ddd4;color:#6e302b;box-shadow:0 3px 0 #a64d47}
+.diff-btn.unfocused{filter:blur(1px);opacity:.43}
+.map-btn{padding:10px;border:2px solid #3c9e9e;border-radius:10px;background:#102238;color:#e3f3e8;font:700 12px/1.3 Arial,Helvetica,sans-serif;box-shadow:0 2px 0 #0d1a2a}
+.map-btn:hover{background:#2c747e;color:white}
+.map-btn-out{border-color:#bd665f;color:#ffc0b8}
+.guia-dialog{border:3px solid #183049;border-top:5px solid #3c9e9e;border-radius:20px;background:#f3ead6;color:#192b40;box-shadow:0 12px 0 rgba(7,20,34,.35);}
+.guia-dialog h2,.guia-dialog h3{color:#192b40}
+.guia-dialog p,.guia-dialog li{color:#405167}
+.guia-dialog .guia-start{border:2px solid #183049;border-radius:11px;background:#2c747e;color:#fff;box-shadow:0 3px 0 #183049}
+.mapa-perfil{border:2px solid #3c9e9e;border-radius:14px;background:#203c52;color:#f3ead6}
+.mapa-perfil-top b{color:#fff4da}
+.mapa-perfil-avatar{border:2px solid #f1c65d;background:#f3ead6;color:#183049}
+.mapa-checkpoint{border:2px solid #3c9e9e;border-left:5px solid #f1c65d;border-radius:14px;background:#203c52;color:#e3f3e8}
+.mapa-checkpoint strong{color:#fff4da}
+.mapa-checkpoint .map-btn-continuar{border-color:#183049;background:#2c747e;color:#fff}
+.mapa-perfil-prog{color:#d4e4df}.mapa-perfil-prog b{color:#f1c65d}
+.mapa-perfil-barra{background:#102238}.mapa-perfil-barra div{background:linear-gradient(90deg,#3c9e9e,#f1c65d)}
+.guia-tour-preview span{border:2px solid #183049;border-radius:10px;background:#e5eee4;color:#192b40}
+.guia-tour-note{border-left-color:#d6a932;background:#f8e9bf;color:#405167}.guia-tour-note b{color:#192b40}
+.mapa-pin{border:2px solid #f3ead6;border-radius:10px;background:#183049;color:#fff4da;box-shadow:0 3px 0 #0d1a2a;font-family:Arial,Helvetica,sans-serif}
+.mapa-pin:hover:not(:disabled){box-shadow:0 4px 0 #0d1a2a;filter:brightness(1.08)}
+.mapa-pin-label{font-size:8px;letter-spacing:.04em;text-shadow:0 1px 2px #102238}
+.mapa-pin.bloqueado{border-color:#8c9aa3;background:#344554}
+.mapa-flow-arrow{color:#f1c65d;text-shadow:none}
+.mapa-tour-label{color:#287384}.mapa-tour-next{background:#2c747e!important}
+@media(max-width:760px){.mapa-side{background:#183049}}

@@ -104,3 +104,44 @@
 .game-screen .fin-feedback select,.game-screen .fin-feedback textarea{display:block;width:100%;margin-top:9px;padding:10px;border:1px solid rgba(231,222,206,.28);border-radius:8px;background:#171614;color:#f4eadb;font:inherit}
 .game-screen .fin-feedback textarea{min-height:65px;resize:vertical}
 .game-screen .fin-feedback .btn{margin-top:9px}
+
+/* Tema de juego conectado con el mapa y la guía: tinta, turquesa, crema y mostaza. */
+.game-screen{--ink:#14253a;--ink-soft:#20394d;--sand:#f3ead6;--sand-muted:#c4d2d7;--wine:#a95655;--wine-bright:#bd7561;--line:rgba(243,234,214,.24);--panel:rgba(20,37,58,.97);background:#14253a}
+.game-wrap{background:#183049}
+.game-screen .hud{border:2px solid #183049;border-radius:16px;background:rgba(20,37,58,.94);box-shadow:0 4px 0 rgba(7,20,34,.4)}
+.hud-bar-wrap{background:#41596a}.hud-bar{background:linear-gradient(90deg,#3c9e9e 0%,#8dc9a8 68%,#f1c65d 100%)}
+.hud-score{color:#fff4da}.hud-zone{color:#dce9df}.hud-power{color:#f1c65d}.hud-power.slow{color:#9ce2d8}
+.hud-preview-label{border-color:#3c9e9e;background:#20394d;color:#c9f1e3}
+.game-screen .hud-pause-btn{border:2px solid #3c9e9e;border-radius:10px;background:#20394d;color:#fff4da}
+.game-screen .hud-pause-btn:hover{background:#2c747e;border-color:#f1c65d}
+.game-screen .overlay{background:rgba(8,20,34,.76)}
+.pausa-box,.revival-box,.fin-box,.game-screen .q-box{border:3px solid #183049;border-top:6px solid #3c9e9e;border-radius:20px;background:#f3ead6;color:#192b40;box-shadow:0 8px 0 rgba(7,20,34,.4)}
+.pausa-title,.revival-title,.game-screen .q-title{color:#192b40}
+.revival-sub,.pausa-hint,.fin-message,.fin-stats{color:#536579}
+.fin-stats b{color:#192b40}.fin-title.win{color:#287384}.fin-title.lose{color:#984f49}
+.revival-reto{border:2px solid #b7c7bd;background:#e5eee4;color:#263c4e}
+.revival-ta,.game-screen .q-code-ta{border:2px solid #183049;border-radius:11px;background:#14253a;color:#f3ead6}
+.revival-ta:focus,.game-screen .q-code-ta:focus{border-color:#3c9e9e;outline:2px solid #3c9e9e}
+.game-screen .q-badge{border:2px solid #3c9e9e;background:#e4f0e9;color:#287384}
+.game-screen .q-timer-wrap{background:#d4d2c4}.game-screen .q-timer{background:linear-gradient(90deg,#3c9e9e,#f1c65d)}
+.game-screen .q-text{color:#405167}
+.game-screen .q-code{border:2px solid #183049;border-left:6px solid #3c9e9e;border-radius:11px;background:#14253a;color:#f3ead6}
+.game-screen .q-code .kw{color:#78d4c2}.game-screen .q-code .fn{color:#f1c65d}.game-screen .q-code .str{color:#b9dfa8}.game-screen .q-code .num{color:#f1c65d}.game-screen .q-code .va{color:#f3ead6}
+.game-screen .q-code-case{border-color:#b7c7bd;background:#e5eee4;color:#263c4e}
+.game-screen .q-code-case span{color:#536579}.game-screen .q-code-case code{color:#192b40}
+.game-screen .q-opts .qo{border:2px solid #aab8b0;border-radius:12px;background:#fffaf0;color:#263c4e}
+.game-screen .q-opts .qo:hover:not(:disabled){border-color:#3c9e9e;background:#e4f0e9}
+.game-screen .q-opts .qo.ok{border-color:#45a77b;background:#e1f0e4;color:#24583d}.game-screen .q-opts .qo.no{border-color:#bd7561;background:#f5e2d7;color:#6e302b}
+.game-screen .q-fb{border:2px solid #3c9e9e;background:#e4f0e9;color:#294d50}
+.game-screen .q-fb.error{border-color:#bd7561;background:#f5e2d7;color:#6e302b}
+.game-screen .q-topic-support,.game-screen .fin-feedback{border:2px solid #b7c7bd;border-radius:12px;background:#e7eee3;color:#263c4e}
+.game-screen .q-topic-support summary,.game-screen .fin-feedback summary{color:#287384}
+.game-screen .q-topic-support article{border-color:#c9d2c8}.game-screen .q-topic-support p{color:#405167}
+.game-screen .fin-feedback select,.game-screen .fin-feedback textarea{border:2px solid #aab8b0;background:#fffaf0;color:#192b40}
+.game-screen .btn{border:2px solid #183049;border-radius:11px;background:#dfe8dc;color:#192b40;box-shadow:0 3px 0 #183049}
+.game-screen .btn:hover{background:#eaf0dc;border-color:#183049}
+.game-screen .btn-g{background:#dff0e2;color:#24583d}.game-screen .btn-r{background:#f5e2d7;color:#6e302b}.game-screen .btn-y{background:#fff0c8;color:#5a4313}.game-screen .btn-b{background:#dcebf0;color:#194b59}
+.touch-btn{border:2px solid #f3ead6;border-radius:14px;background:rgba(20,37,58,.94);color:#fff4da;box-shadow:0 4px 0 #0d1a2a}
+.touch-btn span{color:#c9e2d8}.touch-btn:active{background:#2c747e}
+.ctrl-hint{color:#f3ead6}
+@media(max-width:620px){.game-screen .hud{background:rgba(20,37,58,.96)}}

@@ -66,3 +66,30 @@
 .podium-card:hover{transform:translateY(-4px);border-color:var(--podium);box-shadow:0 18px 42px #0007;transition:transform .22s,border-color .22s,box-shadow .22s}
 .rank-tab:active,.rank-back:active{transform:scale(.97)}
 @media(prefers-reduced-motion:reduce){.ranking-bg *{animation:none!important;scroll-behavior:auto!important;transition:none!important}.podium-card:hover{transform:none}}
+
+/* Ranking con la misma paleta artesanal del recorrido tutorial. */
+.ranking-bg{background:radial-gradient(ellipse at 20% 0%,#2c747e55,transparent 36%),#14253a;color:#192b40}
+.ranking-bg::before{opacity:.07;filter:saturate(.55)}
+.ranking-header h1{color:#f3ead6}.ranking-header p{color:#c4d2d7}
+.rank-eyebrow{color:#f1c65d}
+.rank-back{border:2px solid #3c9e9e;border-radius:10px;background:#183049;color:#f3ead6}
+.rank-back:hover{border-color:#f1c65d;background:#23455b}
+.rank-tabs{border:2px solid #183049;border-radius:13px;background:#183049}
+.rank-tab{border-radius:9px;color:#d5e3df}
+.rank-tab.sel,.rank-tab[aria-pressed="true"]{background:#f3ead6;color:#192b40}
+.podium-card{border:3px solid #183049;border-radius:18px;background:#f3ead6;color:#192b40;box-shadow:0 5px 0 #0d1a2a}
+.podium-card.place-1{--podium:#e0b644;background:#fff0c8;border-color:#183049}
+.podium-card.place-2{--podium:#3c9e9e;background:#e4f0e9}
+.podium-card.place-3{--podium:#bd7561;background:#f5e2d7}
+.podium-card::before{height:5px}
+.podium-avatar,.rank-avatar{border:2px solid #183049;background:#dce9df;color:#192b40}
+.podium-name,.podium-score,.podium-zone{color:#192b40}
+.rank-board{border:3px solid #183049;border-radius:18px;background:#f3ead6;color:#192b40;box-shadow:0 5px 0 #0d1a2a}
+.rank-board-head{border-color:#c4c9b9}.rank-board-head h2{color:#192b40}
+.rank-total{border:2px solid #3c9e9e;border-radius:999px;background:#e4f0e9;color:#194b4e}
+.rank-table th{border-bottom:2px solid #183049;background:#dbe9df;color:#183049}
+.rank-table td{border-color:#d4d2c4;color:#263c4e}
+.rank-table tbody tr:hover td{background:#e5eee4}
+.rank-zone{color:#53697a}.rank-points{color:#8b6715}.rank-empty{color:#53697a!important}.rank-footer{color:#c4d2d7}
+.podium-card:hover{box-shadow:0 7px 0 #0d1a2a}
+@media(max-width:640px){.rank-tabs{width:100%;justify-content:stretch}.rank-tab{flex:1}}
