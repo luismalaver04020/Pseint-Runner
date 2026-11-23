@@ -24,6 +24,13 @@ function shade(day, night, amount) {
   return `#${a.map((channel, i) => Math.round(channel + (b[i] - channel) * k).toString(16).padStart(2, '0')).join('')}`;
 }
 
+function blend(day, ground, amount) {
+  const a = day.match(/[\da-f]{2}/gi).map((part) => parseInt(part, 16));
+  const b = ground.match(/[\da-f]{2}/gi).map((part) => parseInt(part, 16));
+  const k = Math.max(0, Math.min(1, amount));
+  return `#${a.map((channel, i) => Math.round(channel + (b[i] - channel) * k).toString(16).padStart(2, '0')).join('')}`;
+}
+
 // Nubes tenues de varias formas para dar escala al cielo sin tapar el horizonte.
 export function drawCloudLayersV2(ctx, W, horizonY, dayTime, frame, region) {
   const night = nightMix(dayTime);
@@ -135,15 +142,16 @@ export function drawSidewalksV2(ctx, W, GND, horizonY, centerX, dayTime, distanc
 export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTime, distancia, region) {
   const night = isNight(dayTime);
   const palettes = {
-    rocosa: { walls: ['#c99d70', '#d7b889', '#b98258'], roofs: ['#754c3b', '#8c5e49', '#6b5544'], lot: ['#8b795f', '#6c7450'], tree: '#607747', window: '#c4d2c4' },
-    selva: { walls: ['#b79b65', '#987650', '#c1a875'], roofs: ['#555447', '#70674f', '#4f5a48'], lot: ['#4c6745', '#365b3d'], tree: '#426c43', window: '#c4d7c2' },
-    costera: { walls: ['#e1d2b2', '#cdbb98', '#d9c8a9'], roofs: ['#77776f', '#a26a56', '#686c68'], lot: ['#c8b58d', '#89917b'], tree: '#58734d', window: '#c8d8d7' },
-    ciudad: { walls: ['#b8b9b2', '#9fa6a7', '#c6b9a8'], roofs: ['#626d72', '#77736b', '#535f69'], lot: ['#7c826c', '#696b66'], tree: '#477353', window: '#bcd1d6' },
+    rocosa: { walls: ['#c99d70', '#d7b889', '#b98258'], roofs: ['#754c3b', '#8c5e49', '#6b5544'], lot: ['#8b795f', '#6c7450'], ground: '#c99769', tree: '#607747', window: '#c4d2c4' },
+    selva: { walls: ['#b79b65', '#987650', '#c1a875'], roofs: ['#555447', '#70674f', '#4f5a48'], lot: ['#4c6745', '#365b3d'], ground: '#526c38', tree: '#426c43', window: '#c4d7c2' },
+    costera: { walls: ['#e1d2b2', '#cdbb98', '#d9c8a9'], roofs: ['#77776f', '#a26a56', '#686c68'], lot: ['#c8b58d', '#89917b'], ground: '#e1c98d', tree: '#58734d', window: '#c8d8d7' },
+    ciudad: { walls: ['#b8b9b2', '#9fa6a7', '#c6b9a8'], roofs: ['#626d72', '#77736b', '#535f69'], lot: ['#7c826c', '#696b66'], ground: '#6c6256', tree: '#477353', window: '#bcd1d6' },
   };
   const palette = palettes[region] || palettes.rocosa;
   const wallColors = palette.walls.map((color) => shade(color, '#333b47', night * 0.64));
   const roofColors = palette.roofs.map((color) => shade(color, '#242d39', night * 0.62));
-  const lotColors = palette.lot.map((color) => shade(color, '#35423b', night * 0.48));
+  const ground = shade(palette.ground, '#263b39', night * 0.54);
+  const lotColors = palette.lot.map((color) => blend(shade(color, '#35423b', night * 0.48), ground, 0.58));
   const treeColor = shade(palette.tree, '#29483d', night * 0.5);
   const windowLit = shade(palette.window, '#f0c98b', night * 0.7);
   const roadHalf = W * ROAD_HALF_RATIO;
@@ -163,7 +171,7 @@ export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTi
     const base = point(progress, 1, seed);
     const curve = curvOff(W, distancia, scale);
     const sideSpace = W * (0.14 + hash(seed + 12) * 0.12);
-    const lotNear = (roadHalf * 1.48 + sideSpace * 0.2) * scale;
+    const lotNear = Math.max(0, (roadHalf * 1.48 + sideSpace * 0.2) * scale - 2 * scale);
     const lotWidth = W * (0.34 + hash(seed + 23) * 0.2) * scale;
     const lotFar = lotNear + lotWidth;
     const centerOffset = lotNear + lotWidth * (0.58 + hash(seed + 6) * 0.1);
@@ -183,18 +191,18 @@ export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTi
     const farY = baseY - lotDepth;
     const taper = Math.max(0.84, 1 - scale * 0.12);
 
-    // Jardín/patio parcelado en vez de un plano marrón uniforme.
-    ctx.fillStyle = lotColor;
+    // El patio se funde con el terreno: sin borde de plataforma ni corte duro.
+    const plotFill = ctx.createLinearGradient(0, farY, 0, baseY);
+    plotFill.addColorStop(0, blend(lotColor, ground, 0.78));
+    plotFill.addColorStop(0.58, blend(lotColor, ground, 0.32));
+    plotFill.addColorStop(1, blend(lotColor, ground, 0.18));
+    ctx.fillStyle = plotFill;
     ctx.beginPath();
     ctx.moveTo(xAt(lotNear), baseY);
     ctx.lineTo(xAt(lotFar), baseY);
     ctx.lineTo(xAt(lotFar * taper), farY);
     ctx.lineTo(xAt(lotNear * 0.96), farY);
     ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = shade(lotColor, '#293b36', night * 0.35);
-    ctx.lineWidth = Math.max(0.7, scale * 1.4);
-    ctx.beginPath(); ctx.moveTo(xAt(lotNear * 0.96), farY); ctx.lineTo(xAt(lotFar * taper), farY); ctx.stroke();
-
     // Camino corto hasta la entrada de cada vivienda.
     const pathW = Math.max(1.5, lotWidth * 0.12);
     const pathX = xAt(centerOffset);
@@ -222,7 +230,8 @@ export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTi
     }
 
     const buildingX = xAt(centerOffset + side * lotWidth * 0.04) - buildingW / 2;
-    const buildingY = baseY - lotDepth * (0.28 + hash(seed + 101) * 0.12);
+    // Las fachadas apoyan en el borde delantero del lote y su sombra toca el suelo.
+    const buildingY = baseY;
     const frontW = buildingW * 0.84;
     const wall = wallColors[Math.floor(hash(seed + 31) * wallColors.length)];
     const roof = roofColors[Math.floor(hash(seed + 42) * roofColors.length)];
