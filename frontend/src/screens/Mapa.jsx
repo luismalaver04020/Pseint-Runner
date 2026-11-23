@@ -1,6 +1,7 @@
 import { useStore } from '../store/useStore';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { drawPersonaje } from '../game/spritePersonaje';
 import { esDificultadValida, MSG_FALTA_DIFICULTAD, MSG_ELIGE_DIFICULTAD } from '../services/validacionesPartida';
 import { ZONAS, ZONAS_ORDEN } from '../game/zonas';
 import { obtenerCheckpointDisponible } from '../services/tablasJuegoService';
@@ -23,7 +24,7 @@ const PIN_POS = {
 };
 
 export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogout, onPanel }) {
-  const { usuario, dificultad, setDificultad, setZona, estaDesbloqueada } = useStore();
+  const { usuario, avatar, dificultad, setDificultad, setZona, estaDesbloqueada } = useStore();
   const [guiaAbierta, setGuiaAbierta] = useState(() => sessionStorage.getItem('pseint-runner-guia-v1') !== 'vista');
   const [tutorialPaso, setTutorialPaso] = useState(0);
   // La dificultad vive en el store (null hasta que el jugador elige); no hay valor por defecto.
@@ -35,6 +36,7 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
   const [errorCheckpoint, setErrorCheckpoint] = useState(false);
   const panelDifRef = useRef(null);
   const tourHintRef = useRef(null);
+  const guiaAvatarRef = useRef(null);
   const [tourPosition, setTourPosition] = useState(null);
   const [tourArrow, setTourArrow] = useState('');
   useEffect(() => { if (!sacudir) return undefined; const t = setTimeout(() => setSacudir(false), 600); return () => clearTimeout(t); }, [sacudir]);
@@ -48,6 +50,15 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
       });
     return () => { vigente = false; };
   }, []);
+
+  useEffect(() => {
+    if (!tutorialPaso) return;
+    const canvas = guiaAvatarRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawPersonaje(ctx, canvas.width / 2, canvas.height - 5, avatar, { vista: 'frente', P: 3 });
+  }, [avatar, tutorialPaso]);
 
   const omitirGuia = () => {
     sessionStorage.setItem('pseint-runner-guia-v1', 'vista');
@@ -114,16 +125,22 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
       role="status"
       aria-live="polite"
     >
-      <div className="mapa-tour-heading">
-        <span className="mapa-tour-label">GUÍA DEL JUGADOR</span>
-        <span className="mapa-tour-count">{String(tutorialPaso).padStart(2, '0')} / {String(pasosTour.length).padStart(2, '0')}</span>
+      <div className="mapa-tour-mascota" aria-hidden="true">
+        <canvas ref={guiaAvatarRef} width={96} height={112} />
+        <span>GUÍA</span>
       </div>
-      <div className="mapa-tour-progress" aria-hidden="true"><span style={{ width: `${(tutorialPaso / pasosTour.length) * 100}%` }} /></div>
-      <h3>{pasoActual?.titulo}</h3>
-      <p>{pasoActual?.texto}</p>
-      <div className="mapa-tour-actions">
-        <button type="button" className="mapa-tour-skip" onClick={omitirGuia}>Omitir recorrido</button>
-        <button type="button" className="mapa-tour-next" onClick={avanzarTour}>{tutorialPaso === pasosTour.length ? 'Terminar y jugar' : 'Continuar →'}</button>
+      <div className="mapa-tour-copy">
+        <div className="mapa-tour-heading">
+          <span className="mapa-tour-label">TU PERSONAJE TE CUENTA</span>
+          <span className="mapa-tour-count">{String(tutorialPaso).padStart(2, '0')} / {String(pasosTour.length).padStart(2, '0')}</span>
+        </div>
+        <div className="mapa-tour-progress" aria-hidden="true"><span style={{ width: `${(tutorialPaso / pasosTour.length) * 100}%` }} /></div>
+        <h3>{pasoActual?.titulo}</h3>
+        <p>{pasoActual?.texto}</p>
+        <div className="mapa-tour-actions">
+          <button type="button" className="mapa-tour-skip" onClick={omitirGuia}>Omitir</button>
+          <button type="button" className="mapa-tour-next" onClick={avanzarTour}>{tutorialPaso === pasosTour.length ? 'Terminar y jugar' : 'Siguiente →'}</button>
+        </div>
       </div>
     </div>,
     document.body,
