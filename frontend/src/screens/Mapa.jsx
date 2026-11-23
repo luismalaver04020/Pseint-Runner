@@ -159,7 +159,7 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
           </div>
         </div>
         {tutorialPaso > 0 && (
-          <div className="mapa-tour-hint" role="status" aria-live="polite">
+          <div className={`mapa-tour-hint ${tutorialPaso === 1 ? 'paso-dificultad' : 'paso-zona'}`} role="status" aria-live="polite">
             <strong>{tutorialPaso === 1 ? 'PASO 1 DE 2 · ELIGE LA DIFICULTAD' : 'PASO 2 DE 2 · ELIGE UNA ZONA'}</strong>
             <span>{tutorialPaso === 1
               ? 'Toca Fácil, Intermedio o Difícil. La selección define qué retos aparecerán.'
