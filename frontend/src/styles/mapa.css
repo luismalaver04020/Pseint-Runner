@@ -246,3 +246,7 @@
 .mapa-tour-hint.punta-derecha .mapa-tour-copy::before{border-left-color:#ffc83d}.mapa-tour-hint.punta-derecha .mapa-tour-copy::after{border-left-color:#192d47}
 .mapa-tour-hint.punta-arriba .mapa-tour-copy::before{border-bottom-color:#ffc83d}.mapa-tour-hint.punta-arriba .mapa-tour-copy::after{border-bottom-color:#192d47}
 .mapa-tour-hint.punta-abajo .mapa-tour-copy::before{border-top-color:#ffc83d}.mapa-tour-hint.punta-abajo .mapa-tour-copy::after{border-top-color:#192d47}
+
+/* Fondo base elegido: azul noche liso, como el espacio alrededor del mapa. */
+.mapa-bg{background:#070d25}
+.mapa-top-bar,.mapa-side,.mapa-info-bar{background-color:#070d25}

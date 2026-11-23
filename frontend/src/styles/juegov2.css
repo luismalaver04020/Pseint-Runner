@@ -108,6 +108,7 @@
 /* Tema de juego conectado con el mapa y la guía: tinta, turquesa, crema y mostaza. */
 .game-screen{--ink:#14253a;--ink-soft:#20394d;--sand:#f3ead6;--sand-muted:#c4d2d7;--wine:#a95655;--wine-bright:#bd7561;--line:rgba(243,234,214,.24);--panel:rgba(20,37,58,.97);background:#14253a}
 .game-wrap{background:#183049}
+.game-screen{background:#070d25}
 .game-screen .hud{border:2px solid #183049;border-radius:16px;background:rgba(20,37,58,.94);box-shadow:0 4px 0 rgba(7,20,34,.4)}
 .hud-bar-wrap{background:#41596a}.hud-bar{background:linear-gradient(90deg,#3c9e9e 0%,#8dc9a8 68%,#f1c65d 100%)}
 .hud-score{color:#fff4da}.hud-zone{color:#dce9df}.hud-power{color:#f1c65d}.hud-power.slow{color:#9ce2d8}

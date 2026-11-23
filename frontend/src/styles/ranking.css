@@ -112,3 +112,5 @@
 .podium-card:hover{box-shadow:0 5px 0 #07152a}
 .ranking-bg{background-color:#0b1a30;background-image:radial-gradient(circle,rgba(69,126,177,.18) 1px,transparent 1.35px),linear-gradient(135deg,#0b1a30 0%,#10243d 58%,#0d1d34 100%);background-size:24px 24px,100% 100%}
 .ranking-bg::before{opacity:.09;filter:saturate(.55)}
+.ranking-bg{background:#070d25}
+.ranking-bg::before{opacity:.045}
