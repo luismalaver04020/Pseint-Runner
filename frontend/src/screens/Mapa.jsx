@@ -27,11 +27,16 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
   const [tutorialPaso, setTutorialPaso] = useState(0);
   // La dificultad vive en el store (null hasta que el jugador elige); no hay valor por defecto.
   const difElegida = esDificultadValida(dificultad);
+  const primeraZonaDisponible = ZONAS_ORDEN.find((id) => estaDesbloqueada(id));
   const [aviso, setAviso] = useState('');
   const [sacudir, setSacudir] = useState(false);
   const [checkpoint, setCheckpoint] = useState(null);
   const [errorCheckpoint, setErrorCheckpoint] = useState(false);
   const panelDifRef = useRef(null);
+  const pinTutorialRef = useRef(null);
+  const tourHintRef = useRef(null);
+  const [tourPosition, setTourPosition] = useState(null);
+  const [tourArrow, setTourArrow] = useState('');
   useEffect(() => { if (!sacudir) return undefined; const t = setTimeout(() => setSacudir(false), 600); return () => clearTimeout(t); }, [sacudir]);
   useEffect(() => {
     let vigente = true;
@@ -83,7 +88,52 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
   };
 
   const zonasAbiertas = ZONAS_ORDEN.filter((id) => estaDesbloqueada(id)).length;
-  const primeraZonaDisponible = ZONAS_ORDEN.find((id) => estaDesbloqueada(id));
+
+  useEffect(() => {
+    if (!tutorialPaso) { setTourPosition(null); setTourArrow(''); return undefined; }
+    const ubicarBurbuja = () => {
+      const objetivo = tutorialPaso === 1 ? panelDifRef.current : pinTutorialRef.current;
+      const burbuja = tourHintRef.current;
+      if (!objetivo || !burbuja) return;
+      const r = objetivo.getBoundingClientRect();
+      const w = burbuja.offsetWidth;
+      const h = burbuja.offsetHeight;
+      const margen = 12;
+      const espacio = 14;
+      let left;
+      let top;
+      let flecha;
+      if (r.left - w - espacio >= margen) {
+        left = r.left - w - espacio;
+        top = r.top + r.height / 2 - h / 2;
+        flecha = 'derecha';
+      } else if (window.innerWidth - r.right - espacio >= w + margen) {
+        left = r.right + espacio;
+        top = r.top + r.height / 2 - h / 2;
+        flecha = 'izquierda';
+      } else if (window.innerHeight - r.bottom - espacio >= h + margen) {
+        left = r.left + r.width / 2 - w / 2;
+        top = r.bottom + espacio;
+        flecha = 'arriba';
+      } else {
+        left = r.left + r.width / 2 - w / 2;
+        top = r.top - h - espacio;
+        flecha = 'abajo';
+      }
+      left = Math.max(margen, Math.min(left, window.innerWidth - w - margen));
+      top = Math.max(margen, Math.min(top, window.innerHeight - h - margen));
+      setTourPosition({ left, top });
+      setTourArrow(flecha);
+    };
+    const frame = requestAnimationFrame(ubicarBurbuja);
+    window.addEventListener('resize', ubicarBurbuja);
+    window.addEventListener('scroll', ubicarBurbuja, true);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('resize', ubicarBurbuja);
+      window.removeEventListener('scroll', ubicarBurbuja, true);
+    };
+  }, [tutorialPaso, primeraZonaDisponible]);
 
   const hayBloqueadas = ZONAS_ORDEN.some((id) => !estaDesbloqueada(id));
 
@@ -112,6 +162,7 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
             return (
               <button
                 key={id}
+                ref={id === primeraZonaDisponible ? pinTutorialRef : null}
                 className={`mapa-pin${unlocked ? '' : ' bloqueado'}${difElegida && unlocked ? ' paso-activo' : ''}${tutorialPaso === 2 && id === primeraZonaDisponible ? ' tutorial-inicio' : ''}`}
                 style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
                 onClick={() => elegir(id)}
@@ -159,7 +210,13 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
           </div>
         </div>
         {tutorialPaso > 0 && (
-          <div className={`mapa-tour-hint ${tutorialPaso === 1 ? 'paso-dificultad' : 'paso-zona'}`} role="status" aria-live="polite">
+          <div
+            ref={tourHintRef}
+            className={`mapa-tour-hint ${tutorialPaso === 1 ? 'paso-dificultad' : 'paso-zona'} flecha-${tourArrow}`}
+            style={tourPosition ? { left: `${tourPosition.left}px`, top: `${tourPosition.top}px` } : { visibility: 'hidden' }}
+            role="status"
+            aria-live="polite"
+          >
             <strong>{tutorialPaso === 1 ? 'PASO 1 DE 2 · ELIGE LA DIFICULTAD' : 'PASO 2 DE 2 · ELIGE UNA ZONA'}</strong>
             <span>{tutorialPaso === 1
               ? 'Toca Fácil, Intermedio o Difícil. La selección define qué retos aparecerán.'
