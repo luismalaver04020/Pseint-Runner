@@ -137,6 +137,66 @@ export function drawSidewalksV2(ctx, W, GND, horizonY, centerX, dayTime, distanc
   ctx.restore();
 }
 
+// Rocas, matorrales y hierba en los márgenes exteriores. Su base usa la misma
+// curva y fuga de la pista, y el ciclo ligado a distancia les da desplazamiento.
+export function drawSideLandscapeV2(ctx, W, GND, horizonY, centerX, dayTime, distancia, region) {
+  const night = nightMix(dayTime);
+  const roadHalf = W * ROAD_HALF_RATIO;
+  const greenDay = region === 'selva' ? '#477348' : region === 'costera' ? '#6c8055' : '#667447';
+  const greenNight = region === 'selva' ? '#1d4938' : '#354b3a';
+  const foliage = shade(greenDay, greenNight, night);
+  const grass = shade(region === 'costera' ? '#a79356' : '#928454', '#4c5140', night);
+  const rock = shade(region === 'costera' ? '#c0ae8f' : '#8c816d', '#46474a', night);
+  const trunk = shade('#76553a', '#44382f', night);
+
+  ctx.save();
+  for (const side of [-1, 1]) for (let layer = 0; layer < 2; layer++) {
+    const count = layer === 0 ? 14 : 12;
+    const spacing = layer === 0 ? 132 : 154;
+    const cycle = count * spacing;
+    for (let i = 0; i < count; i++) {
+      const phase = ((distancia * (layer === 0 ? 0.76 : 0.58) + i * spacing + (side > 0 ? spacing * 0.48 : 0) + layer * 57) % cycle + cycle) % cycle;
+      const z = Z_SPAWN - phase;
+      if (z < 24 || z > Z_SPAWN) continue;
+      const scale = FOCAL / (FOCAL + z);
+      const progress = Math.max(0.015, Math.min(1, scale));
+      const half = 3 + (roadHalf - 3) * progress;
+      const lane = layer === 0 ? 1.7 + hash(i * 17 + side * 9) * 0.24 : 2.12 + hash(i * 13 + side * 5) * 0.34;
+      const x = centerX + curvOff(W, distancia, progress) + side * (half * lane + W * 0.018 * progress);
+      const y = horizonY + (GND - horizonY) * progress;
+      const size = Math.max(1.2, (9 + hash(i * 31 + layer * 41 + side) * 13) * scale);
+      const kind = Math.floor(hash(i * 43 + layer * 7 + side * 23) * 4);
+
+      // Una sombra pequeña fija visualmente cada objeto al terreno.
+      ctx.fillStyle = 'rgba(20,27,23,.2)';
+      ctx.beginPath(); ctx.ellipse(x, y + size * 0.12, size * 1.05, Math.max(0.7, size * 0.24), 0, 0, Math.PI * 2); ctx.fill();
+      if (kind === 0 && region !== 'costera') {
+        // Matorral compacto de varias hojas, más abundante en la selva.
+        ctx.fillStyle = foliage;
+        ctx.beginPath(); ctx.ellipse(x, y - size * 0.35, size * 0.64, size * 0.55, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x - size * 0.42, y - size * 0.43, size * 0.43, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + size * 0.42, y - size * 0.48, size * 0.46, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = trunk; ctx.fillRect(x - size * 0.09, y - size * 0.28, Math.max(1, size * 0.18), size * 0.34);
+      } else if (kind === 1 || region === 'costera') {
+        // Piedra irregular con una cara iluminada para conservar el pixel art.
+        ctx.fillStyle = rock;
+        ctx.beginPath(); ctx.moveTo(x - size, y); ctx.lineTo(x - size * 0.68, y - size * 0.56); ctx.lineTo(x - size * 0.08, y - size * 0.82); ctx.lineTo(x + size * 0.68, y - size * 0.55); ctx.lineTo(x + size, y); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = shade(rock, '#d4c6aa', 0.18);
+        ctx.beginPath(); ctx.moveTo(x - size * 0.68, y - size * 0.56); ctx.lineTo(x - size * 0.08, y - size * 0.82); ctx.lineTo(x + size * 0.1, y - size * 0.08); ctx.lineTo(x - size * 0.78, y - size * 0.08); ctx.closePath(); ctx.fill();
+      } else {
+        // Hierbas en abanico, ancladas en un mismo punto y escaladas por distancia.
+        ctx.strokeStyle = grass; ctx.lineWidth = Math.max(0.7, scale * 1.5);
+        for (let blade = -2; blade <= 2; blade++) {
+          ctx.beginPath(); ctx.moveTo(x + blade * size * 0.14, y);
+          ctx.quadraticCurveTo(x + blade * size * 0.26, y - size * 0.48, x + blade * size * 0.42, y - size * (0.62 + hash(i * 7 + blade) * 0.35));
+          ctx.stroke();
+        }
+      }
+    }
+  }
+  ctx.restore();
+}
+
 // Manzanas exteriores: patios, casas y árboles que ocupan los terrenos vacíos
 // más allá de las veredas. Cada lote comparte la proyección y curva del camino.
 export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTime, distancia, region) {
