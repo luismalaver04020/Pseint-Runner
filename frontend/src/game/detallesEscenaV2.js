@@ -151,8 +151,8 @@ export function drawSideLandscapeV2(ctx, W, GND, horizonY, centerX, dayTime, dis
 
   ctx.save();
   for (const side of [-1, 1]) for (let layer = 0; layer < 2; layer++) {
-    const count = layer === 0 ? 14 : 12;
-    const spacing = layer === 0 ? 132 : 154;
+    const count = layer === 0 ? 18 : 16;
+    const spacing = layer === 0 ? 104 : 116;
     const cycle = count * spacing;
     for (let i = 0; i < count; i++) {
       const phase = ((distancia * (layer === 0 ? 0.76 : 0.58) + i * spacing + (side > 0 ? spacing * 0.48 : 0) + layer * 57) % cycle + cycle) % cycle;
@@ -161,10 +161,13 @@ export function drawSideLandscapeV2(ctx, W, GND, horizonY, centerX, dayTime, dis
       const scale = FOCAL / (FOCAL + z);
       const progress = Math.max(0.015, Math.min(1, scale));
       const half = 3 + (roadHalf - 3) * progress;
-      const lane = layer === 0 ? 1.7 + hash(i * 17 + side * 9) * 0.24 : 2.12 + hash(i * 13 + side * 5) * 0.34;
+      // Distribuye los elementos desde el borde de la vereda hasta casi el
+      // borde de pantalla, en vez de concentrarlos en una sola franja.
+      const edgeLane = Math.max(1.72, Math.min(4.6, W * 0.49 / half));
+      const lane = 1.54 + hash(i * 17 + side * 9 + layer * 29) * (edgeLane - 1.54);
       const x = centerX + curvOff(W, distancia, progress) + side * (half * lane + W * 0.018 * progress);
       const y = horizonY + (GND - horizonY) * progress;
-      const size = Math.max(1.2, (9 + hash(i * 31 + layer * 41 + side) * 13) * scale);
+      const size = Math.max(1.5, (20 + hash(i * 31 + layer * 41 + side) * 18) * Math.sqrt(scale));
       const kind = Math.floor(hash(i * 43 + layer * 7 + side * 23) * 4);
 
       // Una sombra pequeña fija visualmente cada objeto al terreno.
