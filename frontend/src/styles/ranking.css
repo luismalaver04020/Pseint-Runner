@@ -110,5 +110,5 @@
 .rank-table td{border-color:#29435d;color:#e1e8ed}.rank-table tbody tr:hover td{background:#203a56}
 .rank-zone{color:#bdcada}.rank-points{color:#ffc83d}.rank-empty{color:#bdcada!important}.rank-footer{color:#bdcada}
 .podium-card:hover{box-shadow:0 5px 0 #07152a}
-.ranking-bg{background:radial-gradient(ellipse at 20% 0%,#2c747e55,transparent 36%),#14253a}
-.ranking-bg::before{opacity:.07;filter:saturate(.55)}
+.ranking-bg{background-color:#0b1a30;background-image:radial-gradient(circle,rgba(69,126,177,.18) 1px,transparent 1.35px),linear-gradient(135deg,#0b1a30 0%,#10243d 58%,#0d1d34 100%);background-size:24px 24px,100% 100%}
+.ranking-bg::before{opacity:.09;filter:saturate(.55)}
