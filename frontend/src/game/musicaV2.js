@@ -12,6 +12,7 @@ let master;
 let activeGain;
 let activeNodes = [];
 let scheduler;
+let pendingTrackStart;
 let unlocked = false;
 let currentTrack = 'menu';
 let enabled = readPreference();
@@ -88,21 +89,31 @@ function stopScheduler() {
 }
 
 function fadeOutActive(ctx) {
-  if (!activeGain) return;
+  if (!activeGain) return 0;
   const previous = activeGain;
   const previousNodes = activeNodes;
   previous.gain.cancelScheduledValues(ctx.currentTime);
-  previous.gain.setTargetAtTime(0, ctx.currentTime, 0.12);
+  previous.gain.setTargetAtTime(0, ctx.currentTime, 0.018);
   activeGain = null;
   activeNodes = [];
-  window.setTimeout(() => previousNodes.forEach((node) => { try { node.disconnect(); } catch { /* already disconnected */ } }), 700);
+  window.setTimeout(() => previousNodes.forEach((node) => { try { node.disconnect(); } catch { /* already disconnected */ } }), 90);
+  return 100;
 }
 
 function startTrack() {
   const ctx = getContext();
   if (!ctx || !unlocked || !enabled) return;
   stopScheduler();
-  fadeOutActive(ctx);
+  const waitingForPrevious = Boolean(pendingTrackStart);
+  if (pendingTrackStart) window.clearTimeout(pendingTrackStart);
+  const wait = fadeOutActive(ctx) || (waitingForPrevious ? 100 : 0);
+  if (wait) {
+    pendingTrackStart = window.setTimeout(() => {
+      pendingTrackStart = null;
+      startTrack();
+    }, wait);
+    return;
+  }
 
   const theme = THEMES[currentTrack] || THEMES.menu;
   const bus = ctx.createGain();
@@ -175,9 +186,16 @@ export function unlockMusic() {
 }
 
 export function setMusicTrack(track) {
-  const nextTrack = THEMES[track] ? track : 'menu';
+  const nextTrack = track == null ? null : THEMES[track] ? track : 'menu';
   if (nextTrack === currentTrack) return;
   currentTrack = nextTrack;
+  if (nextTrack === null) {
+    stopScheduler();
+    if (pendingTrackStart) window.clearTimeout(pendingTrackStart);
+    pendingTrackStart = null;
+    if (context) fadeOutActive(context);
+    return;
+  }
   if (unlocked && enabled) startTrack();
 }
 
@@ -189,7 +207,21 @@ export function setMusicEnabled(value) {
   master.gain.cancelScheduledValues(ctx.currentTime);
   master.gain.setTargetAtTime(enabled ? 0.72 : 0, ctx.currentTime, 0.08);
   if (enabled && unlocked) startTrack();
-  else if (!enabled) { stopScheduler(); fadeOutActive(ctx); }
+  else if (!enabled) {
+    stopScheduler();
+    if (pendingTrackStart) window.clearTimeout(pendingTrackStart);
+    pendingTrackStart = null;
+    fadeOutActive(ctx);
+  }
 }
 
 export function getMusicEnabled() { return enabled; }
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    stopScheduler();
+    if (pendingTrackStart) window.clearTimeout(pendingTrackStart);
+    activeNodes.forEach((node) => { try { node.disconnect(); } catch { /* already disconnected */ } });
+    context?.close().catch(() => {});
+  });
+}

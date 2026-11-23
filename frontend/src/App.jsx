@@ -47,8 +47,14 @@ function Inner() {
     };
   }, []);
   useEffect(() => {
-    setMusicTrack(vistaLlegada ? (zona || 'rocosa') : pantalla === 'juego' ? (zona || 'rocosa') : 'menu');
-  }, [pantalla, zona, vistaLlegada]);
+    const menuActivo = !usuario || pantalla === 'mapa';
+    const tema = vistaLlegada || pantalla === 'juego'
+      ? (zona || 'rocosa')
+      : menuActivo
+        ? 'menu'
+        : null;
+    setMusicTrack(tema);
+  }, [pantalla, zona, vistaLlegada, usuario]);
   const alternarMusica = () => {
     const siguiente = !musicaActiva;
     setMusicEnabled(siguiente);
@@ -126,7 +132,7 @@ function Inner() {
   return (
     <>
       {vista()}
-      {pantalla !== 'juego' && !vistaLlegada && (
+      {pantalla !== 'juego' && !vistaLlegada && !previewUI && (!usuario || pantalla === 'mapa') && (
         <button
           type="button"
           className={`music-toggle${pantalla === 'mapa' ? ' mapa-audio' : ''}`}
