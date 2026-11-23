@@ -187,3 +187,6 @@
 .mapa-flow-arrow{color:#f1c65d;text-shadow:none}
 .mapa-tour-label{color:#287384}.mapa-tour-next{background:#2c747e!important}
 @media(max-width:760px){.mapa-side{background:#183049}}
+
+/* Fondo ambiental: deja de ser una plancha azul y acompaña los verdes del mapa. */
+.mapa-bg{background-color:#263f42;background-image:radial-gradient(ellipse at 18% 48%,rgba(103,145,96,.43),transparent 38%),radial-gradient(ellipse at 68% 78%,rgba(174,143,79,.24),transparent 36%),radial-gradient(ellipse at 88% 18%,rgba(46,119,128,.36),transparent 36%),linear-gradient(128deg,#1d3444 0%,#34534c 48%,#4b5945 100%)}
