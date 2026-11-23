@@ -24,6 +24,7 @@ const PIN_POS = {
 export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogout, onPanel }) {
   const { usuario, dificultad, setDificultad, setZona, estaDesbloqueada } = useStore();
   const [guiaAbierta, setGuiaAbierta] = useState(() => sessionStorage.getItem('pseint-runner-guia-v1') !== 'vista');
+  const [tutorialPaso, setTutorialPaso] = useState(0);
   // La dificultad vive en el store (null hasta que el jugador elige); no hay valor por defecto.
   const difElegida = esDificultadValida(dificultad);
   const [aviso, setAviso] = useState('');
@@ -43,12 +44,23 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
     return () => { vigente = false; };
   }, []);
 
-  const cerrarGuia = () => {
+  const omitirGuia = () => {
     sessionStorage.setItem('pseint-runner-guia-v1', 'vista');
     setGuiaAbierta(false);
+    setTutorialPaso(0);
   };
 
-  const elegirDificultad = (id) => { setDificultad(id); setAviso(''); };
+  const iniciarGuiaPasoAPaso = () => {
+    sessionStorage.setItem('pseint-runner-guia-v1', 'vista');
+    setGuiaAbierta(false);
+    setTutorialPaso(1);
+  };
+
+  const elegirDificultad = (id) => {
+    setDificultad(id);
+    setAviso('');
+    if (tutorialPaso === 1) setTutorialPaso(2);
+  };
 
   const elegir = (id) => {
     if (!estaDesbloqueada(id)) return;
@@ -71,6 +83,7 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
   };
 
   const zonasAbiertas = ZONAS_ORDEN.filter((id) => estaDesbloqueada(id)).length;
+  const primeraZonaDisponible = ZONAS_ORDEN.find((id) => estaDesbloqueada(id));
 
   const hayBloqueadas = ZONAS_ORDEN.some((id) => !estaDesbloqueada(id));
 
@@ -82,7 +95,7 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
       </div>
 
       <div className="mapa-stage">
-        <div className="mapa-frame">
+        <div className={`mapa-frame${tutorialPaso === 2 ? ' tutorial-target' : ''}`}>
           <img className="mapa-photo" src={mapaImg} alt="Mapa del Perú por zonas" draggable="false" />
 
           <svg className="mapa-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -99,7 +112,7 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
             return (
               <button
                 key={id}
-                className={`mapa-pin${unlocked ? '' : ' bloqueado'}${difElegida && unlocked ? ' paso-activo' : ''}`}
+                className={`mapa-pin${unlocked ? '' : ' bloqueado'}${difElegida && unlocked ? ' paso-activo' : ''}${tutorialPaso === 2 && id === primeraZonaDisponible ? ' tutorial-inicio' : ''}`}
                 style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
                 onClick={() => elegir(id)}
                 disabled={!unlocked}
@@ -130,7 +143,7 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
           </section>
         )}
         {errorCheckpoint && <p className="mapa-checkpoint-error" role="status">No se pudo consultar la partida guardada. Revisa tu conexión e inténtalo de nuevo.</p>}
-        <div ref={panelDifRef} className={`mapa-diff-panel${sacudir ? ' sacudir' : ''}${aviso ? ' con-aviso' : ''}`}>
+        <div ref={panelDifRef} className={`mapa-diff-panel${sacudir ? ' sacudir' : ''}${aviso ? ' con-aviso' : ''}${tutorialPaso === 1 ? ' tutorial-target' : ''}`}>
           <h3><span className={`mapa-flow-arrow${difElegida ? ' completado' : ''}`}>{difElegida ? '✓' : '↓'}</span> 1 · ELIGE DIFICULTAD</h3>
           <div role="group" aria-label="Dificultad">
             {DIF_OPTS.map(d => (
@@ -145,6 +158,15 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
             {difElegida ? 'Ahora elige una zona en el mapa.' : `${MSG_ELIGE_DIFICULTAD}.`}
           </div>
         </div>
+        {tutorialPaso > 0 && (
+          <div className="mapa-tour-hint" role="status" aria-live="polite">
+            <strong>{tutorialPaso === 1 ? 'PASO 1 DE 2 · ELIGE LA DIFICULTAD' : 'PASO 2 DE 2 · ELIGE UNA ZONA'}</strong>
+            <span>{tutorialPaso === 1
+              ? 'Toca Fácil, Intermedio o Difícil. La selección define qué retos aparecerán.'
+              : <>Toca <b>{ZONAS[primeraZonaDisponible]?.nombre}</b>, la zona resaltada, para empezar. También puedes elegir otra zona desbloqueada.</>}</span>
+            <button type="button" onClick={omitirGuia}>OMITIR TUTORIAL</button>
+          </div>
+        )}
         <div className="mapa-extra-btns">
           <button className="map-btn" onClick={()=>setGuiaAbierta(true)}>CÓMO JUGAR</button>
           {onPanel && <button className="map-btn" onClick={onPanel}>🧑‍🏫 PANEL</button>}
@@ -180,8 +202,8 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
               <li><kbd>Esc</kbd><span>Pausar</span></li>
             </ul>
             <div className="guia-actions">
-              <button className="guia-skip" onClick={cerrarGuia}>Ya sé jugar · Saltar guía</button>
-              <button className="guia-start" onClick={cerrarGuia}>ENTENDIDO, ELEGIR ZONA</button>
+              <button className="guia-skip" onClick={omitirGuia}>Omitir tutorial</button>
+              <button className="guia-start" onClick={iniciarGuiaPasoAPaso}>SEGUIR CON EL TUTORIAL</button>
             </div>
           </section>
         </div>
