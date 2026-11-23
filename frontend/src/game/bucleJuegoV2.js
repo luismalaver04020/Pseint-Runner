@@ -10,7 +10,7 @@ import {
   drawFinishV2, drawCelestialV2, renderObstaculosV2, drawPowerupV2,
   renderPlayerV2, curvOff, drawRoadsideSigns, drawStreetLights,
 } from './dibujoV2';
-import { drawCloudLayersV2, drawSidewalksV2 } from './detallesEscenaV2';
+import { drawCloudLayersV2, drawOuterNeighborhoodV2, drawSidewalksV2 } from './detallesEscenaV2';
 
 const FINISH_DURATION = 90; // 1.5 s a 60 FPS: entrada a la meta.
 const MAX_RUN_SPEED = 10.5;
@@ -109,6 +109,7 @@ export function renderJuegoV2(ctx, state) {
   const fadeEntorno = Math.max(0, Math.min(1, (score - 900) / 50));
   const entornoAlpha = 1 - fadeEntorno * fadeEntorno * (3 - 2 * fadeEntorno);
   ctx.save(); ctx.globalAlpha *= entornoAlpha;
+  drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTime, distancia, zonaCfg?.id);
   drawBuildingsV2(ctx, W, GND, horizonY, centerX, dayTime, distancia, zonaCfg);
   drawRoadsideGreenery(ctx, W, GND, horizonY, centerX, dayTime, distancia, zonaCfg);
   ctx.restore();
