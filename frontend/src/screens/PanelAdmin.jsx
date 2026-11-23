@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import SeccionesVista from './SeccionesVista';
 import ConfirmModal from '../components/ConfirmModal';
 import * as P from '../services/panelService';
+import { AVATAR_REF, drawPersonaje } from '../game/spritePersonaje';
 import '../styles/paneles.css';
 
 const etiquetaRol = (u) => {
@@ -12,6 +13,70 @@ const etiquetaRol = (u) => {
 };
 
 const COLORES_GRAFICO = ['#38d6ff', '#ff7a45', '#9b8cff', '#3ddc84', '#ffc83d', '#ff5d73', '#76a9ff'];
+
+function AvatarPerfilAdmin({ avatar, nombre }) {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const config = avatar && typeof avatar === 'object' && !Array.isArray(avatar) ? avatar : AVATAR_REF;
+    drawPersonaje(ctx, canvas.width / 2, canvas.height - 12, config, { vista: 'frente', P: 3 });
+  }, [avatar]);
+  return <div className="pn-profile-avatar"><canvas ref={canvasRef} width={120} height={144} aria-label={`Avatar de ${nombre || 'usuario'}`} /><span>AVATAR</span></div>;
+}
+
+function fechaPerfil(value, incluirHora = false) {
+  if (!value) return 'No registrada';
+  const soloFecha = String(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const fecha = soloFecha
+    ? new Date(Number(soloFecha[1]), Number(soloFecha[2]) - 1, Number(soloFecha[3]))
+    : new Date(value);
+  if (Number.isNaN(fecha.getTime())) return 'No disponible';
+  return new Intl.DateTimeFormat('es-PE', incluirHora
+    ? { dateStyle: 'medium', timeStyle: 'short' }
+    : { dateStyle: 'long' }).format(fecha);
+}
+
+function PerfilUsuarioModal({ detalle, cargando, onCerrar }) {
+  useEffect(() => {
+    if (!detalle) return undefined;
+    const cerrarConEscape = (event) => { if (event.key === 'Escape') onCerrar(); };
+    window.addEventListener('keydown', cerrarConEscape);
+    return () => window.removeEventListener('keydown', cerrarConEscape);
+  }, [detalle, onCerrar]);
+  if (!detalle) return null;
+  const genero = { mujer: 'Mujer', hombre: 'Hombre', no_binario: 'No binario', otro: 'Otro', prefiero_no_decir: 'Prefiere no decirlo' }[detalle.genero] || detalle.genero || 'No registrado';
+  const nombre = [detalle.nombres, detalle.apellidos].filter(Boolean).join(' ') || 'Datos personales pendientes';
+  const campos = [
+    ['Nombre completo', nombre], ['Nombre de usuario', detalle.usuario || '—'],
+    ['Correo electrónico', detalle.correo || '—'], ['Fecha de nacimiento', fechaPerfil(detalle.fechaNacimiento)],
+    ['Género', genero], ['Rol', detalle.rol || '—'],
+    ['Estado de cuenta', detalle.cuenta || '—'], ['Carrera', detalle.carrera || 'Sin carrera registrada'],
+    ['Sección', detalle.seccion || 'Sin sección'], ['Cuenta creada', fechaPerfil(detalle.fechaRegistro, true)],
+    ['Último acceso', fechaPerfil(detalle.ultimaConexion, true)],
+  ];
+  return (
+    <div className="pn-modal" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onCerrar(); }}>
+      <section className="pn-modal-box pn-profile-modal" role="dialog" aria-modal="true" aria-labelledby="pn-profile-title">
+        <header className="pn-profile-heading">
+          <div><span className="pn-eyebrow">CUENTA DE JUGADOR</span><h3 id="pn-profile-title">Perfil de {detalle.usuario}</h3></div>
+          <button type="button" className="pn-btn ghost" onClick={onCerrar} aria-label="Cerrar perfil">✕</button>
+        </header>
+        {cargando ? <p className="pn-vacio" role="status">Cargando perfil…</p>
+          : detalle.error ? <p className="pn-msg" role="alert">{detalle.error}</p>
+            : <div className="pn-profile-content">
+              <AvatarPerfilAdmin avatar={detalle.avatar} nombre={detalle.usuario} />
+              <div className="pn-profile-fields">
+                {campos.map(([etiqueta, valor]) => <div className="pn-profile-field" key={etiqueta}><span>{etiqueta}</span><b title={String(valor)}>{valor}</b></div>)}
+              </div>
+            </div>}
+        <p className="pn-profile-privacy">Vista de consulta para administración. Los datos personales no se pueden editar desde esta ventana.</p>
+      </section>
+    </div>
+  );
+}
 
 function GraficoGenero({ datos = [], total = 0 }) {
   let acumulado = 0;
@@ -72,6 +137,9 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo 
   const [reporte, setReporte] = useState(null);
   const [modoReporte, setModoReporte] = useState('cantidad');
   const [mesesReporte, setMesesReporte] = useState(12);
+  const [detalleUsuario, setDetalleUsuario] = useState(null);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
+  const detalleRequest = useRef(0);
 
   const cargar = useCallback(async () => {
     if (demo) {
@@ -95,6 +163,22 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo 
     setMsg('');
     if (demo) { setMsg('Vista de ejemplo: las acciones están desactivadas.'); return; }
     try { await fn(); await cargar(); } catch (e) { setMsg(e.message); }
+  };
+
+  const abrirPerfilUsuario = async (target) => {
+    const solicitud = ++detalleRequest.current;
+    setDetalleUsuario({ usuario: target });
+    setCargandoDetalle(true);
+    try {
+      const info = demo
+        ? { usuario: target, correo: `${target}@ejemplo.edu.pe`, nombres: target === 'ana.m' ? 'Ana' : 'Carlos', apellidos: 'Mendoza', fechaNacimiento: '2005-08-17', genero: target === 'ana.m' ? 'mujer' : 'hombre', rol: 'Alumno', cuenta: 'activo', fechaRegistro: '2026-06-09T15:30:00Z', ultimaConexion: '2026-11-23T14:15:00Z', carrera: 'Ingeniería de Software', seccion: '2041', avatar: AVATAR_REF }
+        : await P.detalleUsuarioAdmin(usuario, target);
+      if (solicitud === detalleRequest.current) setDetalleUsuario(info || { usuario: target, error: 'No se encontró el perfil.' });
+    } catch (error) {
+      if (solicitud === detalleRequest.current) setDetalleUsuario({ usuario: target, error: error?.message || 'No se pudo cargar el perfil.' });
+    } finally {
+      if (solicitud === detalleRequest.current) setCargandoDetalle(false);
+    }
   };
 
   const pedirRemover = (u) => setConfirmar({
@@ -171,8 +255,8 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo 
               <span className="pn-count">{users.length} {users.length === 1 ? 'usuario' : 'usuarios'}</span>
             </div>
             <div className="pn-table-wrap">
-              <table className="pn-table" style={{ '--min': '960px' }}>
-                <colgroup><col style={{ width: '28%' }} /><col style={{ width: '14%' }} /><col style={{ width: '12%' }} /><col style={{ width: '10%' }} /><col style={{ width: '36%' }} /></colgroup>
+              <table className="pn-table" style={{ '--min': '1160px' }}>
+                <colgroup><col style={{ width: '23%' }} /><col style={{ width: '12%' }} /><col style={{ width: '10%' }} /><col style={{ width: '9%' }} /><col style={{ width: '46%' }} /></colgroup>
                 <thead><tr><th>Usuario</th><th>Rol</th><th>Cuenta</th><th>Sección</th><th className="c-acts">Acciones</th></tr></thead>
                 <tbody>
                   {users.length === 0 && <tr className="pn-empty-row"><td colSpan="5" className="pn-vacio">No se encontraron usuarios.</td></tr>}
@@ -187,14 +271,15 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo 
                         <td><span className="pn-ellipsis">{u.seccion || '—'}</span></td>
                         <td className="c-acts">
                           {gestionable ? (
-                            <div className="pn-slots" style={{ '--n': 3 }}>
+                            <div className="pn-slots" style={{ '--n': 4 }}>
+                              <button className="pn-btn small ghost" onClick={() => abrirPerfilUsuario(u.usuario)}>Ver perfil</button>
                               <button className="pn-btn small ghost" onClick={() => run(() => P.cambiarCuenta(usuario, u.usuario, u.cuenta === 'activo' ? 'suspendido' : 'activo'))}>{u.cuenta === 'activo' ? 'Suspender' : 'Activar'}</button>
                               <button className="pn-btn small ghost" onClick={() => run(() => P.asignarDocente(usuario, u.usuario, !esDocenteAprobado))}>{esDocenteAprobado ? 'Quitar docente' : 'Hacer docente'}</button>
                               {u.rol === 'jugador' && u.seccion
                                 ? <button className="pn-btn small danger" onClick={() => pedirRemover(u)}>Remover</button>
                                 : <span className="pn-slot-vacio" aria-hidden="true" />}
                             </div>
-                          ) : <span className="pn-dash">—</span>}
+                          ) : <button className="pn-btn small ghost" onClick={() => abrirPerfilUsuario(u.usuario)}>Ver perfil</button>}
                         </td>
                       </tr>
                     );
@@ -216,6 +301,8 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo 
 
         {tab === 'secciones' && <SeccionesVista usuario={usuario} demo={demo} />}
       </div>
+
+      <PerfilUsuarioModal detalle={detalleUsuario} cargando={cargandoDetalle} onCerrar={() => { detalleRequest.current += 1; setDetalleUsuario(null); setCargandoDetalle(false); }} />
 
       <ConfirmModal
         abierto={!!confirmar} titulo={confirmar?.titulo} mensaje={confirmar?.mensaje}

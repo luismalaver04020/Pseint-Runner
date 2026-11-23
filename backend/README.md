@@ -44,7 +44,7 @@ Las funciones permitidas están en `src/lib/funciones.js`:
   `api_registrar_partida`, `api_registrar_respuestas`), docente (`api_listar_secciones`, `api_crear_seccion`,
   `api_crear_link`, `api_alternar_link`, `api_listar_alumnos`, `api_errores_por_tema`, `api_detalle_alumno`,
   `api_remover_alumno`) y administrador (`api_solicitudes_docente`, `api_resolver_solicitud`, `api_listar_usuarios`,
-  `api_cambiar_cuenta`, `api_asignar_docente`).
+  `api_admin_detalle_usuario`, `api_cambiar_cuenta`, `api_asignar_docente`).
 
 Cualquier otro nombre responde `404`. Las llamadas que exigen sesión sin token válido responden `401`.
 Los errores que lanza la base de datos (`RAISE EXCEPTION`) llegan al frontend como `{ "error": "mensaje en español" }`.

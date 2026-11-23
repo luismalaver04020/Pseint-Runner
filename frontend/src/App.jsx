@@ -14,7 +14,6 @@ import { esFlujoRecuperacion, getAvatar, getPerfil, refrescarPerfil } from './se
 import { setSinRegistro } from './services/sesionService';
 import { esDificultadValida } from './services/validacionesPartida';
 import ConfirmModal from './components/ConfirmModal';
-import { getMusicEnabled, setMusicEnabled, setMusicTrack, unlockMusic } from './game/musicaV2';
 import './index.css';
 import './styles/gameVisualPass.css';
 
@@ -23,7 +22,6 @@ function Inner() {
   const [pantalla, setPantalla] = useState('login');
   const [confirmandoSalida, setConfirmandoSalida] = useState(false);   // modal «¿Cerrar sesión?»
   const [version, setVersion] = useState(0);   // sube al refrescar el perfil desde el servidor
-  const [musicaActiva, setMusicaActiva] = useState(getMusicEnabled);
   // La landing se ve al abrir el juego sin sesión; un link de invitación (?unirse=CODIGO) va directo al registro.
   const [verLanding, setVerLanding] = useState(() => !new URLSearchParams(window.location.search).get('unirse') && !esFlujoRecuperacion());
 
@@ -35,31 +33,6 @@ function Inner() {
   const cuentaEliminada = !!usuario && !esDemo && !perfil;
   const vistaLlegada = import.meta.env.DEV && new URLSearchParams(window.location.search).get('pruebaMeta') === '700';
   const previewUI = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('previewUI') : null;
-
-  // El navegador solo permite iniciar audio después de una interacción del jugador.
-  useEffect(() => {
-    const habilitar = () => unlockMusic();
-    window.addEventListener('pointerdown', habilitar, { once: true, capture: true });
-    window.addEventListener('keydown', habilitar, { once: true, capture: true });
-    return () => {
-      window.removeEventListener('pointerdown', habilitar, true);
-      window.removeEventListener('keydown', habilitar, true);
-    };
-  }, []);
-  useEffect(() => {
-    const menuActivo = !usuario || pantalla === 'mapa';
-    const tema = vistaLlegada || pantalla === 'juego'
-      ? (zona || 'rocosa')
-      : menuActivo
-        ? 'menu'
-        : null;
-    setMusicTrack(tema);
-  }, [pantalla, zona, vistaLlegada, usuario]);
-  const alternarMusica = () => {
-    const siguiente = !musicaActiva;
-    setMusicEnabled(siguiente);
-    setMusicaActiva(siguiente);
-  };
 
   // Demo y modo prueba (docente/admin): la partida no cuenta en ranking ni estadísticas.
   useEffect(() => { setSinRegistro(esDemo || esStaff); }, [esDemo, esStaff]);
@@ -102,7 +75,7 @@ function Inner() {
         url.searchParams.delete('pruebaMeta');
         window.location.replace(url.toString());
       };
-      return <JuegoV2 onMapa={salirVistaLlegada} onRanking={salirVistaLlegada} puntajeInicial={700} vistaLlegada musicaActiva={musicaActiva} onAlternarMusica={alternarMusica} />;
+      return <JuegoV2 onMapa={salirVistaLlegada} onRanking={salirVistaLlegada} puntajeInicial={700} vistaLlegada />;
     }
 
     if (cargando)                return <div className="login-bg" style={{ display: 'grid', placeItems: 'center', color: '#fff' }}>Cargando…</div>;
@@ -121,8 +94,6 @@ function Inner() {
       onMapa={() => setPantalla('mapa')}
       onRanking={() => setPantalla('ranking')}
       onSiguienteNivel={(zonaId) => { setZona(zonaId); setPantalla('juego'); }}
-      musicaActiva={musicaActiva}
-      onAlternarMusica={alternarMusica}
     />;
     if (pantalla === 'mapa' || juegoSinDificultad) return <Mapa onIniciar={() => setPantalla('juego')} onRanking={() => setPantalla('ranking')} onAvatar={() => setPantalla('avatar')} onPerfil={() => setPantalla('perfil')} onLogout={pedirSalir} onPanel={esStaff ? () => setPantalla('panel') : undefined} />;
     if (pantalla === 'ranking')  return <Ranking onVolver={() => setPantalla('mapa')} />;
@@ -132,19 +103,6 @@ function Inner() {
   return (
     <>
       {vista()}
-      {pantalla !== 'juego' && !vistaLlegada && !previewUI && (!usuario || pantalla === 'mapa') && (
-        <button
-          type="button"
-          className={`music-toggle${pantalla === 'mapa' ? ' mapa-audio' : ''}`}
-          onClick={alternarMusica}
-          aria-label={musicaActiva ? 'Apagar música' : 'Encender música'}
-          aria-pressed={musicaActiva}
-          title={musicaActiva ? 'Música activada' : 'Música apagada'}
-        >
-          <span aria-hidden="true">{musicaActiva ? '♫' : '♪̸'}</span>
-          <span>{musicaActiva ? 'Música' : 'Silencio'}</span>
-        </button>
-      )}
       <ConfirmModal
         abierto={confirmandoSalida}
         titulo="¿Estás seguro de que deseas cerrar sesión?"

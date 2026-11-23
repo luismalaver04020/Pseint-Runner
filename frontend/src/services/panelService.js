@@ -66,6 +66,10 @@ export async function listarUsuarios(_u, q = '') {
   return (await rpc('api_listar_usuarios', { p_q: q })) || [];
 }
 
+export async function detalleUsuarioAdmin(_u, username) {
+  return rpc('api_admin_detalle_usuario', { p_username: username });
+}
+
 export async function reporteUsuarios() {
   return rpc('api_reporte_usuarios');
 }

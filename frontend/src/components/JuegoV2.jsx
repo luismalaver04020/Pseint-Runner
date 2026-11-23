@@ -352,14 +352,13 @@ function FinJuego({ fin, dificultad, zonaId, onReintentar, onMapa, onRanking, on
 }
 
 // ── Pausa ──
-function PausaModal({ onReanudar, onMapa, onSalir, musicaActiva, onAlternarMusica }) {
+function PausaModal({ onReanudar, onMapa, onSalir }) {
   return (
     <div className="overlay">
       <div className="pausa-box">
         <div className="pausa-title">⏸ PAUSA</div>
         <div className="pausa-btns">
           <button className="btn btn-g" onClick={onReanudar}>▶ CONTINUAR</button>
-          <button className="btn btn-b" onClick={onAlternarMusica}>{musicaActiva ? '♫ APAGAR MÚSICA' : '♫ ENCENDER MÚSICA'}</button>
           <button className="btn btn-b" onClick={onMapa}>🗺️ MAPA</button>
           <button className="btn btn-r" onClick={onSalir}>✖ SALIR</button>
         </div>
@@ -369,7 +368,7 @@ function PausaModal({ onReanudar, onMapa, onSalir, musicaActiva, onAlternarMusic
   );
 }
 
-export default function JuegoV2({ onMapa, onRanking, onSiguienteNivel, puntajeInicial = 0, vistaLlegada = false, musicaActiva = true, onAlternarMusica = () => {} }) {
+export default function JuegoV2({ onMapa, onRanking, onSiguienteNivel, puntajeInicial = 0, vistaLlegada = false }) {
   const { avatar, dificultad, zona, usuario } = useStore();
   const modoDemo = usuario === 'demo';
   const {
@@ -393,7 +392,6 @@ export default function JuegoV2({ onMapa, onRanking, onSiguienteNivel, puntajeIn
           {hud.power && <span className={`hud-power ${hud.powerType === 'lento' ? 'slow' : ''}`}>{hud.powerType === 'lento' ? '❄ ITEM · LENTO' : '⚡ x2'} {hud.powerTimer}s</span>}
           {vistaLlegada && <span className="hud-preview-label">VISTA DE LLEGADA</span>}
           <span className="hud-zone">{DIFICULTAD_CONFIG[dificultad]?.label?.split(' ')[0]} {hud.zona}</span>
-          <button className="hud-music-btn" onClick={onAlternarMusica} aria-label={musicaActiva ? 'Apagar música' : 'Encender música'} aria-pressed={musicaActiva} title={musicaActiva ? 'Apagar música' : 'Encender música'}>{musicaActiva ? '♫' : '♪̸'}</button>
           <button className="hud-pause-btn" onClick={togglePausa} aria-label="Pausa">⏸</button>
         </div>
 
@@ -414,7 +412,7 @@ export default function JuegoV2({ onMapa, onRanking, onSiguienteNivel, puntajeIn
 
         {/* Pausa */}
         {pausado && !finJuego && (
-          <PausaModal onReanudar={reanudar} onMapa={onMapa} onSalir={volver} musicaActiva={musicaActiva} onAlternarMusica={onAlternarMusica} />
+          <PausaModal onReanudar={reanudar} onMapa={onMapa} onSalir={volver} />
         )}
 
         {/* Fin de juego */}
