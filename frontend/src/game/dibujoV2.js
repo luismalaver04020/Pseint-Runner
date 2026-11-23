@@ -106,16 +106,25 @@ export function drawSkyV2(ctx, W, horizonY, t, zonaCfg) {
     ctx.strokeStyle = 'rgba(245,239,222,.34)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(0, horizonY * 0.9); ctx.lineTo(coastLimit * 0.84, horizonY * 0.91); ctx.stroke();
   } else {
-    // Perfil de Lima: edificios de concreto y azoteas, suavizados por la bruma costera.
-    drawRidge(horizonY + 8, horizonY * 0.08, 120, t * 5, mixColor('#858b89', '#303742', ridgeNight));
-    for (let i = 0; i < 16; i++) {
-      const bw = 10 + hash(i * 9.2) * 18, bh = 8 + hash(i * 2.8) * 23;
-      const bx = i * (W / 14) - (t * 7 % (W / 14));
-      const by = horizonY + 6 - bh;
+    // Silueta urbana continua: los tejados comparten una base en el horizonte
+    // para que los edificios lejanos no parezcan bloques suspendidos.
+    const baseY = horizonY + 8;
+    const step = W / 18;
+    const offset = (t * 4) % step;
+    ctx.fillStyle = mixColor('#777f80', '#303742', ridgeNight);
+    ctx.fillRect(0, horizonY + 2, W, 7);
+    for (let i = -1; i <= 18; i++) {
+      const seed = i + 37;
+      const bx = i * step - offset;
+      const bw = step * 1.14;
+      const bh = 9 + hash(seed * 2.8) * horizonY * 0.075;
+      const by = baseY - bh;
       ctx.fillStyle = mixColor(i % 2 ? '#858582' : '#a59e91', '#343b44', ridgeNight);
       ctx.fillRect(bx, by, bw, bh);
       ctx.fillStyle = mixColor('#c7b896', '#cfab78', night * 0.45);
-      ctx.fillRect(bx + bw * 0.18, by + bh * 0.3, Math.max(1, bw * 0.12), Math.max(1, bh * 0.14));
+      const win = Math.max(1, step * 0.045);
+      ctx.fillRect(bx + bw * 0.22, by + bh * 0.34, win, Math.max(1, bh * 0.14));
+      ctx.fillRect(bx + bw * 0.62, by + bh * 0.56, win, Math.max(1, bh * 0.14));
     }
   }
 }
