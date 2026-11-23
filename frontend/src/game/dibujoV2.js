@@ -255,7 +255,7 @@ export function drawRoadV2(ctx, W, GND, horizonY, cx, t, dist, zonaCfg) {
 
 // ─── EDIFICIOS FONDO ───
 export function drawBuildingsV2(ctx, W, GND, horizonY, cx, t, dist, zonaCfg) {
-  const night = isNight(t);
+  const night = nightBlend(t);
   const rH = roadHalf(W);
   const region = zonaCfg?.id || 'rocosa';
   const palettes = {
@@ -265,8 +265,8 @@ export function drawBuildingsV2(ctx, W, GND, horizonY, cx, t, dist, zonaCfg) {
     ciudad: { day: ['#b8b4a9', '#aaa9a3', '#c5b9a6', '#9d9e99'], night: ['#49505a', '#55555a', '#474d51'], roofs: ['#716d65', '#665c53', '#77716a'] },
   };
   const palette = palettes[region] || palettes.rocosa;
-  const facades = night ? palette.night : palette.day;
-  const roofs = palette.roofs;
+  const facades = palette.day.map((color, index) => mixColor(color, palette.night[index % palette.night.length], night));
+  const roofs = palette.roofs.map(color => mixColor(color, '#252930', night * 0.56));
   for (let side = -1; side <= 1; side += 2) {
     for (let i = 8; i >= 0; i--) {
       const z = Z_SPAWN - ((dist + i * 240) % (9 * 240));
@@ -307,10 +307,10 @@ export function drawBuildingsV2(ctx, W, GND, horizonY, cx, t, dist, zonaCfg) {
       for (let row = 0; row < windowRows; row++) for (let col = 0; col < 2; col++) {
         const wx = x + frontW * (0.18 + col * 0.43);
         const wy = y - hgt * (0.74 - row * 0.22);
-        ctx.fillStyle = night ? 'rgba(239,199,135,.82)' : 'rgba(91,112,119,.72)';
+        ctx.fillStyle = mixColor('#5b7077', '#efc787', night);
         ctx.fillRect(wx - 1.1 * sc, wy - 1.1 * sc, winW + 2.2 * sc, winH + 2.2 * sc);
-        ctx.fillStyle = night ? '#e5c591' : '#d9dfd5'; ctx.fillRect(wx, wy, winW, winH);
-        ctx.fillStyle = night ? 'rgba(110,79,54,.56)' : 'rgba(114,78,61,.48)';
+        ctx.fillStyle = mixColor('#d9dfd5', '#e5c591', night); ctx.fillRect(wx, wy, winW, winH);
+        ctx.fillStyle = mixColor('#724e3d', '#6e4f36', night);
         ctx.fillRect(wx + winW * 0.47, wy, Math.max(0.7, sc), winH);
         if (idx % 2 === 0) {
           ctx.fillStyle = mixColor(facade, '#735545', 0.36);
@@ -325,26 +325,26 @@ export function drawBuildingsV2(ctx, W, GND, horizonY, cx, t, dist, zonaCfg) {
       if (idx % 3 === 1 && hgt > 48) {
         const balconyY = y - hgt * 0.42;
         ctx.fillStyle = mixColor(facade, '#fff0d8', 0.36); ctx.fillRect(x + frontW * 0.12, balconyY, frontW * 0.76, Math.max(1, 2 * sc));
-        ctx.strokeStyle = night ? '#b7a890' : '#78685a'; ctx.lineWidth = Math.max(0.7, sc);
+        ctx.strokeStyle = mixColor('#78685a', '#b7a890', night); ctx.lineWidth = Math.max(0.7, sc);
         ctx.beginPath(); ctx.moveTo(x + frontW * 0.14, balconyY); ctx.lineTo(x + frontW * 0.14, balconyY - 7 * sc);
         ctx.lineTo(x + frontW * 0.86, balconyY - 7 * sc); ctx.lineTo(x + frontW * 0.86, balconyY); ctx.stroke();
       }
       if (region === 'selva') {
         // Pilotes visibles bajo las viviendas ribereñas.
-        ctx.strokeStyle = night ? '#493f35' : '#765a3f'; ctx.lineWidth = Math.max(1, 2.1 * sc);
+        ctx.strokeStyle = mixColor('#765a3f', '#493f35', night); ctx.lineWidth = Math.max(1, 2.1 * sc);
         [0.2, 0.5, 0.8].forEach(px => { ctx.beginPath(); ctx.moveTo(x + frontW * px, y - 1); ctx.lineTo(x + frontW * px, y + 13 * sc); ctx.stroke(); });
       }
       const tX = x + (side === -1 ? -wid * 0.13 : wid * 1.08), tY = y - hgt * 0.2;
       if (region === 'rocosa') {
-        ctx.fillStyle = night ? '#43513b' : '#78804f';
+        ctx.fillStyle = mixColor('#78804f', '#43513b', night);
         for (let tuft = 0; tuft < 3; tuft++) {
           ctx.beginPath(); ctx.ellipse(tX + (tuft - 1) * 5 * sc, tY - 3 * sc, 5 * sc, 8 * sc, (tuft - 1) * 0.2, 0, Math.PI * 2); ctx.fill();
         }
       } else if (region === 'selva' || region === 'costera') {
         const stemH = (region === 'selva' ? 39 : 34) * sc;
-        ctx.fillStyle = night ? '#493c31' : '#77583c';
+        ctx.fillStyle = mixColor('#77583c', '#493c31', night);
         ctx.beginPath(); ctx.moveTo(tX - 2 * sc, tY); ctx.lineTo(tX - sc, tY - stemH); ctx.lineTo(tX + sc, tY - stemH); ctx.lineTo(tX + 2 * sc, tY); ctx.closePath(); ctx.fill();
-        const frondColor = night ? '#31533c' : '#61764d';
+        const frondColor = mixColor('#61764d', '#31533c', night);
         ctx.strokeStyle = frondColor; ctx.lineWidth = Math.max(1, 2.1 * sc);
         for (let frond = 0; frond < 5; frond++) {
           const angle = -Math.PI * 0.92 + frond * Math.PI * 0.21;
@@ -352,10 +352,10 @@ export function drawBuildingsV2(ctx, W, GND, horizonY, cx, t, dist, zonaCfg) {
         }
       } else {
         ctx.fillStyle = '#6c4c35'; ctx.fillRect(tX - Math.max(1, 3 * sc), tY, Math.max(2, 6 * sc), Math.max(5, 31 * sc));
-        ctx.fillStyle = night ? '#164d58' : '#237341';
+        ctx.fillStyle = mixColor('#237341', '#164d58', night);
         ctx.beginPath(); ctx.arc(tX, tY, Math.max(3, 18 * sc), 0, Math.PI * 2); ctx.fill();
       }
-      ctx.fillStyle = night ? 'rgba(243,204,139,.66)' : 'rgba(255,247,224,.72)';
+      ctx.fillStyle = mixColor('#fff7e0', '#f3cc8b', night);
       const windowSize = Math.max(1, 4 * sc);
       for (let wx = 0; wx < 2; wx++) for (let wy = 0; wy < 2; wy++) {
         ctx.fillRect(x + wid * (0.18 + wx * 0.28), y - hgt * (0.72 - wy * 0.22), windowSize, windowSize);

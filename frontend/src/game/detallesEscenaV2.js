@@ -140,7 +140,7 @@ export function drawSidewalksV2(ctx, W, GND, horizonY, centerX, dayTime, distanc
 // Manzanas exteriores: patios, casas y árboles que ocupan los terrenos vacíos
 // más allá de las veredas. Cada lote comparte la proyección y curva del camino.
 export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTime, distancia, region) {
-  const night = isNight(dayTime);
+  const night = nightMix(dayTime);
   const palettes = {
     rocosa: { walls: ['#c99d70', '#d7b889', '#b98258'], roofs: ['#754c3b', '#8c5e49', '#6b5544'], lot: ['#8b795f', '#6c7450'], ground: '#c99769', tree: '#607747', window: '#c4d2c4' },
     selva: { walls: ['#b79b65', '#987650', '#c1a875'], roofs: ['#555447', '#70674f', '#4f5a48'], lot: ['#4c6745', '#365b3d'], ground: '#526c38', tree: '#426c43', window: '#c4d7c2' },
@@ -160,7 +160,7 @@ export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTi
     return { x: centerX + curvOff(W, distancia, progress), y: horizonY + (GND - horizonY) * progress, half };
   };
   const blocks = [];
-  const count = 8, spacing = 215, cycle = count * spacing;
+  const count = 10, spacing = 172, cycle = count * spacing;
   for (const side of [-1, 1]) for (let i = 0; i < count; i++) {
     const seed = i * 47 + side * 113;
     const phase = ((distancia * 0.62 + i * spacing + (side > 0 ? 92 : 0)) % cycle + cycle) % cycle;
@@ -174,9 +174,9 @@ export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTi
     const lotNear = Math.max(0, (roadHalf * 1.48 + sideSpace * 0.2) * scale - 2 * scale);
     const lotWidth = W * (0.34 + hash(seed + 23) * 0.2) * scale;
     const lotFar = lotNear + lotWidth;
-    const centerOffset = lotNear + lotWidth * (0.58 + hash(seed + 6) * 0.1);
-    const buildingW = W * (0.18 + hash(seed + 34) * 0.12) * scale;
-    const buildingH = H * (0.62 + hash(seed + 51) * 0.28) * scale;
+    const centerOffset = lotNear + lotWidth * (0.42 + hash(seed + 6) * 0.12);
+    const buildingW = W * (0.14 + hash(seed + 34) * 0.09) * scale;
+    const buildingH = H * (0.48 + hash(seed + 51) * 0.2) * scale;
     const lotDepth = Math.min(H * (0.28 + hash(seed + 62) * 0.12) * scale, Math.max(2, (base.y - horizonY) * 0.24));
     blocks.push({ side, seed, z, scale, progress, curve, baseY: base.y, lotNear, lotFar, lotWidth, lotDepth, centerOffset, buildingW, buildingH });
   }
@@ -229,6 +229,19 @@ export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTi
       ctx.beginPath(); ctx.arc(treeX + crown * 0.58, treeY - trunkH - crown * 0.12, crown * 0.7, 0, Math.PI * 2); ctx.fill();
     }
 
+    // Matorrales y piedras pequeñas rompen los claros entre fachadas sin crear
+    // otra franja de color plana; cada grupo queda apoyado en la parcela.
+    for (let tuft = 0; tuft < 3; tuft++) {
+      const tuftX = xAt(lotNear + lotWidth * (0.12 + tuft * 0.19 + hash(seed + 121 + tuft) * 0.08));
+      const tuftY = farY + lotDepth * (0.56 + hash(seed + 131 + tuft) * 0.3);
+      const tuftR = Math.max(1, (4.5 + hash(seed + 141 + tuft) * 4) * scale);
+      ctx.fillStyle = 'rgba(23,30,23,.18)';
+      ctx.beginPath(); ctx.ellipse(tuftX, tuftY + tuftR * 0.18, tuftR * 1.6, Math.max(0.7, tuftR * 0.38), 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = blend(treeColor, ground, 0.25 + hash(seed + 151 + tuft) * 0.25);
+      ctx.beginPath(); ctx.ellipse(tuftX, tuftY - tuftR * 0.18, tuftR, tuftR * 0.62, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(tuftX + tuftR * 0.48, tuftY - tuftR * 0.25, tuftR * 0.56, 0, Math.PI * 2); ctx.fill();
+    }
+
     const buildingX = xAt(centerOffset + side * lotWidth * 0.04) - buildingW / 2;
     // Las fachadas apoyan en el borde delantero del lote y su sombra toca el suelo.
     const buildingY = baseY;
@@ -276,7 +289,8 @@ export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTi
       const wy = buildingY - buildingH * (0.73 - row * 0.24);
       ctx.fillStyle = shade(roof, '#18252e', 0.28);
       ctx.fillRect(wx - scale, wy - scale, winW + 2 * scale, winH + 2 * scale);
-      ctx.fillStyle = night && hash(seed + row * 9 + col) > 0.52 ? '#efc77c' : windowLit;
+      const litWindow = hash(seed + row * 9 + col) > 0.52;
+      ctx.fillStyle = litWindow ? blend(windowLit, '#efc77c', night * 0.78) : windowLit;
       ctx.fillRect(wx, wy, winW, winH);
       ctx.fillStyle = shade(wall, '#57616b', 0.36);
       ctx.fillRect(wx + winW * 0.48, wy, Math.max(0.7, scale), winH);
