@@ -56,3 +56,6 @@
 .perfil-back{border:2px solid #63a6d8;background:#142943;color:#f4f2e9}
 .perfil-save{border:2px solid #ffc83d;background:#ffc83d;color:#13243b;box-shadow:0 3px 0 #bd8613}
 .perfil-save:hover{background:#ffd45f}
+
+/* Se conserva la nueva interfaz, con el fondo general anterior. */
+.perfil-bg{background:radial-gradient(ellipse at 15% 8%,#2c747e66,transparent 40%),#14253a}

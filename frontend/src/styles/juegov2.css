@@ -181,3 +181,5 @@
 .game-screen .btn-g{border-color:#42d98b;background:#42d98b;color:#082a22}.game-screen .btn-r{border-color:#ef7776;background:#ef7776;color:#351a21}.game-screen .btn-y{border-color:#ffc83d;background:#ffc83d;color:#13243b}.game-screen .btn-b{border-color:#63a6d8;background:#142943;color:#f4f2e9}
 .touch-btn{border:2px solid #63a6d8;border-radius:12px;background:rgba(11,26,48,.96);color:#fff9ea;box-shadow:0 4px 0 #061326}.touch-btn span{color:#bdcada}.touch-btn:active{background:#203b59;border-color:#ffc83d}
 .ctrl-hint{color:#f4f2e9}
+.game-screen{background:#14253a}
+.game-wrap{background:#183049}
