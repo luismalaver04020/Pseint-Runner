@@ -60,3 +60,11 @@
 /* Se conserva la nueva interfaz, con el fondo general anterior. */
 .perfil-bg{background:radial-gradient(ellipse at 15% 8%,#2c747e66,transparent 40%),#14253a}
 .perfil-bg{background:#070d25}
+/* Más separación para ficha, tarjeta del avatar y campos del perfil. */
+.perfil-card{background:#142943;border-color:#56799b}
+.perfil-player-card{background:#1b3552;border-color:#6688a8}
+.perfil-player-details span{background:#132943;border-color:#6688a8}
+.perfil-card input,.perfil-card select{background:#0b1a30;border-color:#6688a8}
+.perfil-card input[readonly],.perfil-card select:disabled{background:#203b59}
+.perfil-notice{background:#173b50;border-color:#4e9fa7;color:#e0f5f3}
+.perfil-back{background:#1b3552;border-color:#78b8e7;color:#fff}

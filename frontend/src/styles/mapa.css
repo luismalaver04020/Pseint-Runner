@@ -250,3 +250,15 @@
 /* Fondo base elegido: azul noche liso, como el espacio alrededor del mapa. */
 .mapa-bg{background:#070d25}
 .mapa-top-bar,.mapa-side,.mapa-info-bar{background-color:#070d25}
+/* Separación más clara entre el fondo y los paneles del selector. */
+.mapa-top-bar{background-color:#101e38;border-bottom-color:#45698c}
+.mapa-side{background-color:#101e38;border-left-color:#45698c}
+.mapa-info-bar{background-color:#101e38;border-top-color:#45698c}
+.mapa-perfil,.mapa-checkpoint{background:#1b3552;border-color:#5a82a5}
+.mapa-checkpoint{border-left-color:#ffc83d}
+.mapa-perfil-avatar{box-shadow:0 0 0 3px rgba(255,200,61,.16)}
+.map-btn{background:#1b3552;border-color:#78b8e7;color:#fff}
+.map-btn:hover{background:#294c6d;border-color:#ffc83d}
+.diff-btn{background:#1b3552;border-color:#6887a4;color:#f4f6f8}
+.d-easy{border-color:#42d98b}.d-med,.d-hard{border-color:#6887a4}
+.mapa-pin{box-shadow:0 2px 0 #07152a,0 0 0 2px rgba(255,200,61,.18)}

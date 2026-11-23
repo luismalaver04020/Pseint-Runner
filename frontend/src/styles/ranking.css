@@ -114,3 +114,14 @@
 .ranking-bg::before{opacity:.09;filter:saturate(.55)}
 .ranking-bg{background:#070d25}
 .ranking-bg::before{opacity:.045}
+/* Elevamos el contraste entre el lienzo nocturno y cada tarjeta. */
+.podium-card,.rank-board{background:#1b3552;border-color:#56799b}
+.podium-card.place-1{background:#243d58;border-color:#ffc83d}
+.podium-card.place-2,.podium-card.place-3{background:#1b3552}
+.rank-board-head{background:#1b3552;border-color:#56799b}
+.rank-table th{background:#203c59;border-color:#56799b;color:#ffd45f}
+.rank-table td{border-color:#3b5876;color:#f0f3f6}
+.rank-table tbody tr:hover td{background:#294766}
+.rank-tabs{border-color:#45698c;background:#142943}
+.rank-tab{color:#f0f3f6}
+.rank-back{background:#1b3552}

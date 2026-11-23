@@ -109,6 +109,16 @@
 .game-screen{--ink:#14253a;--ink-soft:#20394d;--sand:#f3ead6;--sand-muted:#c4d2d7;--wine:#a95655;--wine-bright:#bd7561;--line:rgba(243,234,214,.24);--panel:rgba(20,37,58,.97);background:#14253a}
 .game-wrap{background:#183049}
 .game-screen{background:#070d25}
+/* Ventanas y respuestas con suficiente contraste sobre el azul del escenario. */
+.game-screen .hud{background:rgba(16,31,54,.98);border-color:#45698c}
+.pausa-box,.revival-box,.fin-box,.game-screen .q-box{background:#142943;border-color:#6688a8}
+.game-screen .q-opts .qo{background:#1b3552;border-color:#6688a8;color:#fff}
+.game-screen .q-opts .qo:hover:not(:disabled){background:#294766;border-color:#ffc83d}
+.game-screen .q-code-case,.game-screen .revival-reto{background:#1b3552;border-color:#6688a8;color:#f4f2e9}
+.game-screen .q-topic-support,.game-screen .fin-feedback{background:#1b3552;border-color:#6688a8;color:#f4f2e9}
+.game-screen .btn,.touch-btn{background:#1b3552;border-color:#78b8e7;color:#fff}
+.game-screen .btn-y{background:#ffc83d;border-color:#ffc83d;color:#13243b}
+.game-screen .btn-g{background:#42d98b;border-color:#42d98b;color:#082a22}
 .game-screen .hud{border:2px solid #183049;border-radius:16px;background:rgba(20,37,58,.94);box-shadow:0 4px 0 rgba(7,20,34,.4)}
 .hud-bar-wrap{background:#41596a}.hud-bar{background:linear-gradient(90deg,#3c9e9e 0%,#8dc9a8 68%,#f1c65d 100%)}
 .hud-score{color:#fff4da}.hud-zone{color:#dce9df}.hud-power{color:#f1c65d}.hud-power.slow{color:#9ce2d8}
