@@ -1,5 +1,5 @@
 import { useStore } from '../store/useStore';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { esDificultadValida, MSG_FALTA_DIFICULTAD, MSG_ELIGE_DIFICULTAD } from '../services/validacionesPartida';
 import { ZONAS, ZONAS_ORDEN } from '../game/zonas';
@@ -34,6 +34,9 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
   const [checkpoint, setCheckpoint] = useState(null);
   const [errorCheckpoint, setErrorCheckpoint] = useState(false);
   const panelDifRef = useRef(null);
+  const tourHintRef = useRef(null);
+  const [tourPosition, setTourPosition] = useState(null);
+  const [tourArrow, setTourArrow] = useState('');
   useEffect(() => { if (!sacudir) return undefined; const t = setTimeout(() => setSacudir(false), 600); return () => clearTimeout(t); }, [sacudir]);
   useEffect(() => {
     let vigente = true;
@@ -58,10 +61,14 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
     setTutorialPaso(1);
   };
 
+  const avanzarTour = () => {
+    if (tutorialPaso >= pasosTour.length) setTutorialPaso(0);
+    else setTutorialPaso((paso) => paso + 1);
+  };
+
   const elegirDificultad = (id) => {
     setDificultad(id);
     setAviso('');
-    if (tutorialPaso === 1) setTutorialPaso(2);
   };
 
   const elegir = (id) => {
@@ -85,33 +92,98 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
   };
 
   const zonasAbiertas = ZONAS_ORDEN.filter((id) => estaDesbloqueada(id)).length;
+  const pasosTour = [
+    { targetId: 'guia-dificultad', titulo: 'Elige la dificultad', texto: 'Aquí decides el tipo de reto: Fácil usa preguntas de opción múltiple, Intermedio mezcla preguntas y código, y Difícil se centra en ejercicios de PSeInt.' },
+    { targetId: 'guia-zona-principal', titulo: 'Escoge una zona del mapa', texto: `Este pin señala ${ZONAS[primeraZonaDisponible]?.nombre}, tu primera zona disponible. Las zonas se desbloquean al completar las anteriores. Pulsa Siguiente para continuar el recorrido.` },
+    { targetId: 'guia-progreso', titulo: 'Consulta tu progreso', texto: 'Aquí ves tu nombre de jugador y cuántas zonas has desbloqueado. Si tienes una partida guardada, aparecerá debajo para que puedas retomarla.' },
+    ...(checkpoint ? [{ targetId: 'guia-partida', titulo: 'Retoma tu partida', texto: 'Esta tarjeta conserva tu avance: zona, dificultad y puntaje. Pulsa «Continuar partida» cuando quieras volver a esa carrera.' }] : []),
+    { targetId: 'guia-ranking', titulo: 'Revisa el ranking', texto: 'Aquí comparas los puntajes de los jugadores y puedes consultar la clasificación por dificultad.' },
+    ...(onPerfil ? [{ targetId: 'guia-perfil', titulo: 'Abre tu perfil', texto: 'En tu perfil puedes cambiar el nombre que aparece en el juego y el ranking, y consultar tus datos personales registrados.' }] : []),
+    { targetId: 'guia-avatar', titulo: 'Personaliza tu avatar', texto: 'En esta opción cambias la apariencia de tu personaje, que se muestra durante la carrera.' },
+    { targetId: 'guia-como-jugar', titulo: 'Vuelve a esta guía', texto: 'Puedes abrir este recorrido otra vez cuando lo necesites. Durante la carrera, usa ←/→ o A/D para cambiar de carril, ↑ o Espacio para saltar, ↓ para agacharte y Esc para pausar.' },
+    { targetId: 'guia-salir', titulo: 'Cierra tu sesión', texto: 'Este botón cierra tu cuenta en este dispositivo. Cuando termines el recorrido, elige una dificultad y luego una zona desbloqueada para jugar.' },
+  ];
+  const pasoActual = pasosTour[tutorialPaso - 1];
+  const esObjetivoTour = (id) => tutorialPaso > 0 && pasoActual?.targetId === id;
 
   const burbujaTutorial = tutorialPaso > 0 && createPortal(
     <div
-      className={`mapa-tour-hint ${tutorialPaso === 1 ? 'paso-dificultad' : 'paso-zona'}`}
+      ref={tourHintRef}
+      className={`mapa-tour-hint punta-${tourArrow}`}
+      style={tourPosition ? { left: `${tourPosition.left}px`, top: `${tourPosition.top}px` } : undefined}
       role="status"
       aria-live="polite"
     >
-      <strong>{tutorialPaso === 1 ? 'PASO 1 DE 2 · ELIGE LA DIFICULTAD' : 'PASO 2 DE 2 · ELIGE UNA ZONA'}</strong>
-      <span>{tutorialPaso === 1
-        ? 'Toca Fácil, Intermedio o Difícil. La selección define qué retos aparecerán.'
-        : <>Toca <b>{ZONAS[primeraZonaDisponible]?.nombre}</b>, la zona resaltada, para empezar. También puedes elegir otra zona desbloqueada.</>}</span>
-      <button type="button" onClick={omitirGuia}>OMITIR TUTORIAL</button>
+      <strong>PASO {tutorialPaso} DE {pasosTour.length} · {pasoActual?.titulo}</strong>
+      <span>{pasoActual?.texto}</span>
+      <div className="mapa-tour-actions">
+        <button type="button" onClick={omitirGuia}>OMITIR RECORRIDO</button>
+        <button type="button" onClick={avanzarTour}>{tutorialPaso === pasosTour.length ? 'TERMINAR Y JUGAR' : 'SIGUIENTE →'}</button>
+      </div>
     </div>,
     document.body,
   );
 
   const hayBloqueadas = ZONAS_ORDEN.some((id) => !estaDesbloqueada(id));
 
+  useLayoutEffect(() => {
+    if (!pasoActual) { setTourPosition(null); setTourArrow(''); return undefined; }
+    const ubicar = () => {
+      const objetivo = document.getElementById(pasoActual.targetId);
+      const burbuja = tourHintRef.current;
+      if (!objetivo || !burbuja) return;
+      const rect = objetivo.getBoundingClientRect();
+      const ancho = burbuja.offsetWidth || Math.min(320, window.innerWidth - 24);
+      const alto = burbuja.offsetHeight || 170;
+      const margen = 12;
+      const espacio = 16;
+      let left;
+      let top;
+      let flecha;
+      if (window.innerWidth - rect.right >= ancho + espacio + margen) {
+        left = rect.right + espacio;
+        top = rect.top + rect.height / 2 - alto / 2;
+        flecha = 'izquierda';
+      } else if (rect.left >= ancho + espacio + margen) {
+        left = rect.left - ancho - espacio;
+        top = rect.top + rect.height / 2 - alto / 2;
+        flecha = 'derecha';
+      } else if (window.innerHeight - rect.bottom >= alto + espacio + margen) {
+        left = rect.left + rect.width / 2 - ancho / 2;
+        top = rect.bottom + espacio;
+        flecha = 'arriba';
+      } else {
+        left = rect.left + rect.width / 2 - ancho / 2;
+        top = rect.top - alto - espacio;
+        flecha = 'abajo';
+      }
+      setTourPosition({ left: Math.max(margen, Math.min(left, window.innerWidth - ancho - margen)), top: Math.max(margen, Math.min(top, window.innerHeight - alto - margen)) });
+      setTourArrow(flecha);
+    };
+    document.getElementById(pasoActual.targetId)?.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+    ubicar();
+    window.addEventListener('resize', ubicar);
+    window.addEventListener('scroll', ubicar, true);
+    return () => {
+      window.removeEventListener('resize', ubicar);
+      window.removeEventListener('scroll', ubicar, true);
+    };
+  }, [tutorialPaso, pasoActual?.targetId]);
+
   return (
-    <div className="mapa-bg">
+    <div className="mapa-bg" onClickCapture={(event) => {
+      if (tutorialPaso > 0 && !event.target.closest?.('.mapa-tour-hint')) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }}>
       <div className="mapa-top-bar">
         <span className="mapa-title">🗺️ ELIGE TU ZONA</span>
         <span className="mapa-user">👤 {usuario}</span>
       </div>
 
       <div className="mapa-stage">
-        <div className={`mapa-frame${tutorialPaso === 2 ? ' tutorial-target' : ''}`}>
+        <div className="mapa-frame">
           <img className="mapa-photo" src={mapaImg} alt="Mapa del Perú por zonas" draggable="false" />
 
           <svg className="mapa-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -128,7 +200,8 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
             return (
               <button
                 key={id}
-                className={`mapa-pin${unlocked ? '' : ' bloqueado'}${difElegida && unlocked ? ' paso-activo' : ''}${tutorialPaso === 2 && id === primeraZonaDisponible ? ' tutorial-inicio' : ''}`}
+                id={id === primeraZonaDisponible ? 'guia-zona-principal' : undefined}
+                className={`mapa-pin${unlocked ? '' : ' bloqueado'}${difElegida && unlocked ? ' paso-activo' : ''}${esObjetivoTour('guia-zona-principal') && id === primeraZonaDisponible ? ' tutorial-target tutorial-inicio' : ''}`}
                 style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
                 onClick={() => elegir(id)}
                 disabled={!unlocked}
@@ -143,13 +216,13 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
       </div>
 
       <div className="mapa-side">
-        <div className="mapa-perfil" aria-label="Tu progreso">
+        <div id="guia-progreso" className={`mapa-perfil${esObjetivoTour('guia-progreso') ? ' tutorial-target' : ''}`} aria-label="Tu progreso">
           <div className="mapa-perfil-top"><span className="mapa-perfil-avatar" aria-hidden="true">👤</span><b title={usuario}>{usuario}</b></div>
           <div className="mapa-perfil-prog"><span>Zonas desbloqueadas</span><b>{zonasAbiertas}/{ZONAS_ORDEN.length}</b></div>
           <div className="mapa-perfil-barra" role="progressbar" aria-valuemin={0} aria-valuemax={ZONAS_ORDEN.length} aria-valuenow={zonasAbiertas}><div style={{ width: `${(zonasAbiertas / ZONAS_ORDEN.length) * 100}%` }} /></div>
         </div>
         {checkpoint && (
-          <section className="mapa-checkpoint" aria-label="Partida guardada disponible">
+          <section id="guia-partida" className={`mapa-checkpoint${esObjetivoTour('guia-partida') ? ' tutorial-target' : ''}`} aria-label="Partida guardada disponible">
             <strong>Partida guardada</strong>
             <span>{checkpoint.zone_name || ZONAS[checkpoint.zone_code]?.nombre} · {checkpoint.difficulty_name || checkpoint.difficulty_code}</span>
             <span>Puntaje {checkpoint.score} / 1000</span>
@@ -159,7 +232,7 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
           </section>
         )}
         {errorCheckpoint && <p className="mapa-checkpoint-error" role="status">No se pudo consultar la partida guardada. Revisa tu conexión e inténtalo de nuevo.</p>}
-        <div ref={panelDifRef} className={`mapa-diff-panel${sacudir ? ' sacudir' : ''}${aviso ? ' con-aviso' : ''}${tutorialPaso === 1 ? ' tutorial-target' : ''}`}>
+        <div id="guia-dificultad" ref={panelDifRef} className={`mapa-diff-panel${sacudir ? ' sacudir' : ''}${aviso ? ' con-aviso' : ''}${esObjetivoTour('guia-dificultad') ? ' tutorial-target' : ''}`}>
           <h3><span className={`mapa-flow-arrow${difElegida ? ' completado' : ''}`}>{difElegida ? '✓' : '↓'}</span> 1 · ELIGE DIFICULTAD</h3>
           <div role="group" aria-label="Dificultad">
             {DIF_OPTS.map(d => (
@@ -175,12 +248,12 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
           </div>
         </div>
         <div className="mapa-extra-btns">
-          <button className="map-btn" onClick={()=>setGuiaAbierta(true)}>CÓMO JUGAR</button>
+          <button id="guia-como-jugar" className={`map-btn${esObjetivoTour('guia-como-jugar') ? ' tutorial-target' : ''}`} onClick={()=>setGuiaAbierta(true)}>CÓMO JUGAR</button>
           {onPanel && <button className="map-btn" onClick={onPanel}>🧑‍🏫 PANEL</button>}
-          <button className="map-btn" onClick={onRanking}>🏆 RANKING</button>
-          {onPerfil && <button className="map-btn" onClick={onPerfil}>👤 PERFIL</button>}
-          <button className="map-btn" onClick={onAvatar}>🧑 AVATAR</button>
-          <button className="map-btn map-btn-out" onClick={onLogout}>⬅ SALIR</button>
+          <button id="guia-ranking" className={`map-btn${esObjetivoTour('guia-ranking') ? ' tutorial-target' : ''}`} onClick={onRanking}>🏆 RANKING</button>
+          {onPerfil && <button id="guia-perfil" className={`map-btn${esObjetivoTour('guia-perfil') ? ' tutorial-target' : ''}`} onClick={onPerfil}>👤 PERFIL</button>}
+          <button id="guia-avatar" className={`map-btn${esObjetivoTour('guia-avatar') ? ' tutorial-target' : ''}`} onClick={onAvatar}>🧑 AVATAR</button>
+          <button id="guia-salir" className={`map-btn map-btn-out${esObjetivoTour('guia-salir') ? ' tutorial-target' : ''}`} onClick={onLogout}>⬅ SALIR</button>
         </div>
       </div>
 
@@ -196,31 +269,17 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
         <div className="guia-overlay" role="presentation">
           <section className="guia-dialog" role="dialog" aria-modal="true" aria-labelledby="guia-title">
             <div className="guia-eyebrow">PSEINT RUNNER</div>
-            <h2 id="guia-title">Cómo jugar</h2>
-            <p className="guia-intro">Tu objetivo es completar las zonas y llegar a la meta. Esquiva obstáculos, responde los retos y avanza paso a paso.</p>
-            <div className="guia-dificultades">
-              <div><b>Fácil</b><span>Preguntas de opción múltiple</span></div>
-              <div><b>Intermedio</b><span>Preguntas y ejercicios de código</span></div>
-              <div><b>Difícil</b><span>Ejercicios de código en PSeInt</span></div>
+            <h2 id="guia-title">Conoce el mapa</h2>
+            <p className="guia-intro">Te mostraré con burbujas dónde elegir dificultad y zona, cómo revisar tu progreso y dónde encontrar Ranking, Perfil y Avatar.</p>
+            <div className="guia-tour-preview">
+              <span>1 · Preparar la partida</span>
+              <span>2 · Explorar el mapa</span>
+              <span>3 · Conocer tus opciones de jugador</span>
             </div>
-            <h3>Mapa y opciones de jugador</h3>
-            <div className="guia-funciones">
-              <article><b>🗺️ Mapa y zonas</b><span>Elige un pin desbloqueado. El indicador muestra tu avance; completa zonas en orden para abrir las siguientes.</span></article>
-              <article><b>💾 Partida guardada</b><span>Si aparece esta opción, continúa desde el puntaje que quedó guardado.</span></article>
-              <article><b>🏆 Ranking</b><span>Consulta y compara los mejores puntajes por dificultad.</span></article>
-              <article><b>👤 Perfil y avatar</b><span>En Perfil cambias el nombre que aparece en el juego; en Avatar personalizas tu personaje.</span></article>
-            </div>
-            <p className="guia-nota"><b>Durante la carrera:</b> los corazones son tus vidas; recoge objetos como x2 o reducción de velocidad para obtener efectos temporales. Puedes pausar cuando quieras. En celular, usa los controles que aparecen en pantalla. <b>Salir</b> cierra tu sesión.</p>
-            <h3>Controles</h3>
-            <ul className="guia-controles">
-              <li><kbd>←</kbd> <kbd>→</kbd> o <kbd>A</kbd> <kbd>D</kbd><span>Cambiar de carril</span></li>
-              <li><kbd>↑</kbd> o <kbd>Espacio</kbd><span>Saltar</span></li>
-              <li><kbd>↓</kbd><span>Agacharse</span></li>
-              <li><kbd>Esc</kbd><span>Pausar</span></li>
-            </ul>
+            <p className="guia-tour-note">Pulsa <b>Siguiente</b> en cada burbuja. El recorrido no iniciará una partida y puedes omitirlo cuando quieras.</p>
             <div className="guia-actions">
-              <button className="guia-skip" onClick={omitirGuia}>Omitir tutorial</button>
-              <button className="guia-start" onClick={iniciarGuiaPasoAPaso}>SEGUIR CON EL TUTORIAL</button>
+              <button className="guia-skip" onClick={omitirGuia}>Omitir recorrido</button>
+              <button className="guia-start" onClick={iniciarGuiaPasoAPaso}>EMPEZAR RECORRIDO</button>
             </div>
           </section>
         </div>
