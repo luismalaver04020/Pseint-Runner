@@ -109,9 +109,9 @@ export function renderJuegoV2(ctx, state) {
   const fadeEntorno = Math.max(0, Math.min(1, (score - 900) / 50));
   const entornoAlpha = 1 - fadeEntorno * fadeEntorno * (3 - 2 * fadeEntorno);
   ctx.save(); ctx.globalAlpha *= entornoAlpha;
-  drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTime, distancia, zonaCfg?.id);
-  drawBuildingsV2(ctx, W, GND, horizonY, centerX, dayTime, distancia, zonaCfg);
-  drawRoadsideGreenery(ctx, W, GND, horizonY, centerX, dayTime, distancia, zonaCfg);
+  const houseFootprints = drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTime, distancia, zonaCfg?.id);
+  const buildingFootprints = drawBuildingsV2(ctx, W, GND, horizonY, centerX, dayTime, distancia, zonaCfg);
+  const treeFootprints = drawRoadsideGreenery(ctx, W, GND, horizonY, centerX, dayTime, distancia, zonaCfg, buildingFootprints, houseFootprints);
   ctx.restore();
   // Los faroles conservan su intensidad mientras el resto del entorno se despeja.
   drawStreetLights(ctx, W, GND, horizonY, centerX, distancia, dayTime);
@@ -119,7 +119,7 @@ export function renderJuegoV2(ctx, state) {
   drawRoadV2(ctx, W, GND, horizonY, centerX, dayTime, distancia, zonaCfg);
   ctx.save(); ctx.globalAlpha *= entornoAlpha;
   drawSidewalksV2(ctx, W, GND, horizonY, centerX, dayTime, distancia, zonaCfg?.id);
-  drawSideLandscapeV2(ctx, W, GND, horizonY, centerX, dayTime, distancia, zonaCfg?.id);
+  drawSideLandscapeV2(ctx, W, GND, horizonY, centerX, dayTime, distancia, zonaCfg?.id, buildingFootprints, treeFootprints);
   ctx.restore();
   drawFinishV2(ctx, W, GND, horizonY, centerX, score, zonaCfg);
   ctx.save(); ctx.globalAlpha *= entornoAlpha;

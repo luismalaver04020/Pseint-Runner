@@ -5,6 +5,9 @@ import { Z_SPAWN } from './obstaculosV2';
 import { drawPersonaje } from './spritePersonaje';
 
 const FOCAL = 190;
+const BUILDING_DEPTH_POOL = Array.from({ length: 10 }, () => ({ side: 0, i: 0, z: -Infinity }));
+const ROADSIDE_TREE_POOL = Array.from({ length: 18 }, () => ({ z: -Infinity }));
+const MIN_SCENE_SEPARATION = 88;
 
 function lerp(a, b, t) { return a + (b - a) * t; }
 function proy(z) { return FOCAL / (FOCAL + Math.max(0, z)); }
@@ -267,9 +270,15 @@ export function drawBuildingsV2(ctx, W, GND, horizonY, cx, t, dist, zonaCfg) {
   const palette = palettes[region] || palettes.rocosa;
   const facades = palette.day.map((color, index) => mixColor(color, palette.night[index % palette.night.length], night));
   const roofs = palette.roofs.map(color => mixColor(color, '#252930', night * 0.56));
-  for (let side = -1; side <= 1; side += 2) {
-    for (let i = 8; i >= 0; i--) {
-      const z = Z_SPAWN - ((dist + i * 240) % (9 * 240));
+  let buildingCount = 0;
+  for (let side = -1; side <= 1; side += 2) for (let i = 4; i >= 0; i--) {
+    const entry = BUILDING_DEPTH_POOL[buildingCount++];
+    entry.side = side; entry.i = i;
+    entry.z = Z_SPAWN - ((dist + i * 432) % (5 * 432));
+  }
+  BUILDING_DEPTH_POOL.sort((a, b) => b.z - a.z);
+  for (let renderIndex = 0; renderIndex < buildingCount; renderIndex++) {
+      const { side, i, z } = BUILDING_DEPTH_POOL[renderIndex];
       if (z <= 0 || z > Z_SPAWN) continue;
       const idx = Math.floor((dist + i * 240) / (9 * 240)) + i * 31 + (side === 1 ? 500 : 0);
       const sc = proy(z), y = proyY(GND, horizonY, sc, idx);
@@ -277,6 +286,9 @@ export function drawBuildingsV2(ctx, W, GND, horizonY, cx, t, dist, zonaCfg) {
       const wid = (82 + hash(idx * 3.71) * 74) * sc;
       const lateral = rH + 30 + hash(idx * 5.13) * 140;
       const x = proyX(cx, side * lateral, sc, idx) - wid / 2;
+      const depthEntry = BUILDING_DEPTH_POOL[renderIndex];
+      depthEntry.screenX = x + wid * 0.43;
+      depthEntry.radius = wid * 0.58;
       const facade = facades[Math.floor(hash(idx * 4.91) * facades.length)];
       const roof = roofs[Math.floor(hash(idx * 8.41) * roofs.length)];
       const frontW = wid * 0.86;
@@ -360,12 +372,12 @@ export function drawBuildingsV2(ctx, W, GND, horizonY, cx, t, dist, zonaCfg) {
       for (let wx = 0; wx < 2; wx++) for (let wy = 0; wy < 2; wy++) {
         ctx.fillRect(x + wid * (0.18 + wx * 0.28), y - hgt * (0.72 - wy * 0.22), windowSize, windowSize);
       }
-    }
   }
+  return BUILDING_DEPTH_POOL;
 }
 
 // Vegetación en dos planos, con ritmos distintos para reforzar el avance.
-export function drawRoadsideGreenery(ctx, W, GND, horizonY, cx, dayTime, dist, zonaCfg) {
+export function drawRoadsideGreenery(ctx, W, GND, horizonY, cx, dayTime, dist, zonaCfg, buildingFootprints = [], houseFootprints = []) {
   const night = isNight(dayTime), rH = roadHalf(W), region = zonaCfg?.id || 'rocosa';
   const paintTree = (x, y, scale, seed, close = false) => {
     const palm = (region === 'selva' || region === 'costera') && Math.abs(seed % 3) < 1;
@@ -389,22 +401,56 @@ export function drawRoadsideGreenery(ctx, W, GND, horizonY, cx, dayTime, dist, z
       ctx.beginPath(); ctx.arc(x + radius * 0.55, y - trunkH * 0.82, radius * 0.7, 0, Math.PI * 2); ctx.fill();
     }
   };
+  let activeTrees = 0;
   for (let side = -1; side <= 1; side += 2) {
     for (let layer = 0; layer < 2; layer++) {
       const factor = layer === 0 ? 0.52 : 0.9;
-      const spacing = layer === 0 ? 205 : 158;
-      const count = layer === 0 ? 8 : 10;
+      const spacing = layer === 0 ? 410 : 316;
+      const count = layer === 0 ? 4 : 5;
       for (let i = 0; i < count; i++) {
         const phase = ((dist * factor + i * spacing + (side > 0 ? spacing * 0.48 : 0)) % (count * spacing) + count * spacing) % (count * spacing);
         const z = Z_SPAWN - phase;
         if (z < 38 || z > Z_SPAWN) continue;
         const sc = proy(z), y = proyY(GND, horizonY, sc, i + side * 9);
-        const lateral = rH * (layer === 0 ? 1.42 : 1.2) + (layer === 0 ? 78 : 34) + hash(i * 8 + side * 19) * 56;
-        const x = proyX(cx, side * lateral, sc, i * 13 + side * layer);
-        paintTree(x, y, sc * (layer === 0 ? 1.05 : 1.35), i * 47 + side * 12 + layer, layer === 1);
+        const lane = (layer === 0 ? 2.02 : 2.12) + hash(i * 8 + side * 19) * 0.06;
+        const lateral = rH * lane;
+      let x = proyX(cx, side * lateral, sc, i * 13 + side * layer);
+        const scale = sc * (layer === 0 ? 1.05 : 1.35);
+        const radius = (region === 'selva' ? 18 : layer === 1 ? 17 : 13) * scale;
+      let accepted = false;
+      for (let attempt = 0; attempt < 3 && !accepted; attempt++) {
+        const nudge = attempt === 0 ? 0 : attempt === 1 ? 0.08 : -0.08;
+        x = proyX(cx, side * (lateral + rH * nudge), sc, i * 13 + side * layer);
+        let collides = false;
+        for (let j = 0; j < activeTrees; j++) {
+          const other = ROADSIDE_TREE_POOL[j];
+          if (Math.abs(z - other.z) < MIN_SCENE_SEPARATION && Math.abs(x - other.x) < radius + other.radius) { collides = true; break; }
+        }
+        if (!collides) for (const building of buildingFootprints) {
+          if (building.z > 0 && Math.abs(z - building.z) < MIN_SCENE_SEPARATION && Math.abs(x - building.screenX) < radius + building.radius) { collides = true; break; }
+        }
+        if (!collides) for (const house of houseFootprints) {
+          if (house.z > 0 && Math.abs(z - house.z) < MIN_SCENE_SEPARATION && Math.abs(x - house.x) < radius + house.radius) { collides = true; break; }
+        }
+        accepted = !collides;
+      }
+      if (accepted) {
+          const entry = ROADSIDE_TREE_POOL[activeTrees++];
+          entry.side = side; entry.layer = layer; entry.i = i; entry.z = z;
+          entry.x = x; entry.y = y; entry.scale = scale; entry.radius = radius;
+          entry.seed = i * 47 + side * 12 + layer; entry.close = layer === 1;
+        }
       }
     }
   }
+  for (let i = activeTrees; i < ROADSIDE_TREE_POOL.length; i++) ROADSIDE_TREE_POOL[i].z = -Infinity;
+  ROADSIDE_TREE_POOL.sort((a, b) => b.z - a.z);
+  for (let i = 0; i < activeTrees; i++) {
+    const tree = ROADSIDE_TREE_POOL[i];
+    paintTree(tree.x, tree.y, tree.scale, tree.seed, tree.close);
+  }
+
+  return ROADSIDE_TREE_POOL;
 }
 
 // ─── NIEBLA ───

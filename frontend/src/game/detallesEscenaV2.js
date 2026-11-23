@@ -4,6 +4,14 @@ import { Z_SPAWN } from './obstaculosV2';
 
 const ROAD_HALF_RATIO = 0.36;
 const FOCAL = 190;
+const MIN_SEPARATION = 88;
+const SCENERY_DENSITY = 0.5;
+const SIDE_PROP_POOL = [];
+const HOUSE_FOOTPRINT_POOL = [];
+const HOUSE_BLOCK_POOL = Array.from({ length: 10 }, () => ({}));
+let activeSideProps = 0;
+let activeHouseFootprints = 0;
+let activeHouseBlocks = 0;
 
 function hash(seed) {
   const value = Math.sin(seed * 12.9898) * 43758.5453;
@@ -139,7 +147,7 @@ export function drawSidewalksV2(ctx, W, GND, horizonY, centerX, dayTime, distanc
 
 // Rocas, matorrales y hierba en los márgenes exteriores. Su base usa la misma
 // curva y fuga de la pista, y el ciclo ligado a distancia les da desplazamiento.
-export function drawSideLandscapeV2(ctx, W, GND, horizonY, centerX, dayTime, distancia, region) {
+export function drawSideLandscapeV2(ctx, W, GND, horizonY, centerX, dayTime, distancia, region, buildingFootprints = [], treeFootprints = []) {
   const night = nightMix(dayTime);
   const roadHalf = W * ROAD_HALF_RATIO;
   const greenDay = region === 'selva' ? '#477348' : region === 'costera' ? '#6c8055' : '#667447';
@@ -148,53 +156,125 @@ export function drawSideLandscapeV2(ctx, W, GND, horizonY, centerX, dayTime, dis
   const grass = shade(region === 'costera' ? '#a79356' : '#928454', '#4c5140', night);
   const rock = shade(region === 'costera' ? '#c0ae8f' : '#8c816d', '#46474a', night);
   const trunk = shade('#76553a', '#44382f', night);
+  const slotsPerBand = Math.max(4, Math.floor(14 * SCENERY_DENSITY));
+  const spacing = Z_SPAWN / slotsPerBand;
+  activeSideProps = 0;
 
-  ctx.save();
-  for (const side of [-1, 1]) for (let layer = 0; layer < 2; layer++) {
-    const count = layer === 0 ? 18 : 16;
-    const spacing = layer === 0 ? 104 : 116;
-    const cycle = count * spacing;
-    for (let i = 0; i < count; i++) {
-      const phase = ((distancia * (layer === 0 ? 0.76 : 0.58) + i * spacing + (side > 0 ? spacing * 0.48 : 0) + layer * 57) % cycle + cycle) % cycle;
+  // Dos franjas de props pequeños y medianos. Las casas del barrio ocupan la
+  // tercera franja, más exterior, desde drawOuterNeighborhoodV2.
+  for (const side of [-1, 1]) for (let band = 0; band < 2; band++) {
+    for (let slot = 0; slot < slotsPerBand; slot++) {
+      const seed = slot * 59 + side * 131 + band * 271;
+      const phase = ((distancia * (band === 0 ? 0.58 : 0.46) + slot * spacing + (side > 0 ? spacing * 0.5 : 0) + band * spacing * 0.28) % Z_SPAWN + Z_SPAWN) % Z_SPAWN;
       const z = Z_SPAWN - phase;
       if (z < 24 || z > Z_SPAWN) continue;
       const scale = FOCAL / (FOCAL + z);
       const progress = Math.max(0.015, Math.min(1, scale));
       const half = 3 + (roadHalf - 3) * progress;
-      // Distribuye los elementos desde el borde de la vereda hasta casi el
-      // borde de pantalla, en vez de concentrarlos en una sola franja.
-      const edgeLane = Math.max(1.72, Math.min(4.6, W * 0.49 / half));
-      const lane = 1.54 + hash(i * 17 + side * 9 + layer * 29) * (edgeLane - 1.54);
-      const x = centerX + curvOff(W, distancia, progress) + side * (half * lane + W * 0.018 * progress);
       const y = horizonY + (GND - horizonY) * progress;
-      const size = Math.max(1.5, (20 + hash(i * 31 + layer * 41 + side) * 18) * Math.sqrt(scale));
-      const kind = Math.floor(hash(i * 43 + layer * 7 + side * 23) * 4);
+      const size = Math.max(1.2, (band === 0 ? 7 : 14 + hash(seed + 1) * 5) * Math.sqrt(scale));
+      const laneStart = band === 0 ? 1.62 : 2.02;
+      const laneEnd = band === 0 ? 1.82 : 2.18;
+      const laneBase = laneStart + hash(seed + 2) * (laneEnd - laneStart);
+      let accepted = false, acceptedLane = laneBase;
 
-      // Una sombra pequeña fija visualmente cada objeto al terreno.
-      ctx.fillStyle = 'rgba(20,27,23,.2)';
-      ctx.beginPath(); ctx.ellipse(x, y + size * 0.12, size * 1.05, Math.max(0.7, size * 0.24), 0, 0, Math.PI * 2); ctx.fill();
-      if (kind === 0 && region !== 'costera') {
-        // Matorral compacto de varias hojas, más abundante en la selva.
-        ctx.fillStyle = foliage;
-        ctx.beginPath(); ctx.ellipse(x, y - size * 0.35, size * 0.64, size * 0.55, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(x - size * 0.42, y - size * 0.43, size * 0.43, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(x + size * 0.42, y - size * 0.48, size * 0.46, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = trunk; ctx.fillRect(x - size * 0.09, y - size * 0.28, Math.max(1, size * 0.18), size * 0.34);
-      } else if (kind === 1 || region === 'costera') {
-        // Piedra irregular con una cara iluminada para conservar el pixel art.
-        ctx.fillStyle = rock;
-        ctx.beginPath(); ctx.moveTo(x - size, y); ctx.lineTo(x - size * 0.68, y - size * 0.56); ctx.lineTo(x - size * 0.08, y - size * 0.82); ctx.lineTo(x + size * 0.68, y - size * 0.55); ctx.lineTo(x + size, y); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = shade(rock, '#d4c6aa', 0.18);
-        ctx.beginPath(); ctx.moveTo(x - size * 0.68, y - size * 0.56); ctx.lineTo(x - size * 0.08, y - size * 0.82); ctx.lineTo(x + size * 0.1, y - size * 0.08); ctx.lineTo(x - size * 0.78, y - size * 0.08); ctx.closePath(); ctx.fill();
-      } else {
-        // Hierbas en abanico, ancladas en un mismo punto y escaladas por distancia.
-        ctx.strokeStyle = grass; ctx.lineWidth = Math.max(0.7, scale * 1.5);
-        for (let blade = -2; blade <= 2; blade++) {
-          ctx.beginPath(); ctx.moveTo(x + blade * size * 0.14, y);
-          ctx.quadraticCurveTo(x + blade * size * 0.26, y - size * 0.48, x + blade * size * 0.42, y - size * (0.62 + hash(i * 7 + blade) * 0.35));
-          ctx.stroke();
+      // Reubica lateralmente hasta tres veces; si sigue chocando, omite el prop.
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const offset = attempt === 0 ? 0 : attempt === 1 ? 0.09 : -0.09;
+        const lane = Math.max(laneStart, Math.min(laneEnd, laneBase + offset));
+        const lateral = half * lane;
+        const x = centerX + curvOff(W, distancia, progress) + side * (lateral + W * 0.012 * progress);
+        let collides = false;
+        for (let j = 0; j < activeSideProps; j++) {
+          const other = SIDE_PROP_POOL[j];
+          if (Math.abs(z - other.z) < MIN_SEPARATION && Math.abs(x - other.x) < MIN_SEPARATION) {
+            collides = true;
+            break;
+          }
+        }
+        if (!collides) for (let j = 0; j < activeHouseFootprints; j++) {
+          const house = HOUSE_FOOTPRINT_POOL[j];
+          if (Math.abs(z - house.z) < MIN_SEPARATION && Math.abs(x - house.x) < house.radius + size * 1.25) {
+            collides = true;
+            break;
+          }
+        }
+        if (!collides) for (const tree of treeFootprints) {
+          if (tree.z > 0 && Math.abs(z - tree.z) < MIN_SEPARATION && Math.abs(x - tree.x) < tree.radius + size * 1.25) {
+            collides = true;
+            break;
+          }
+        }
+        if (!collides) for (const building of buildingFootprints) {
+          if (building.z > 0 && Math.abs(z - building.z) < MIN_SEPARATION && Math.abs(x - building.screenX) < building.radius + size * 1.25) {
+            collides = true;
+            break;
+          }
+        }
+        if (!collides) {
+          accepted = true;
+          acceptedLane = lane;
+          break;
         }
       }
+      if (!accepted) continue;
+      const prop = SIDE_PROP_POOL[activeSideProps] || (SIDE_PROP_POOL[activeSideProps] = {});
+      prop.side = side; prop.band = band; prop.seed = seed; prop.z = z;
+      prop.scale = scale; prop.progress = progress; prop.half = half; prop.y = y;
+      prop.size = size; prop.lane = acceptedLane; prop.lateral = half * acceptedLane;
+      prop.x = centerX + curvOff(W, distancia, progress) + side * (prop.lateral + W * 0.012 * progress);
+      activeSideProps++;
+    }
+  }
+
+  // Orden global de los props laterales: los más lejanos se dibujan primero.
+  SIDE_PROP_POOL.length = Math.max(SIDE_PROP_POOL.length, activeSideProps);
+  for (let i = activeSideProps; i < SIDE_PROP_POOL.length; i++) SIDE_PROP_POOL[i].z = -Infinity;
+  SIDE_PROP_POOL.sort((a, b) => b.z - a.z);
+  ctx.save();
+  for (let i = 0; i < activeSideProps; i++) {
+    const prop = SIDE_PROP_POOL[i];
+    const { side, band, seed, progress, scale, y, size } = prop;
+    const x = centerX + curvOff(W, distancia, progress) + side * (prop.lateral + W * 0.012 * progress);
+    const smallBand = band === 0;
+    const kind = Math.floor(hash(seed + 3) * (smallBand ? 3 : 4));
+
+    // Sombra común: todas las bases quedan apoyadas sobre el mismo terreno.
+    ctx.fillStyle = 'rgba(20,27,23,.22)';
+    ctx.beginPath(); ctx.ellipse(x, y + size * 0.12, size * 0.9, Math.max(0.6, size * 0.22), 0, 0, Math.PI * 2); ctx.fill();
+    if (smallBand && kind === 0) {
+      ctx.fillStyle = foliage;
+      ctx.beginPath(); ctx.ellipse(x, y - size * 0.25, size * 0.72, size * 0.48, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x - size * 0.38, y - size * 0.28, size * 0.38, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x + size * 0.36, y - size * 0.3, size * 0.4, 0, Math.PI * 2); ctx.fill();
+    } else if (smallBand) {
+      // Poste reflector bajo de la franja pegada a la vereda.
+      ctx.fillStyle = trunk; ctx.fillRect(x - size * 0.13, y - size * 1.2, Math.max(1, size * 0.26), size * 1.2);
+      ctx.fillStyle = '#e4d6b7'; ctx.fillRect(x - size * 0.13, y - size * 0.92, Math.max(1, size * 0.26), Math.max(1, size * 0.2));
+    } else if (kind === 0) {
+      // Árbol pequeño, reservado para la franja media.
+      const crown = size * 0.68;
+      ctx.fillStyle = trunk; ctx.fillRect(x - size * 0.1, y - size * 1.85, Math.max(1, size * 0.2), size * 1.85);
+      ctx.fillStyle = foliage;
+      ctx.beginPath(); ctx.arc(x, y - size * 2.05, crown, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x - crown * 0.48, y - size * 1.9, crown * 0.66, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x + crown * 0.48, y - size * 1.92, crown * 0.68, 0, Math.PI * 2); ctx.fill();
+    } else if (kind === 1) {
+      ctx.fillStyle = rock;
+      ctx.beginPath(); ctx.moveTo(x - size, y); ctx.lineTo(x - size * 0.68, y - size * 0.56); ctx.lineTo(x - size * 0.08, y - size * 0.82); ctx.lineTo(x + size * 0.68, y - size * 0.55); ctx.lineTo(x + size, y); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = shade(rock, '#d4c6aa', 0.18);
+      ctx.beginPath(); ctx.moveTo(x - size * 0.68, y - size * 0.56); ctx.lineTo(x - size * 0.08, y - size * 0.82); ctx.lineTo(x + size * 0.1, y - size * 0.08); ctx.lineTo(x - size * 0.78, y - size * 0.08); ctx.closePath(); ctx.fill();
+    } else if (kind === 2) {
+      // Tramo de cerco corto para que no cruce otras franjas.
+      ctx.fillStyle = trunk;
+      ctx.fillRect(x - size * 1.25, y - size * 0.7, size * 0.12, size * 0.7);
+      ctx.fillRect(x + size * 1.12, y - size * 0.7, size * 0.12, size * 0.7);
+      ctx.fillRect(x - size * 1.25, y - size * 0.62, size * 2.5, size * 0.12);
+      ctx.fillRect(x - size * 1.25, y - size * 0.3, size * 2.5, size * 0.12);
+    } else {
+      // Pequeña pila de leña, siempre en la franja media.
+      ctx.fillStyle = trunk;
+      for (let log = 0; log < 3; log++) ctx.fillRect(x - size * 0.85 + log * size * 0.55, y - size * (0.28 + (log % 2) * 0.22), size * 0.62, size * 0.16);
     }
   }
   ctx.restore();
@@ -215,15 +295,15 @@ export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTi
   const roofColors = palette.roofs.map((color) => shade(color, '#242d39', night * 0.62));
   const ground = shade(palette.ground, '#263b39', night * 0.54);
   const lotColors = palette.lot.map((color) => blend(shade(color, '#35423b', night * 0.48), ground, 0.58));
-  const treeColor = shade(palette.tree, '#29483d', night * 0.5);
   const windowLit = shade(palette.window, '#f0c98b', night * 0.7);
   const roadHalf = W * ROAD_HALF_RATIO;
+  activeHouseFootprints = 0;
   const point = (progress, factor, seed) => {
     const half = (3 + (roadHalf - 3) * progress) * factor;
     return { x: centerX + curvOff(W, distancia, progress), y: horizonY + (GND - horizonY) * progress, half };
   };
-  const blocks = [];
-  const count = 10, spacing = 172, cycle = count * spacing;
+  activeHouseBlocks = 0;
+  const count = Math.max(4, Math.floor(10 * SCENERY_DENSITY)), spacing = 344, cycle = count * spacing;
   for (const side of [-1, 1]) for (let i = 0; i < count; i++) {
     const seed = i * 47 + side * 113;
     const phase = ((distancia * 0.62 + i * spacing + (side > 0 ? 92 : 0)) % cycle + cycle) % cycle;
@@ -237,17 +317,23 @@ export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTi
     const lotNear = Math.max(0, (roadHalf * 1.48 + sideSpace * 0.2) * scale - 2 * scale);
     const lotWidth = W * (0.34 + hash(seed + 23) * 0.2) * scale;
     const lotFar = lotNear + lotWidth;
-    const centerOffset = lotNear + lotWidth * (0.42 + hash(seed + 6) * 0.12);
-    const buildingW = W * (0.14 + hash(seed + 34) * 0.09) * scale;
-    const buildingH = H * (0.48 + hash(seed + 51) * 0.2) * scale;
+    const centerOffset = lotNear + lotWidth * (0.9 + hash(seed + 6) * 0.04);
+    const buildingW = W * (0.11 + hash(seed + 34) * 0.05) * scale;
+    const buildingH = H * (0.34 + hash(seed + 51) * 0.14) * scale;
     const lotDepth = Math.min(H * (0.28 + hash(seed + 62) * 0.12) * scale, Math.max(2, (base.y - horizonY) * 0.24));
-    blocks.push({ side, seed, z, scale, progress, curve, baseY: base.y, lotNear, lotFar, lotWidth, lotDepth, centerOffset, buildingW, buildingH });
+    const block = HOUSE_BLOCK_POOL[activeHouseBlocks++];
+    block.side = side; block.seed = seed; block.z = z; block.scale = scale; block.progress = progress;
+    block.curve = curve; block.baseY = base.y; block.lotNear = lotNear; block.lotFar = lotFar;
+    block.lotWidth = lotWidth; block.lotDepth = lotDepth; block.centerOffset = centerOffset;
+    block.buildingW = buildingW; block.buildingH = buildingH;
   }
 
   // Primero lo lejano y luego lo cercano para que las manzanas se solapen bien.
-  blocks.sort((a, b) => b.z - a.z);
+  for (let i = activeHouseBlocks; i < HOUSE_BLOCK_POOL.length; i++) HOUSE_BLOCK_POOL[i].z = -Infinity;
+  HOUSE_BLOCK_POOL.sort((a, b) => (b.z || -Infinity) - (a.z || -Infinity));
   ctx.save();
-  for (const block of blocks) {
+  for (let blockIndex = 0; blockIndex < activeHouseBlocks; blockIndex++) {
+    const block = HOUSE_BLOCK_POOL[blockIndex];
     const { side, seed, scale, curve, baseY, lotNear, lotFar, lotWidth, lotDepth, centerOffset, buildingW, buildingH } = block;
     const lotColor = lotColors[Math.floor(hash(seed + 71) * lotColors.length)];
     const xAt = (offset) => centerX + curve + side * offset;
@@ -277,37 +363,14 @@ export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTi
     ctx.lineTo(pathX - side * pathW * 0.38, farY + lotDepth * 0.08);
     ctx.closePath(); ctx.fill();
 
-    // Árbol de patio con sombra anclada a la parcela.
-    if (hash(seed + 87) > 0.2) {
-      const treeX = xAt(lotNear + lotWidth * (0.24 + hash(seed + 92) * 0.16));
-      const treeY = baseY - lotDepth * (0.12 + hash(seed + 95) * 0.22);
-      const treeScale = Math.max(0.16, scale * (0.62 + hash(seed + 100) * 0.32));
-      const trunkH = (region === 'selva' ? 38 : 31) * treeScale;
-      const crown = (region === 'selva' ? 20 : 17) * treeScale;
-      ctx.fillStyle = shade('#72543a', '#493d35', night * 0.55);
-      ctx.fillRect(treeX - 2.3 * treeScale, treeY - trunkH, 4.6 * treeScale, trunkH);
-      ctx.fillStyle = treeColor;
-      ctx.beginPath(); ctx.arc(treeX, treeY - trunkH - crown * 0.42, crown, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(treeX - crown * 0.55, treeY - trunkH - crown * 0.1, crown * 0.66, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(treeX + crown * 0.58, treeY - trunkH - crown * 0.12, crown * 0.7, 0, Math.PI * 2); ctx.fill();
-    }
-
-    // Matorrales y piedras pequeñas rompen los claros entre fachadas sin crear
-    // otra franja de color plana; cada grupo queda apoyado en la parcela.
-    for (let tuft = 0; tuft < 3; tuft++) {
-      const tuftX = xAt(lotNear + lotWidth * (0.12 + tuft * 0.19 + hash(seed + 121 + tuft) * 0.08));
-      const tuftY = farY + lotDepth * (0.56 + hash(seed + 131 + tuft) * 0.3);
-      const tuftR = Math.max(1, (4.5 + hash(seed + 141 + tuft) * 4) * scale);
-      ctx.fillStyle = 'rgba(23,30,23,.18)';
-      ctx.beginPath(); ctx.ellipse(tuftX, tuftY + tuftR * 0.18, tuftR * 1.6, Math.max(0.7, tuftR * 0.38), 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = blend(treeColor, ground, 0.25 + hash(seed + 151 + tuft) * 0.25);
-      ctx.beginPath(); ctx.ellipse(tuftX, tuftY - tuftR * 0.18, tuftR, tuftR * 0.62, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(tuftX + tuftR * 0.48, tuftY - tuftR * 0.25, tuftR * 0.56, 0, Math.PI * 2); ctx.fill();
-    }
-
     const buildingX = xAt(centerOffset + side * lotWidth * 0.04) - buildingW / 2;
     // Las fachadas apoyan en el borde delantero del lote y su sombra toca el suelo.
     const buildingY = baseY;
+    const footprintIndex = activeHouseFootprints++;
+    const footprint = HOUSE_FOOTPRINT_POOL[footprintIndex] || (HOUSE_FOOTPRINT_POOL[footprintIndex] = {});
+    footprint.z = block.z;
+    footprint.x = centerX + curve + side * (centerOffset + side * lotWidth * 0.04) - buildingW * 0.08;
+    footprint.radius = buildingW * 0.58;
     const frontW = buildingW * 0.84;
     const wall = wallColors[Math.floor(hash(seed + 31) * wallColors.length)];
     const roof = roofColors[Math.floor(hash(seed + 42) * roofColors.length)];
@@ -366,4 +429,6 @@ export function drawOuterNeighborhoodV2(ctx, W, H, GND, horizonY, centerX, dayTi
     ctx.fillRect(buildingX, buildingY - Math.max(2, 4 * scale), frontW, Math.max(2, 4 * scale));
   }
   ctx.restore();
+  for (let i = activeHouseFootprints; i < HOUSE_FOOTPRINT_POOL.length; i++) HOUSE_FOOTPRINT_POOL[i].z = -Infinity;
+  return HOUSE_FOOTPRINT_POOL;
 }
