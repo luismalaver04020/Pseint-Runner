@@ -32,3 +32,27 @@
 .perfil-back{border:2px solid #183049;background:#dce6db;color:#192b40}
 .perfil-save{border:2px solid #183049;background:#2c747e;color:white;box-shadow:0 3px 0 #183049}
 .perfil-save:hover{background:#368c95}
+
+/* Perfil conectado con el fondo nocturno y los acentos oro/verde del mapa. */
+.perfil-bg{background-color:#0b1a30;background-image:radial-gradient(circle,rgba(69,126,177,.18) 1px,transparent 1.35px),linear-gradient(135deg,#0b1a30 0%,#10243d 58%,#0d1d34 100%);background-size:24px 24px,100% 100%;color:#f4f2e9}
+.perfil-card{border:2px solid #385675;border-top:5px solid #ffc83d;border-radius:18px;background:#10223a;color:#f4f2e9;box-shadow:0 6px 0 #061326}
+.perfil-kicker{color:#ffc83d}.perfil-card h1{color:#fff9ea}.perfil-intro{color:#bdcada}
+.perfil-player-card{border:2px solid #385675;border-radius:16px;background:#192d47;box-shadow:0 4px 0 #07152a}
+.perfil-player-portrait{border:2px solid #ffc83d;background:#243b56}
+.perfil-player-info,.perfil-player-info *{color:#f4f2e9}
+.perfil-player-kicker{color:#ffc83d!important}
+.perfil-player-details span{border:1px solid #456785;background:#10243d;color:#edf2f4}
+.perfil-player-details small,.perfil-player-stats small{color:#bdcada}
+.perfil-player-stats span{border:1px solid #bd941d;border-radius:10px;background:#ffc83d;color:#13243b}
+.perfil-player-info .perfil-player-name-field{color:#bdcada!important}
+.perfil-player-info .perfil-player-name-field input{border:2px solid #63a6d8!important;background:#0b1a30!important;color:#fff!important}
+.perfil-player-hint,.perfil-hint,.perfil-readonly{color:#bdcada}
+.perfil-card label{color:#edf2f4}
+.perfil-card input,.perfil-card select{border:2px solid #385675;border-radius:9px;background:#0b1a30;color:#f4f2e9}
+.perfil-card input:focus,.perfil-card select:focus{outline:2px solid #ffc83d;outline-offset:1px}
+.perfil-card input[readonly],.perfil-card select:disabled{background:#1a2e48;color:#bdcada}
+.perfil-notice{border:1px solid #3c9e9e;background:#15364a;color:#c8f4e4}
+.perfil-error{border-color:#bd625f;background:#472c3c;color:#ffd0c9}.perfil-success{border-color:#42d98b;background:#153b37;color:#b6f5d4}
+.perfil-back{border:2px solid #63a6d8;background:#142943;color:#f4f2e9}
+.perfil-save{border:2px solid #ffc83d;background:#ffc83d;color:#13243b;box-shadow:0 3px 0 #bd8613}
+.perfil-save:hover{background:#ffd45f}

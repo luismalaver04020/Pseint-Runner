@@ -93,3 +93,20 @@
 .rank-zone{color:#53697a}.rank-points{color:#8b6715}.rank-empty{color:#53697a!important}.rank-footer{color:#c4d2d7}
 .podium-card:hover{box-shadow:0 7px 0 #0d1a2a}
 @media(max-width:640px){.rank-tabs{width:100%;justify-content:stretch}.rank-tab{flex:1}}
+
+/* El ranking adopta la paleta azul noche, oro y verde del selector. */
+.ranking-bg{background-color:#0b1a30;background-image:radial-gradient(circle,rgba(69,126,177,.18) 1px,transparent 1.35px),linear-gradient(135deg,#0b1a30 0%,#10243d 58%,#0d1d34 100%);background-size:24px 24px,100% 100%;color:#f4f2e9}
+.ranking-bg::before{opacity:.035;filter:saturate(.55)}
+.ranking-header h1{color:#fff9ea}.ranking-header p{color:#c4d3e0}.rank-eyebrow{color:#ffc83d}
+.rank-back{border:2px solid #63a6d8;background:#142943;color:#f3f5f5}.rank-back:hover{border-color:#ffc83d;background:#203b59}
+.rank-tabs{border-color:#294967;background:#10223a}.rank-tab{color:#d7e1ea}.rank-tab.sel,.rank-tab[aria-pressed="true"]{background:#ffc83d;color:#13243b}
+.podium-card,.rank-board{border:2px solid #385675;border-radius:15px;background:#192d47;color:#f4f2e9;box-shadow:0 4px 0 #07152a}
+.podium-card.place-1{--podium:#ffc83d;background:#203751;border-color:#ffc83d}.podium-card.place-2{--podium:#63a6d8;background:#192d47}.podium-card.place-3{--podium:#42d98b;background:#192d47}
+.podium-card::before{height:4px}.podium-name,.podium-score,.podium-zone{color:#f4f2e9}
+.podium-avatar,.rank-avatar{border:2px solid #ffc83d;background:#ffc83d;color:#10223a}
+.rank-board-head{border-color:#385675}.rank-board-head h2{color:#fff9ea}
+.rank-total{border:1px solid #3c9e9e;background:#102943;color:#c8f4e4}
+.rank-table th{border-bottom:2px solid #385675;background:#142943;color:#ffc83d}
+.rank-table td{border-color:#29435d;color:#e1e8ed}.rank-table tbody tr:hover td{background:#203a56}
+.rank-zone{color:#bdcada}.rank-points{color:#ffc83d}.rank-empty{color:#bdcada!important}.rank-footer{color:#bdcada}
+.podium-card:hover{box-shadow:0 5px 0 #07152a}

@@ -229,3 +229,20 @@
 @media(max-width:760px){.mapa-side{border-left:0;border-top:2px solid #294967;background:#0f2038}}
 @media(min-width:761px){.mapa-bg{grid-template-columns:minmax(0,1fr) clamp(300px,24vw,360px)}}
 @media(max-width:760px){.mapa-side{padding-right:12px;padding-left:12px}}
+
+/* Modal y guía flotante en la misma paleta azul noche y oro. */
+.guia-dialog{border:2px solid #63a6d8;border-top:5px solid #ffc83d;border-radius:16px;background:#10223a;color:#f4f2e9;box-shadow:0 7px 0 #061326}
+.guia-eyebrow{color:#ffc83d}.guia-dialog h2,.guia-dialog h3{color:#fff9ea}.guia-intro{color:#d2dce6}
+.guia-tour-preview span{border:1px solid #456785;background:#192d47;color:#e1e8ed}
+.guia-tour-note{border-left-color:#ffc83d;background:#192d47;color:#d2dce6}.guia-tour-note b{color:#ffc83d}
+.guia-skip{color:#bdcada}.guia-start{border:2px solid #ffc83d;background:#ffc83d;color:#13243b;box-shadow:0 3px 0 #bd8613}
+.guia-start:hover{background:#ffd45f}
+.mapa-tour-copy{border:2px solid #ffc83d;border-radius:14px 14px 14px 5px;background:#192d47;color:#f4f2e9;box-shadow:0 4px 0 #061326}
+.mapa-tour-copy h3{color:#fff9ea}.mapa-tour-copy p{color:#d2dce6}.mapa-tour-label{color:#ffc83d}.mapa-tour-count{color:#bdcada}
+.mapa-tour-progress{background:#30465c}.mapa-tour-progress span{background:#42d98b}
+.mapa-tour-actions button{color:#bdcada}.mapa-tour-actions .mapa-tour-next{border:2px solid #ffc83d;background:#ffc83d!important;color:#13243b;box-shadow:0 3px 0 #bd8613}
+.mapa-tour-actions .mapa-tour-next:hover{background:#ffd45f!important;color:#13243b}
+.mapa-tour-hint.punta-izquierda .mapa-tour-copy::before{border-right-color:#ffc83d}.mapa-tour-hint.punta-izquierda .mapa-tour-copy::after{border-right-color:#192d47}
+.mapa-tour-hint.punta-derecha .mapa-tour-copy::before{border-left-color:#ffc83d}.mapa-tour-hint.punta-derecha .mapa-tour-copy::after{border-left-color:#192d47}
+.mapa-tour-hint.punta-arriba .mapa-tour-copy::before{border-bottom-color:#ffc83d}.mapa-tour-hint.punta-arriba .mapa-tour-copy::after{border-bottom-color:#192d47}
+.mapa-tour-hint.punta-abajo .mapa-tour-copy::before{border-top-color:#ffc83d}.mapa-tour-hint.punta-abajo .mapa-tour-copy::after{border-top-color:#192d47}

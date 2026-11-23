@@ -145,3 +145,39 @@
 .touch-btn span{color:#c9e2d8}.touch-btn:active{background:#2c747e}
 .ctrl-hint{color:#f3ead6}
 @media(max-width:620px){.game-screen .hud{background:rgba(20,37,58,.96)}}
+
+/* Preguntas, pausa y controles conservan el mismo lenguaje azul/oro del mapa. */
+.game-screen{--ink:#0b1a30;--ink-soft:#192d47;--sand:#f4f2e9;--sand-muted:#bdcada;--wine:#ef7776;--wine-bright:#ffc83d;--line:rgba(99,166,216,.42);--panel:rgba(16,34,58,.98);background:#0b1a30}
+.game-wrap{background:#10243d}
+.game-screen .hud{border:2px solid #294967;border-radius:14px;background:rgba(11,26,48,.96);box-shadow:0 4px 0 #061326}
+.hud-bar-wrap{background:#31485f}.hud-bar{background:linear-gradient(90deg,#42d98b 0%,#63cfa7 70%,#ffc83d 100%)}
+.hud-score{color:#ffc83d}.hud-zone{color:#e1e8ed}.hud-power{color:#ffc83d}.hud-power.slow{color:#72dfd0}
+.hud-preview-label{border-color:#63a6d8;background:#142943;color:#c7e6f5}
+.game-screen .hud-pause-btn{border:2px solid #63a6d8;border-radius:9px;background:#142943;color:#fff9ea}
+.game-screen .hud-pause-btn:hover{border-color:#ffc83d;background:#203b59}
+.game-screen .overlay{background:rgba(3,12,25,.8)}
+.pausa-box,.revival-box,.fin-box,.game-screen .q-box{border:2px solid #456785;border-top:5px solid #ffc83d;border-radius:16px;background:#10223a;color:#f4f2e9;box-shadow:0 7px 0 #061326}
+.pausa-title,.revival-title,.game-screen .q-title{color:#fff9ea}
+.revival-sub,.pausa-hint,.fin-message,.fin-stats{color:#bdcada}.fin-stats b{color:#fff9ea}
+.fin-title.win{color:#42d98b}.fin-title.lose{color:#ff9e96}
+.revival-reto{border:1px solid #456785;background:#192d47;color:#f4f2e9}
+.revival-ta,.game-screen .q-code-ta{border:2px solid #456785;border-radius:10px;background:#0b1a30;color:#f4f2e9}
+.revival-ta:focus,.game-screen .q-code-ta:focus{border-color:#ffc83d;outline:2px solid #ffc83d}
+.game-screen .q-badge{border:1px solid #63a6d8;background:#142943;color:#ffc83d}
+.game-screen .q-timer-wrap{background:#31485f}.game-screen .q-timer{background:linear-gradient(90deg,#42d98b,#ffc83d)}
+.game-screen .q-title,.game-screen .q-text{color:#f4f2e9}
+.game-screen .q-code{border:1px solid #456785;border-left:5px solid #ffc83d;border-radius:9px;background:#0b1a30;color:#f4f2e9}
+.game-screen .q-code .kw{color:#72dfd0}.game-screen .q-code .fn,.game-screen .q-code .num{color:#ffc83d}.game-screen .q-code .str{color:#9ce8b8}.game-screen .q-code .va{color:#f4f2e9}
+.game-screen .q-code-case{border-color:#456785;background:#192d47;color:#f4f2e9}.game-screen .q-code-case span{color:#bdcada}.game-screen .q-code-case code{color:#fff9ea}
+.game-screen .q-opts .qo{border:2px solid #456785;border-radius:10px;background:#192d47;color:#f4f2e9}
+.game-screen .q-opts .qo:hover:not(:disabled){border-color:#ffc83d;background:#203b59}
+.game-screen .q-opts .qo.ok{border-color:#42d98b;background:#153b37;color:#b6f5d4}.game-screen .q-opts .qo.no{border-color:#ef7776;background:#472c3c;color:#ffd0c9}
+.game-screen .q-fb{border:1px solid #42d98b;background:#153b37;color:#b6f5d4}.game-screen .q-fb.error{border-color:#ef7776;background:#472c3c;color:#ffd0c9}
+.game-screen .q-topic-support,.game-screen .fin-feedback{border:1px solid #456785;border-radius:10px;background:#192d47;color:#e1e8ed}
+.game-screen .q-topic-support summary,.game-screen .fin-feedback summary{color:#ffc83d}.game-screen .q-topic-support article{border-color:#456785}.game-screen .q-topic-support p{color:#bdcada}
+.game-screen .fin-feedback select,.game-screen .fin-feedback textarea{border:2px solid #456785;background:#0b1a30;color:#f4f2e9}
+.game-screen .btn{border:2px solid #63a6d8;border-radius:9px;background:#142943;color:#f4f2e9;box-shadow:none}
+.game-screen .btn:hover{border-color:#ffc83d;background:#203b59}
+.game-screen .btn-g{border-color:#42d98b;background:#42d98b;color:#082a22}.game-screen .btn-r{border-color:#ef7776;background:#ef7776;color:#351a21}.game-screen .btn-y{border-color:#ffc83d;background:#ffc83d;color:#13243b}.game-screen .btn-b{border-color:#63a6d8;background:#142943;color:#f4f2e9}
+.touch-btn{border:2px solid #63a6d8;border-radius:12px;background:rgba(11,26,48,.96);color:#fff9ea;box-shadow:0 4px 0 #061326}.touch-btn span{color:#bdcada}.touch-btn:active{background:#203b59;border-color:#ffc83d}
+.ctrl-hint{color:#f4f2e9}
