@@ -29,7 +29,7 @@ function mixColor(a, b, amount) {
   return `#${ca.map((v, i) => Math.round(v + (cb[i] - v) * p).toString(16).padStart(2, '0')).join('')}`;
 }
 
-const TONOS_HORIZONTE = { rocosa: '#858978', selva: '#52714b', costera: '#789eaa', ciudad: '#858b89' };
+const TONOS_HORIZONTE = { rocosa: '#858978', selva: '#52714b', costera: '#b9a77f', ciudad: '#858b89' };
 
 function colorHorizonte(zonaCfg, night) {
   const region = zonaCfg?.id || 'rocosa';
@@ -88,14 +88,23 @@ export function drawSkyV2(ctx, W, horizonY, t, zonaCfg) {
       ctx.beginPath(); ctx.arc(px, horizonY + 4, r, Math.PI, Math.PI * 2); ctx.lineTo(px + r, horizonY + 9); ctx.lineTo(px - r, horizonY + 9); ctx.closePath(); ctx.fill();
     }
   } else if (region === 'costera') {
-    // Franja del Pacífico, costa árida y lomas bajas.
-    ctx.fillStyle = mixColor('#789eaa', '#293944', ridgeNight); ctx.fillRect(0, horizonY * 0.78, W, horizonY * 0.22);
-    ctx.fillStyle = mixColor('#d2c09b', '#514b42', ridgeNight);
+    // El Pacífico queda a un costado; el resto del horizonte es costa seca,
+    // evitando que el agua parezca atravesar la ciudad y la carretera.
+    const sea = mixColor('#789eaa', '#293944', ridgeNight);
+    const coastLimit = W * 0.24;
+    ctx.fillStyle = sea;
+    ctx.beginPath();
+    ctx.moveTo(0, horizonY * 0.78);
+    ctx.lineTo(coastLimit * 0.82, horizonY * 0.82);
+    ctx.lineTo(coastLimit, horizonY + 6);
+    ctx.lineTo(0, horizonY + 6);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = mixColor('#c3ad7d', '#514b42', ridgeNight);
     ctx.beginPath(); ctx.moveTo(0, horizonY + 5);
     for (let px = 0; px <= W + 8; px += 8) ctx.lineTo(px, horizonY - 1 - Math.sin((px + t * 4) / 39) * horizonY * 0.035);
     ctx.lineTo(W, horizonY + 10); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = 'rgba(245,239,222,.34)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(0, horizonY * 0.9); ctx.lineTo(W, horizonY * 0.9); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, horizonY * 0.9); ctx.lineTo(coastLimit * 0.84, horizonY * 0.91); ctx.stroke();
   } else {
     // Perfil de Lima: edificios de concreto y azoteas, suavizados por la bruma costera.
     drawRidge(horizonY + 8, horizonY * 0.08, 120, t * 5, mixColor('#858b89', '#303742', ridgeNight));
