@@ -106,25 +106,62 @@ export function drawSkyV2(ctx, W, horizonY, t, zonaCfg) {
     ctx.strokeStyle = 'rgba(245,239,222,.34)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(0, horizonY * 0.9); ctx.lineTo(coastLimit * 0.84, horizonY * 0.91); ctx.stroke();
   } else {
-    // Silueta urbana continua: los tejados comparten una base en el horizonte
-    // para que los edificios lejanos no parezcan bloques suspendidos.
-    const baseY = horizonY + 8;
-    const step = W / 18;
-    const offset = (t * 4) % step;
-    ctx.fillStyle = mixColor('#777f80', '#303742', ridgeNight);
-    ctx.fillRect(0, horizonY + 2, W, 7);
-    for (let i = -1; i <= 18; i++) {
-      const seed = i + 37;
-      const bx = i * step - offset;
-      const bw = step * 1.14;
-      const bh = 9 + hash(seed * 2.8) * horizonY * 0.075;
-      const by = baseY - bh;
-      ctx.fillStyle = mixColor(i % 2 ? '#858582' : '#a59e91', '#343b44', ridgeNight);
+    // Barrio urbano lejano en dos planos. Ambas filas nacen de una base común
+    // y se mueven con parallax para que el jugador sienta que atraviesa Lima.
+    const farBase = horizonY + 4;
+    const farStep = W / 25;
+    const farOffset = (t * 2.2) % farStep;
+    ctx.fillStyle = mixColor('#747b7c', '#303742', ridgeNight);
+    ctx.fillRect(0, horizonY + 1, W, 8);
+    for (let i = -1; i <= 25; i++) {
+      const seed = i + 143;
+      const bx = i * farStep - farOffset;
+      const bw = farStep * (0.76 + hash(seed * 2.1) * 0.44);
+      const bh = horizonY * (0.035 + hash(seed * 3.7) * 0.075);
+      const by = farBase - bh;
+      const wall = mixColor(i % 2 ? '#8f918d' : '#777f82', '#39424d', ridgeNight);
+      ctx.fillStyle = wall;
       ctx.fillRect(bx, by, bw, bh);
-      ctx.fillStyle = mixColor('#c7b896', '#cfab78', night * 0.45);
-      const win = Math.max(1, step * 0.045);
+      // Azoteas, parapetos y pequeños depósitos rompen la repetición del perfil.
+      ctx.fillStyle = mixColor('#666d70', '#303842', ridgeNight);
+      if (hash(seed * 4.9) > 0.55) ctx.fillRect(bx + bw * 0.16, by - bh * 0.1, bw * 0.66, Math.max(1.2, bh * 0.1));
+      if (hash(seed * 5.3) > 0.83) {
+        ctx.fillRect(bx + bw * 0.58, by - bh * 0.24, bw * 0.19, bh * 0.24);
+        ctx.fillRect(bx + bw * 0.65, by - bh * 0.34, bw * 0.05, bh * 0.1);
+      }
+      const win = Math.max(0.8, farStep * 0.045);
+      ctx.fillStyle = mixColor('#c7b896', '#cfab78', night * 0.58);
       ctx.fillRect(bx + bw * 0.22, by + bh * 0.34, win, Math.max(1, bh * 0.14));
-      ctx.fillRect(bx + bw * 0.62, by + bh * 0.56, win, Math.max(1, bh * 0.14));
+      if (bw > farStep * 0.8) ctx.fillRect(bx + bw * 0.66, by + bh * 0.58, win, Math.max(1, bh * 0.14));
+    }
+
+    const nearBase = horizonY + 10;
+    const nearStep = W / 19;
+    const nearOffset = (t * 4.5) % nearStep;
+    for (let i = -1; i <= 19; i++) {
+      const seed = i + 317;
+      const bx = i * nearStep - nearOffset;
+      const bw = nearStep * (0.82 + hash(seed * 1.9) * 0.34);
+      const bh = horizonY * (0.045 + hash(seed * 3.2) * 0.105);
+      const by = nearBase - bh;
+      const wall = mixColor(i % 2 ? '#a09d94' : '#858b89', '#343d48', ridgeNight);
+      const roof = mixColor('#686b69', '#2b333d', ridgeNight);
+      ctx.fillStyle = wall;
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.fillStyle = roof;
+      ctx.fillRect(bx - bw * 0.035, by, bw * 1.07, Math.max(1.2, bh * 0.075));
+      if (hash(seed * 6.1) > 0.62) {
+        ctx.fillRect(bx + bw * 0.18, by - bh * 0.12, bw * 0.28, bh * 0.12);
+        ctx.fillRect(bx + bw * 0.27, by - bh * 0.2, Math.max(1, bw * 0.025), bh * 0.08);
+      }
+      const columns = bw > nearStep ? 3 : 2;
+      const rows = bh > horizonY * 0.09 ? 3 : 2;
+      const winW = Math.max(0.8, bw * 0.075), winH = Math.max(1, bh * 0.075);
+      for (let row = 0; row < rows; row++) for (let col = 0; col < columns; col++) {
+        if (hash(seed + row * 11 + col * 17) < 0.22) continue;
+        ctx.fillStyle = mixColor('#c6c1ad', '#e8c783', night * 0.72);
+        ctx.fillRect(bx + bw * (0.18 + col * (0.62 / Math.max(1, columns - 1))), by + bh * (0.22 + row * 0.22), winW, winH);
+      }
     }
   }
 }
