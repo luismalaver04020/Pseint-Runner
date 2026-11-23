@@ -35,3 +35,9 @@ html,body,#root{width:100%;height:100%;overflow:hidden;background:#11100f;font-f
 .q-fb{font-size:7px;text-align:center;padding:9px;margin-top:10px;border-radius:6px;line-height:2}
 .q-fb.ok{background:#0a220a;color:#4aff4a;border:2px solid #4aff4a}
 .q-fb.no{background:#220a0a;color:#ff4a4a;border:2px solid #ff4a4a}
+.music-toggle{position:fixed;right:18px;bottom:18px;z-index:120;display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid rgba(92,205,228,.55);border-radius:999px;background:rgba(7,20,38,.94);box-shadow:0 8px 24px rgba(0,0,0,.32);color:#eaf8fb;font:700 13px Arial,Helvetica,sans-serif;cursor:pointer;backdrop-filter:blur(10px);transition:transform .16s ease,border-color .16s ease,background .16s ease}
+.music-toggle:hover{transform:translateY(-2px);border-color:#78e4f1;background:#102b43}
+.music-toggle span:first-child{color:#69d8e8;font-size:18px;line-height:1}
+.music-toggle.mapa-audio{right:calc(clamp(300px,24vw,360px) + 18px);bottom:18px}
+@media(max-width:760px){.music-toggle.mapa-audio{right:14px;bottom:14px}}
+@media(max-width:520px){.music-toggle{right:12px;bottom:12px;padding:9px 11px;font-size:12px}.music-toggle.mapa-audio{right:12px;bottom:12px}}

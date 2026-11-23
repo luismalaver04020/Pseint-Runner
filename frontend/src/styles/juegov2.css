@@ -23,6 +23,8 @@
 .touch-controls{display:none}
 .game-screen .hud-pause-btn{pointer-events:auto;margin-left:4px;background:rgba(231,222,206,.08);border:1px solid var(--line);border-radius:8px;color:var(--sand);font-size:17px;line-height:1;padding:9px 11px;cursor:pointer;transition:background .18s,border-color .18s}
 .game-screen .hud-pause-btn:hover{background:rgba(231,222,206,.17);border-color:rgba(231,222,206,.42)}
+.game-screen .hud-music-btn{pointer-events:auto;flex:0 0 auto;width:38px;height:38px;margin-left:2px;border:1px solid rgba(157,207,231,.28);border-radius:9px;background:rgba(111,184,208,.09);color:#9debf0;font:700 20px/1 Arial,sans-serif;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
+.game-screen .hud-music-btn:hover{background:rgba(64,181,210,.2);border-color:rgba(106,225,245,.62);transform:translateY(-1px)}
 .game-screen .overlay{position:absolute;inset:0;background:rgba(8,8,7,.72);display:flex;align-items:center;justify-content:center;padding:clamp(14px,3vw,32px);z-index:20;backdrop-filter:blur(8px);overflow-y:auto}
 .pausa-box,.revival-box,.fin-box,.game-screen .q-box{background:var(--panel);border:1px solid rgba(231,222,206,.3);border-top:3px solid var(--wine-bright);border-radius:18px;padding:clamp(22px,3.4vw,38px);box-shadow:0 24px 70px rgba(0,0,0,.44);color:var(--sand);font-family:Arial,Helvetica,sans-serif}
 .pausa-box{text-align:center;width:min(430px,100%)}
