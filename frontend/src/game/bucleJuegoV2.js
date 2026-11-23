@@ -10,6 +10,7 @@ import {
   drawFinishV2, drawCelestialV2, renderObstaculosV2, drawPowerupV2,
   renderPlayerV2, curvOff, drawRoadsideSigns, drawStreetLights,
 } from './dibujoV2';
+import { drawCloudLayersV2, drawSidewalksV2 } from './detallesEscenaV2';
 
 const FINISH_DURATION = 90; // 1.5 s a 60 FPS: entrada a la meta.
 const MAX_RUN_SPEED = 10.5;
@@ -103,6 +104,7 @@ export function renderJuegoV2(ctx, state) {
   // pueden extenderse sobre el terreno sin quedar cortadas por una línea recta.
   drawTerrainV2(ctx, W, H, horizonY, dayTime, distancia, zonaCfg);
   drawSkyV2(ctx, W, horizonY, dayTime, zonaCfg);
+  drawCloudLayersV2(ctx, W, horizonY, dayTime, frame, zonaCfg?.id);
   drawCelestialV2(ctx, W, horizonY, dayTime, frame);
   const fadeEntorno = Math.max(0, Math.min(1, (score - 900) / 50));
   const entornoAlpha = 1 - fadeEntorno * fadeEntorno * (3 - 2 * fadeEntorno);
@@ -114,6 +116,9 @@ export function renderJuegoV2(ctx, state) {
   drawStreetLights(ctx, W, GND, horizonY, centerX, distancia, dayTime);
   drawFogV2(ctx, W, H, horizonY, dayTime, zonaCfg);
   drawRoadV2(ctx, W, GND, horizonY, centerX, dayTime, distancia, zonaCfg);
+  ctx.save(); ctx.globalAlpha *= entornoAlpha;
+  drawSidewalksV2(ctx, W, GND, horizonY, centerX, dayTime, distancia, zonaCfg?.id);
+  ctx.restore();
   drawFinishV2(ctx, W, GND, horizonY, centerX, score, zonaCfg);
   ctx.save(); ctx.globalAlpha *= entornoAlpha;
   drawRoadsideSigns(ctx, W, GND, horizonY, centerX, distancia, dayTime);
