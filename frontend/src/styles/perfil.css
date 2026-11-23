@@ -68,3 +68,10 @@
 .perfil-card input[readonly],.perfil-card select:disabled{background:#203b59}
 .perfil-notice{background:#173b50;border-color:#4e9fa7;color:#e0f5f3}
 .perfil-back{background:#1b3552;border-color:#78b8e7;color:#fff}
+/* Ficha más sobria: menos cajas compitiendo entre sí y mejor ritmo. */
+.perfil-card{border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.24)}
+.perfil-player-card{border-radius:14px;box-shadow:none}
+.perfil-player-details span{border-radius:8px}
+.perfil-player-stats span{border-radius:9px}
+.perfil-card input,.perfil-card select{border-radius:8px}
+.perfil-back,.perfil-save{border-radius:9px;box-shadow:none}

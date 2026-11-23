@@ -119,6 +119,11 @@
 .game-screen .btn,.touch-btn{background:#1b3552;border-color:#78b8e7;color:#fff}
 .game-screen .btn-y{background:#ffc83d;border-color:#ffc83d;color:#13243b}
 .game-screen .btn-g{background:#42d98b;border-color:#42d98b;color:#082a22}
+/* Menos sombras y radios uniformes para que el HUD no compita con la carrera. */
+.game-screen .hud{border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.24)}
+.pausa-box,.revival-box,.fin-box,.game-screen .q-box{border-radius:15px;box-shadow:0 12px 36px rgba(0,0,0,.34)}
+.game-screen .q-opts .qo{border-radius:9px;box-shadow:none}
+.game-screen .btn,.touch-btn{border-radius:9px;box-shadow:none}
 .game-screen .hud{border:2px solid #183049;border-radius:16px;background:rgba(20,37,58,.94);box-shadow:0 4px 0 rgba(7,20,34,.4)}
 .hud-bar-wrap{background:#41596a}.hud-bar{background:linear-gradient(90deg,#3c9e9e 0%,#8dc9a8 68%,#f1c65d 100%)}
 .hud-score{color:#fff4da}.hud-zone{color:#dce9df}.hud-power{color:#f1c65d}.hud-power.slow{color:#9ce2d8}

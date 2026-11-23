@@ -125,3 +125,12 @@
 .rank-tabs{border-color:#45698c;background:#142943}
 .rank-tab{color:#f0f3f6}
 .rank-back{background:#1b3552}
+/* Superficies del ranking más limpias y menos pesadas. */
+.ranking-wrap{max-width:1040px}
+.rank-tabs{padding:4px;border-radius:12px}
+.podium-card,.rank-board{border-radius:14px;box-shadow:0 3px 0 #061326}
+.podium-card{min-height:164px}
+.podium-card:hover{transform:translateY(-2px);box-shadow:0 5px 0 #061326}
+.rank-board-head{padding:18px 22px}
+.rank-table th{padding:13px 16px}
+.rank-table td{padding:15px 16px}
