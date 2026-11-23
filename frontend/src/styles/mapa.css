@@ -51,6 +51,10 @@
 .guia-dificultades{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .guia-dificultades>div{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid rgba(169,234,255,.2);border-radius:10px;background:rgba(255,255,255,.04)}
 .guia-dificultades b{color:#fff;font-size:14px}.guia-dificultades span{color:#bac8dc;font-size:12px;line-height:1.4}
+.guia-funciones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.guia-funciones article{display:grid;align-content:start;gap:5px;padding:10px 12px;border:1px solid rgba(82,219,245,.24);border-radius:10px;background:linear-gradient(145deg,rgba(34,59,96,.65),rgba(255,255,255,.035))}
+.guia-funciones b{color:#8feaff;font-size:12px}.guia-funciones span{color:#c5d2e5;font-size:11px;line-height:1.45}
+.guia-nota{margin:12px 0 0;padding:10px 12px;border-left:3px solid #ffe27a;border-radius:0 8px 8px 0;background:rgba(255,226,122,.08);color:#d5deed;font-size:12px;line-height:1.55}.guia-nota b{color:#fff0b5}
 .guia-dialog h3{margin:20px 0 10px;font-size:15px;color:#fff}
 .guia-controles{display:grid;grid-template-columns:1fr 1fr;gap:9px 18px;margin:0;padding:0;list-style:none}
 .guia-controles li{display:flex;align-items:center;flex-wrap:wrap;gap:5px;color:#cbd8e9;font-size:13px}
@@ -74,6 +78,7 @@
   .guia-dificultades{grid-template-columns:1fr}
   .guia-dificultades>div{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
   .guia-dificultades span{text-align:right}
+  .guia-funciones{grid-template-columns:1fr}
   .guia-controles{grid-template-columns:1fr}
   .guia-actions{align-items:stretch;flex-direction:column-reverse}
   .guia-start{width:100%}

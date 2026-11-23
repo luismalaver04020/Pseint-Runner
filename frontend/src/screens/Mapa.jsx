@@ -197,12 +197,20 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
           <section className="guia-dialog" role="dialog" aria-modal="true" aria-labelledby="guia-title">
             <div className="guia-eyebrow">PSEINT RUNNER</div>
             <h2 id="guia-title">Cómo jugar</h2>
-            <p className="guia-intro">Antes de iniciar, elige una dificultad y después selecciona una zona del mapa.</p>
+            <p className="guia-intro">Tu objetivo es completar las zonas y llegar a la meta. Esquiva obstáculos, responde los retos y avanza paso a paso.</p>
             <div className="guia-dificultades">
               <div><b>Fácil</b><span>Preguntas de opción múltiple</span></div>
               <div><b>Intermedio</b><span>Preguntas y ejercicios de código</span></div>
               <div><b>Difícil</b><span>Ejercicios de código en PSeInt</span></div>
             </div>
+            <h3>Mapa y opciones de jugador</h3>
+            <div className="guia-funciones">
+              <article><b>🗺️ Mapa y zonas</b><span>Elige un pin desbloqueado. El indicador muestra tu avance; completa zonas en orden para abrir las siguientes.</span></article>
+              <article><b>💾 Partida guardada</b><span>Si aparece esta opción, continúa desde el puntaje que quedó guardado.</span></article>
+              <article><b>🏆 Ranking</b><span>Consulta y compara los mejores puntajes por dificultad.</span></article>
+              <article><b>👤 Perfil y avatar</b><span>En Perfil cambias el nombre que aparece en el juego; en Avatar personalizas tu personaje.</span></article>
+            </div>
+            <p className="guia-nota"><b>Durante la carrera:</b> los corazones son tus vidas; recoge objetos como x2 o reducción de velocidad para obtener efectos temporales. Puedes pausar cuando quieras. En celular, usa los controles que aparecen en pantalla. <b>Salir</b> cierra tu sesión.</p>
             <h3>Controles</h3>
             <ul className="guia-controles">
               <li><kbd>←</kbd> <kbd>→</kbd> o <kbd>A</kbd> <kbd>D</kbd><span>Cambiar de carril</span></li>
