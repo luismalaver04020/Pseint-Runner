@@ -1,5 +1,6 @@
 import { useStore } from '../store/useStore';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { esDificultadValida, MSG_FALTA_DIFICULTAD, MSG_ELIGE_DIFICULTAD } from '../services/validacionesPartida';
 import { ZONAS, ZONAS_ORDEN } from '../game/zonas';
 import { obtenerCheckpointDisponible } from '../services/tablasJuegoService';
@@ -88,6 +89,23 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
   };
 
   const zonasAbiertas = ZONAS_ORDEN.filter((id) => estaDesbloqueada(id)).length;
+
+  const burbujaTutorial = tutorialPaso > 0 && createPortal(
+    <div
+      ref={tourHintRef}
+      className={`mapa-tour-hint ${tutorialPaso === 1 ? 'paso-dificultad' : 'paso-zona'} flecha-${tourArrow}`}
+      style={tourPosition ? { left: `${tourPosition.left}px`, top: `${tourPosition.top}px` } : { visibility: 'hidden' }}
+      role="status"
+      aria-live="polite"
+    >
+      <strong>{tutorialPaso === 1 ? 'PASO 1 DE 2 · ELIGE LA DIFICULTAD' : 'PASO 2 DE 2 · ELIGE UNA ZONA'}</strong>
+      <span>{tutorialPaso === 1
+        ? 'Toca Fácil, Intermedio o Difícil. La selección define qué retos aparecerán.'
+        : <>Toca <b>{ZONAS[primeraZonaDisponible]?.nombre}</b>, la zona resaltada, para empezar. También puedes elegir otra zona desbloqueada.</>}</span>
+      <button type="button" onClick={omitirGuia}>OMITIR TUTORIAL</button>
+    </div>,
+    document.body,
+  );
 
   useEffect(() => {
     if (!tutorialPaso) { setTourPosition(null); setTourArrow(''); return undefined; }
@@ -209,21 +227,6 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
             {difElegida ? 'Ahora elige una zona en el mapa.' : `${MSG_ELIGE_DIFICULTAD}.`}
           </div>
         </div>
-        {tutorialPaso > 0 && (
-          <div
-            ref={tourHintRef}
-            className={`mapa-tour-hint ${tutorialPaso === 1 ? 'paso-dificultad' : 'paso-zona'} flecha-${tourArrow}`}
-            style={tourPosition ? { left: `${tourPosition.left}px`, top: `${tourPosition.top}px` } : { visibility: 'hidden' }}
-            role="status"
-            aria-live="polite"
-          >
-            <strong>{tutorialPaso === 1 ? 'PASO 1 DE 2 · ELIGE LA DIFICULTAD' : 'PASO 2 DE 2 · ELIGE UNA ZONA'}</strong>
-            <span>{tutorialPaso === 1
-              ? 'Toca Fácil, Intermedio o Difícil. La selección define qué retos aparecerán.'
-              : <>Toca <b>{ZONAS[primeraZonaDisponible]?.nombre}</b>, la zona resaltada, para empezar. También puedes elegir otra zona desbloqueada.</>}</span>
-            <button type="button" onClick={omitirGuia}>OMITIR TUTORIAL</button>
-          </div>
-        )}
         <div className="mapa-extra-btns">
           <button className="map-btn" onClick={()=>setGuiaAbierta(true)}>CÓMO JUGAR</button>
           {onPanel && <button className="map-btn" onClick={onPanel}>🧑‍🏫 PANEL</button>}
@@ -239,6 +242,8 @@ export default function Mapa({ onIniciar, onRanking, onAvatar, onPerfil, onLogou
           ? <span>🔒 Completa cada zona en orden para desbloquear la siguiente.</span>
           : <span> ¡Todas las zonas desbloqueadas!</span>}
       </div>
+
+      {burbujaTutorial}
 
       {guiaAbierta && (
         <div className="guia-overlay" role="presentation">
