@@ -96,6 +96,7 @@ export function useJuegoV2({
   const ctxRef = useRef(null);
   const stateRef = useRef(null);
   const revivalIniciadaRef = useRef(false);
+  const revivalUsedRef = useRef(false);
   const preguntaRescateRef = useRef(null);  
 
   const rafRef = useRef(null);
@@ -138,7 +139,6 @@ export function useJuegoV2({
   const evaluacionCodigoIdRef = useRef(0);
   const [finJuego, setFinJuego] = useState(null);
   const [revival, setRevival] = useState(null);
-  const [revivalUsed, setRevivalUsed] = useState(false);
   const [pausado, setPausado] = useState(false);
 
   // Guarda cada 10 s y también al ocultar/cerrar la pestaña. El guardado
@@ -637,7 +637,7 @@ const scheduleQ = useCallback((primera = false, retrasoRestante = null) => {
   // ── Revival desde Supabase ──
 
   const tryRevival = useCallback(async () => {
-    if (revivalUsed) {
+    if (revivalUsedRef.current) {
       terminar('over');
       return;
     }
@@ -709,7 +709,7 @@ if (!q) {
       }
     }
 
- }, [revivalUsed, cerrarQ, terminar, modoDemo]);
+ }, [cerrarQ, terminar, modoDemo]);
 
   useEffect(() => {
     tryRevivalRef.current = tryRevival;
@@ -718,7 +718,7 @@ if (!q) {
   // ── Reanudar después del revival ──
 
 const reanudarTrasRevival = useCallback(() => {
-    setRevivalUsed(true);
+    revivalUsedRef.current = true;
 
     setTimeout(() => {
       setRevival(null);
@@ -865,6 +865,7 @@ const loop = useCallback(function juegoFrame() {
   sessionRef.current = null;
 
   revivalIniciadaRef.current = false;
+  revivalUsedRef.current = false;
   preguntaRescateRef.current = null;
   preguntaPendienteRef.current = null;
   qTimeoutRemainingRef.current = null;
@@ -874,7 +875,6 @@ const loop = useCallback(function juegoFrame() {
 
     setFinJuego(null);
     setRevival(null);
-    setRevivalUsed(false);
     setPausado(false);
 
     cerrarQ();
