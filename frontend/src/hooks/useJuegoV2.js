@@ -98,6 +98,7 @@ export function useJuegoV2({
   const stateRef = useRef(null);
   const revivalIniciadaRef = useRef(false);
   const revivalUsedRef = useRef(false);
+  const impactoPendienteRef = useRef(false);
   const preguntaRescateRef = useRef(null);  
 
   const rafRef = useRef(null);
@@ -827,8 +828,13 @@ const loop = useCallback(function juegoFrame() {
   if (!s.paused && !s.ended && !s.questionOpen && s.lives > 0) {
     const { hit, finished } = actualizarJuegoV2(s);
 
-    if (hit && !vistaLlegada && sesionLista) {
-      perderVidaV2(s);
+    // Conservar el primer choque ocurrido mientras se crea la sesión.
+    if (impactoPendienteRef.current && sesionLista) {
+      impactoPendienteRef.current = false;
+      if (!vistaLlegada) perderVidaV2(s);
+    } else if (hit && !vistaLlegada) {
+      if (sesionLista) perderVidaV2(s);
+      else impactoPendienteRef.current = true;
     }
 
     actuHUD();
@@ -865,6 +871,7 @@ const loop = useCallback(function juegoFrame() {
 
   solicitudRef.current = false;
   sessionRef.current = null;
+  impactoPendienteRef.current = false;
 
   revivalIniciadaRef.current = false;
   revivalUsedRef.current = false;
