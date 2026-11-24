@@ -914,11 +914,11 @@ const loop = useCallback(function juegoFrame() {
 
     actuHUD();
     mostrarBanner();
-// Iniciar el movimiento del juego inmediatamente
-rafRef.current = requestAnimationFrame(loop);
-
-    // Vista de llegada (solo desarrollo): no abre partida ni pide preguntas.
-    if (vistaLlegada) return;
+    // La vista de prueba no necesita crear una sesión.
+    if (vistaLlegada) {
+      rafRef.current = requestAnimationFrame(loop);
+      return;
+    }
 
     try {
       const partida = modoDemo
@@ -963,6 +963,7 @@ preguntaRescateRef.current = Promise.resolve(modoDemo
   });
 
 scheduleQ(true);
+      rafRef.current = requestAnimationFrame(loop);
     } catch (error) {
       console.error(
         'Error iniciando partida:',
