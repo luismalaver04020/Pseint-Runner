@@ -140,18 +140,25 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo 
   const [detalleUsuario, setDetalleUsuario] = useState(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
   const detalleRequest = useRef(0);
+  const [comentarios, setComentarios] = useState([]);
+  const [buscarComentario, setBuscarComentario] = useState('');
 
   const cargar = useCallback(async () => {
     if (demo) {
       const muestra = [{ usuario:'ana.m', correo:'ana.m@ejemplo.edu.pe', rol:'jugador', cuenta:'activo', seccion:'2041' }, { usuario:'prof.lucia', correo:'lucia@ejemplo.edu.pe', rol:'docente', aprobacion:'aprobada', cuenta:'activo', seccion:'—' }, { usuario:'carlos.p', correo:'carlos.p@ejemplo.edu.pe', rol:'jugador', cuenta:'suspendido', seccion:'—' }];
       setSols([{ usuario:'mariana.r', correo:'mariana.r@ejemplo.edu.pe', carrera:'Ingeniería de Software' }, { usuario:'diego.q', correo:'diego.q@ejemplo.edu.pe', carrera:'Ciencias de la Computación' }]);
       setUsers(muestra); setTodos(muestra);
+      setComentarios([
+        { id: 1, usuario: 'ana.m', motivo: 'La dificultad aumenta muy rápido', comentario: 'Me gusta el juego, pero después de varias preguntas aparecen muchos obstáculos juntos.', enviadoEn: '2026-11-21T17:35:00Z', zona: 'Sierra Andina', dificultad: 'Intermedio', puntaje: 420 },
+        { id: 2, usuario: 'carlos.p', motivo: 'Tuve un problema técnico', comentario: 'En mi celular los botones quedan muy cerca del borde.', enviadoEn: '2026-11-20T10:20:00Z', zona: 'Amazonía', dificultad: 'Fácil', puntaje: 260 },
+      ]);
       setReporte({ total: 128, porGenero: [{ categoria:'Mujer', cantidad:66, porcentaje:51.6 },{ categoria:'Hombre', cantidad:55, porcentaje:43 },{ categoria:'Prefiero no decirlo', cantidad:4, porcentaje:3.1 },{ categoria:'Sin dato', cantidad:3, porcentaje:2.3 }], porEdad: [{categoria:'Menor de 18',cantidad:10},{categoria:'18–24',cantidad:93},{categoria:'25–34',cantidad:20},{categoria:'35 o más',cantidad:2},{categoria:'Sin dato',cantidad:3}], porCarrera: [{categoria:'Ingeniería de Software',cantidad:64},{categoria:'Ingeniería de Sistemas',cantidad:38},{categoria:'Sin carrera',cantidad:26}], porRol: [{categoria:'Jugador',cantidad:115},{categoria:'Docente',cantidad:11},{categoria:'Administrador',cantidad:2}], registrosMensuales: [{mes:'2026-06',cantidad:12},{mes:'2026-07',cantidad:20},{mes:'2026-08',cantidad:34},{mes:'2026-09',cantidad:27},{mes:'2026-10',cantidad:35}] });
       return;
     }
     try {
       setSols(await P.solicitudesDocente(usuario));
       if (tab === 'reportes') setReporte(await P.reporteUsuarios());
+      if (tab === 'comentarios') setComentarios(await P.comentariosAdmin(usuario, 200));
       const lista = await P.listarUsuarios(usuario, q);
       setUsers(lista);
       if (!q.trim()) setTodos(lista);
@@ -198,6 +205,10 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo 
   const nAlumnos = todos.filter((u) => u.rol === 'jugador').length;
   const nDocentes = todos.filter((u) => u.rol === 'docente' && u.aprobacion === 'aprobada').length;
   const nSuspendidos = todos.filter((u) => u.cuenta === 'suspendido').length;
+  const comentariosFiltrados = comentarios.filter((item) => {
+    const texto = [item.usuario, item.motivo, item.comentario, item.zona, item.dificultad].filter(Boolean).join(' ').toLocaleLowerCase('es');
+    return texto.includes(buscarComentario.trim().toLocaleLowerCase('es'));
+  });
 
   return (
     <div className="pn-root">
@@ -229,6 +240,7 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo 
           <button role="tab" aria-selected={tab === 'solicitudes'} className={tab === 'solicitudes' ? 'on' : ''} onClick={() => setTab('solicitudes')}>Solicitudes <span className="pn-tab-count">{sols.length}</span></button>
           <button role="tab" aria-selected={tab === 'usuarios'} className={tab === 'usuarios' ? 'on' : ''} onClick={() => setTab('usuarios')}>Usuarios <span className="pn-tab-count">{todos.length}</span></button>
           <button role="tab" aria-selected={tab === 'reportes'} className={tab === 'reportes' ? 'on' : ''} onClick={() => setTab('reportes')}>Reportes</button>
+          <button role="tab" aria-selected={tab === 'comentarios'} className={tab === 'comentarios' ? 'on' : ''} onClick={() => setTab('comentarios')}>Comentarios <span className="pn-tab-count">{comentarios.length}</span></button>
           <button role="tab" aria-selected={tab === 'secciones'} className={tab === 'secciones' ? 'on' : ''} onClick={() => setTab('secciones')}>Secciones</button>
         </div>
         {msg && <div className="pn-msg" role="status">{msg}</div>}
@@ -297,6 +309,25 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo 
             <article className="pn-report-card"><div className="pn-chart-heading"><div><h3>Género</h3><p>Distribución de cuentas</p></div></div><GraficoGenero datos={reporte.porGenero || []} total={reporte.total || 0} /></article>
             {[['Edades', reporte.porEdad],['Carreras', reporte.porCarrera],['Tipo de cuenta', reporte.porRol]].map(([titulo, items]) => <article className="pn-report-card" key={titulo}><div className="pn-chart-heading"><div><h3>{titulo}</h3><p>Usuarios registrados</p></div><div className="pn-chart-tools" role="group" aria-label={`Mostrar ${titulo.toLowerCase()} como`}><button className={modoReporte === 'cantidad' ? 'selected' : ''} onClick={() => setModoReporte('cantidad')}>N.º</button><button className={modoReporte === 'porcentaje' ? 'selected' : ''} onClick={() => setModoReporte('porcentaje')}>%</button></div></div>{items?.length ? <GraficoBarras datos={items} total={reporte.total || 0} modo={modoReporte} /> : <p className="pn-vacio">Todavía no hay datos para mostrar.</p>}</article>)}
           </div>
+        </section>}
+
+        {tab === 'comentarios' && <section className="pn-feedback" aria-label="Comentarios de los jugadores">
+          <div className="pn-section-heading">
+            <div><span className="pn-eyebrow">ESCUCHA A LA COMUNIDAD</span><h2>Comentarios de jugadores</h2><p>Revisa sus observaciones junto al contexto de la partida para priorizar mejoras.</p></div>
+          </div>
+          <div className="pn-toolbar pn-feedback-toolbar">
+            <input className="pn-in" placeholder="Buscar por jugador, motivo o comentario" aria-label="Buscar comentarios" value={buscarComentario} onChange={(event) => setBuscarComentario(event.target.value)} />
+            <span className="pn-count">Mostrando {comentariosFiltrados.length} de {comentarios.length} recientes</span>
+          </div>
+          {comentariosFiltrados.length === 0
+            ? <p className="pn-vacio">{comentarios.length ? 'No hay comentarios que coincidan con la búsqueda.' : 'Todavía no hay comentarios de partidas.'}</p>
+            : <div className="pn-feedback-list">{comentariosFiltrados.map((item) => (
+              <article className="pn-feedback-card" key={item.id}>
+                <div className="pn-feedback-head"><div><b>{item.usuario || 'Jugador'}</b><time dateTime={item.enviadoEn}>{fechaPerfil(item.enviadoEn, true)}</time></div><span className="pn-chip info">{item.motivo || 'Sin motivo'}</span></div>
+                <p className="pn-feedback-comment">{item.comentario?.trim() || 'No dejó un comentario escrito; solo seleccionó el motivo.'}</p>
+                <div className="pn-feedback-context"><span>{item.zona || 'Zona no disponible'}</span><span>{item.dificultad || 'Dificultad no disponible'}</span><span>{item.puntaje == null ? 'Puntaje no disponible' : `Puntaje ${item.puntaje}`}</span></div>
+              </article>
+            ))}</div>}
         </section>}
 
         {tab === 'secciones' && <SeccionesVista usuario={usuario} demo={demo} />}

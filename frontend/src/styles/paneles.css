@@ -116,6 +116,21 @@ select.pn-in{padding-right:8px}
 .pn-list .pn-card{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0;min-height:76px}
 .pn-list .pn-card>div:first-child{min-width:0}
 .pn-list .pn-card .pn-cell-main small{white-space:normal}
+.pn-feedback{padding-top:4px}
+.pn-feedback .pn-section-heading{padding:4px 0 14px}
+.pn-feedback .pn-section-heading h2{margin:4px 0;color:#fff;font-size:22px}
+.pn-feedback .pn-section-heading p{color:var(--txt-2);font-size:13px}
+.pn-feedback-toolbar .pn-in{max-width:none}
+.pn-feedback-list{display:grid;gap:12px}
+.pn-feedback-card{padding:16px 18px;border:1px solid var(--line);border-left:3px solid var(--cyan);border-radius:var(--r-m);background:linear-gradient(145deg,var(--surface-2),var(--surface));box-shadow:var(--shadow);animation:pn-enter .3s ease-out both}
+.pn-feedback-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.pn-feedback-head>div{display:grid;gap:3px;min-width:0}
+.pn-feedback-head b{overflow:hidden;color:#fff;font-size:14px;text-overflow:ellipsis}
+.pn-feedback-head time{color:var(--txt-3);font-size:11px}
+.pn-feedback-head .pn-chip{height:auto;min-height:24px;padding:5px 10px;white-space:normal;text-align:right}
+.pn-feedback-comment{margin:14px 0;color:var(--txt);font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+.pn-feedback-context{display:flex;flex-wrap:wrap;gap:7px}
+.pn-feedback-context span{padding:5px 9px;border:1px solid var(--line);border-radius:20px;background:rgba(8,16,36,.6);color:var(--txt-2);font-size:11px}
 
 /* ── Secciones y alumnos (vista compartida) ── */
 .pn-workspace{padding-top:6px}

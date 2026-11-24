@@ -70,6 +70,10 @@ export async function detalleUsuarioAdmin(_u, username) {
   return rpc('api_admin_detalle_usuario', { p_username: username });
 }
 
+export async function comentariosAdmin(_u, limite = 200) {
+  return (await rpc('api_admin_listar_comentarios', { p_limit: limite })) || [];
+}
+
 export async function reporteUsuarios() {
   return rpc('api_reporte_usuarios');
 }
