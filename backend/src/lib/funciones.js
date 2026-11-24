@@ -7,6 +7,7 @@
 export const FUNCIONES = {
   // Públicas
   api_ranking: 'publica',
+  api_ranking_secciones: 'sesion',
   api_usuario_disponible: 'publica',
   api_validar_codigo: 'publica',
 

@@ -40,6 +40,7 @@ npm run dev              # http://localhost:3000   (necesita Node 20.6 o superio
 Las funciones permitidas están en `src/lib/funciones.js`:
 
 - **Públicas**: `api_ranking`, `api_usuario_disponible`, `api_validar_codigo`.
+- **Con sesión**: `api_ranking_secciones` entrega el ranking general o el de una sección; la base valida el rol, la matrícula o las secciones asignadas al docente.
 - **Con sesión**: perfil y partidas (`api_iniciar`, `api_mi_perfil`, `api_guardar_avatar`, `api_guardar_progreso`,
   `api_registrar_partida`, `api_registrar_respuestas`), docente (`api_listar_secciones`, `api_crear_seccion`,
   `api_crear_link`, `api_alternar_link`, `api_listar_alumnos`, `api_errores_por_tema`, `api_detalle_alumno`,

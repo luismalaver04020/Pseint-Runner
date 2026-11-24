@@ -3,18 +3,22 @@
 import { rpc } from './supabase';
 import { ZONAS_ORDEN } from '../game/zonas';
 
-export async function getRanking(dificultad) {
-  try {
-    const filas = await rpc('api_ranking', { p_dificultad: dificultad });
-    return (filas || []).map((f) => ({
-      // Usa el identificador de cuenta si el RPC lo entrega. La versión básica
-      // de api_ranking devuelve el usuario con el alias `nombre`.
-      usuario: f.usuario ?? f.username ?? f.nombre_usuario ?? f.user_name ?? f.handle ?? f.nombre ?? 'Usuario',
-      puntaje: f.puntaje,
+export async function getRanking(dificultad, alcance = 'general', seccionId = null) {
+  const resultado = await rpc('api_ranking_secciones', {
+    p_dificultad: dificultad,
+    p_alcance: alcance,
+    p_seccion_id: seccionId || null,
+  });
+  const filas = Array.isArray(resultado?.jugadores) ? resultado.jugadores : [];
+  return {
+    seccionUsuario: resultado?.seccionUsuario || null,
+    secciones: Array.isArray(resultado?.secciones) ? resultado.secciones : [],
+    jugadores: filas.map((f) => ({
+      usuario: f.usuario ?? f.username ?? 'Usuario',
+      puntaje: Number(f.puntaje) || 0,
       zonaIdx: ZONAS_ORDEN.indexOf(f.zona) + 1,
-      fecha: new Date(f.fecha).toLocaleDateString('es-PE'),
-    }));
-  } catch {
-    return [];
-  }
+      fecha: f.fecha ? new Date(f.fecha).toLocaleDateString('es-PE') : '—',
+      seccion: f.seccion || '',
+    })),
+  };
 }

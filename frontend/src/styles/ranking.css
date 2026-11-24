@@ -127,6 +127,15 @@
 .rank-back{background:#1b3552}
 /* Superficies del ranking más limpias y menos pesadas. */
 .ranking-wrap{max-width:1040px}
+
+.rank-scope{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:-3px 0 19px;padding:5px;width:max-content;max-width:100%;border:1px solid #294360;border-radius:14px;background:rgba(9,22,43,.78)}
+.rank-scope-button{border:1px solid transparent;border-radius:10px;background:transparent;color:#b8c9d9;padding:10px 14px;font-size:13px;font-weight:750;cursor:pointer;transition:background .18s,border-color .18s,color .18s,transform .18s}
+.rank-scope-button:hover{transform:translateY(-1px);color:#fff}
+.rank-scope-button.selected{border-color:#d7aa39;background:#ffc83d;color:#17263a;box-shadow:0 3px 0 #a87913}
+.rank-section-select{display:flex;align-items:center;gap:8px;padding:0 9px 0 5px;color:#c6d4e1;font-size:12px;font-weight:700}
+.rank-section-select select{min-width:112px;border:1px solid #3d6284;border-radius:8px;background:#112641;color:#fff;padding:8px 26px 8px 10px;font:inherit;cursor:pointer}
+.rank-my-section{padding:0 12px;color:#c6d4e1;font-size:12px}
+@media(max-width:650px){.rank-scope{width:100%}.rank-scope-button{flex:1;padding:10px 8px;font-size:12px}.rank-section-select{width:100%;justify-content:space-between;padding:5px}.rank-section-select select{flex:1;max-width:65%}.rank-my-section{width:100%;padding:4px 8px}}
 .rank-tabs{padding:4px;border-radius:12px}
 .podium-card,.rank-board{border-radius:14px;box-shadow:0 3px 0 #061326}
 .podium-card{min-height:164px}
