@@ -21,6 +21,7 @@ export function crearEstadoV2(W, H, zonaCfg, dificultadCfg, avatar) {
     W, H, GND, horizonY, centerX,
     jugador: crearJugador(),
     lives: dificultadCfg.lives,
+    maxLives: dificultadCfg.lives,
     score: 0,
     speed: dificultadCfg.speed,
     speedBase: dificultadCfg.speed,

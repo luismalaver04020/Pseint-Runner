@@ -53,5 +53,5 @@ export const ZONAS_ORDEN = ['rocosa', 'selva', 'costera', 'ciudad'];
 export const DIFICULTAD_CONFIG = {
   facil:      { lives: 6, speed: 4, nextPowerup: 2000,  qRange: [12000, 22000], dmg: 1, label: '🟢 Fácil' },
   intermedio: { lives: 4, speed: 5, nextPowerup: 3500,  qRange: [8000,  16000], dmg: 1, label: '🟡 Intermedio' },
-  dificil:    { lives: 2, speed: 6, nextPowerup: 6000,  qRange: [5000,  10000], dmg: 2, label: '🔴 Difícil' },
+  dificil:    { lives: 2, speed: 6, nextPowerup: 6000,  qRange: [5000,  10000], dmg: 1, label: '🔴 Difícil' },
 };

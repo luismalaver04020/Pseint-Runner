@@ -43,7 +43,7 @@ INSERT INTO algoritmos.difficulties
 VALUES
     (1, 'facil', 'Fácil', 1, 6, 1),
     (2, 'intermedio', 'Intermedio', 2, 4, 1),
-    (3, 'dificil', 'Difícil', 3, 2, 2);
+    (3, 'dificil', 'Difícil', 3, 2, 1);
 
 -- ==========================================
 -- 5. ZONAS DEL JUEGO

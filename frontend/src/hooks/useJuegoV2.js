@@ -236,7 +236,7 @@ export function useJuegoV2({
       : 0;
 
     setHud({
-      hearts: renderHeartsV2(s.lives, dc.lives),
+      hearts: renderHeartsV2(s.lives, s.maxLives ?? dc.lives),
       score: String(Math.floor(s.score)).padStart(4, '0'),
       bar: Math.min(100, (s.score / 1000) * 100),
       tiempo: timeLabel(s.dayTime),
@@ -276,14 +276,14 @@ export function useJuegoV2({
       setFinJuego({
         tipo: 'over',
         score: Math.floor(s.score),
-        corazonesP: dc.lives - s.lives,
+        corazonesP: (s.maxLives ?? dc.lives) - s.lives,
         sessionId: sessionRef.current,
       });
     } else {
       setFinJuego({
         tipo: 'win',
         score: Math.floor(s.score),
-        hearts: renderHeartsV2(s.lives, dc.lives),
+        hearts: renderHeartsV2(s.lives, s.maxLives ?? dc.lives),
         sessionId: sessionRef.current,
       });
     }
@@ -728,16 +728,9 @@ const reanudarTrasRevival = useCallback(() => {
       // Permitir que el sistema detecte la siguiente pérdida de vidas.
       revivalIniciadaRef.current = false;
 
-      const revLives = {
-        facil: 3,
-        intermedio: 2,
-        dificil: 1,
-      };
-
       if (!stateRef.current) return;
 
-      stateRef.current.lives =
-        revLives[dificultad] || 3;
+      stateRef.current.lives = stateRef.current.maxLives || 3;
 
       stateRef.current.questionOpen = false;
       stateRef.current.ended = false;
@@ -937,6 +930,12 @@ const loop = useCallback(function juegoFrame() {
       if (intento !== inicioRef.current) return;
 
  sessionRef.current = sessionId;
+      if (stateRef.current && partida?.dificultadConfig) {
+        stateRef.current.maxLives = partida.dificultadConfig.lives;
+        stateRef.current.lives = partida.dificultadConfig.lives;
+        stateRef.current.dmg = partida.dificultadConfig.dmg;
+        actuHUD();
+      }
       if (checkpoint && stateRef.current) {
         const s = stateRef.current;
         const payload = checkpoint.payload || {};

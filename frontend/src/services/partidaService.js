@@ -1,6 +1,6 @@
 import { rpc } from './supabase';
 import { QUESTIONS } from '../data/preguntas';
-import { ZONAS, ZONAS_ORDEN } from '../game/zonas';
+import { ZONAS, ZONAS_ORDEN, DIFICULTAD_CONFIG } from '../game/zonas';
 import { esDificultadValida, MSG_FALTA_DIFICULTAD } from './validacionesPartida';
 import { recuperarCheckpointJuego } from './tablasJuegoService';
 
@@ -54,14 +54,35 @@ export async function iniciarPartida(zona, dificultad) {
   if (enCurso.has(clave)) return enCurso.get(clave);
 
   const promesa = (async () => {
+    const configPromise = rpc('api_config_dificultad', {
+      p_difficulty_code: dificultad,
+    }).then((config) => {
+      const lives = Number(config?.initial_lives);
+      const dmg = Number(config?.life_damage);
+      if (!Number.isInteger(lives) || lives < 1 || !Number.isInteger(dmg) || dmg < 1) {
+        throw new Error(`La configuración de vidas para «${dificultad}» no es válida`);
+      }
+      return { lives, dmg };
+    }).catch((error) => {
+      console.warn('No se pudo leer la configuración de dificultad en Supabase; se usará la configuración local temporalmente', error);
+      const respaldo = DIFICULTAD_CONFIG[dificultad] || DIFICULTAD_CONFIG.facil;
+      return { lives: respaldo.lives, dmg: respaldo.dmg };
+    });
+
     try {
-      const checkpoint = await recuperarCheckpointJuego(zona, dificultad);
+      const [checkpoint, dificultadConfig] = await Promise.all([
+        recuperarCheckpointJuego(zona, dificultad),
+        configPromise,
+      ]);
       if (checkpoint?.session_id) {
-        return { sessionId: checkpoint.session_id, checkpoint, recuperada: true };
+        return { sessionId: checkpoint.session_id, checkpoint, recuperada: true, dificultadConfig };
       }
     } catch (error) {
+      if (String(error?.message || '').includes('configuración de vidas')) throw error;
       console.warn('No se pudo buscar un checkpoint; se iniciará una partida nueva', error);
     }
+
+    const dificultadConfig = await configPromise;
 
     const sessionId = await rpc('api_iniciar_partida', {
       p_zone_code: zona,
@@ -73,7 +94,7 @@ export async function iniciarPartida(zona, dificultad) {
     // La falta de configuración mantiene el recorrido actual por zona.
     try { await rpc('api_asignar_nivel_partida', { p_session_id: sessionId }); }
     catch (error) { console.warn('No se pudo asociar el nivel a la partida; se usará el banco por zona', error); }
-    return { sessionId, checkpoint: null, recuperada: false };
+    return { sessionId, checkpoint: null, recuperada: false, dificultadConfig };
   })().finally(() => enCurso.delete(clave));
 
   enCurso.set(clave, promesa);
@@ -108,7 +129,6 @@ export async function obtenerSiguientePreguntaMixta(sessionId) {
 
   return pregunta;
 }
-
 
 /** El rescate usa el banco aleatorio existente, sin el orden fijo de los niveles. */
 export async function obtenerSiguientePreguntaRescate(sessionId) {

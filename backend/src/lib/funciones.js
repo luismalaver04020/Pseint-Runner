@@ -40,10 +40,11 @@ export const FUNCIONES = {
   api_registrar_respuestas: 'sesion',
 
 
- // Sistema de preguntas desde Supabase
-api_iniciar_partida: 'sesion',
-api_siguiente_pregunta: 'sesion',
-api_siguiente_pregunta_v2: 'sesion',
+  // Sistema de preguntas desde Supabase
+  api_iniciar_partida: 'sesion',
+  api_config_dificultad: 'sesion',
+  api_siguiente_pregunta: 'sesion',
+  api_siguiente_pregunta_v2: 'sesion',
 
   // Docente
   api_listar_secciones: 'sesion',
