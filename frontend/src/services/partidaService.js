@@ -108,3 +108,22 @@ export async function obtenerSiguientePreguntaMixta(sessionId) {
 
   return pregunta;
 }
+
+
+/** El rescate usa el banco aleatorio existente, sin el orden fijo de los niveles. */
+export async function obtenerSiguientePreguntaRescate(sessionId) {
+  if (!sessionId) {
+    throw new Error('No existe un identificador de partida');
+  }
+
+  const pregunta = await rpc('api_siguiente_pregunta_v2', {
+    p_session_id: sessionId,
+    p_question_mode: 'mixto',
+  });
+
+  if (!pregunta) {
+    throw new Error('Supabase no devolvió una pregunta de rescate');
+  }
+
+  return pregunta;
+}

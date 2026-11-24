@@ -24,6 +24,7 @@ import {
   iniciarPartida,
   iniciarPartidaDemo,
   obtenerSiguientePreguntaMixta,
+  obtenerSiguientePreguntaRescate,
   obtenerSiguientePreguntaDemo,
 } from '../services/partidaService';
 import { esDificultadValida } from '../services/validacionesPartida';
@@ -669,7 +670,7 @@ console.time('Carga pregunta rescate');
   preguntaRescateRef.current ||
   (modoDemo
     ? obtenerSiguientePreguntaDemo(sessionId)
-    : obtenerSiguientePreguntaMixta(sessionId))
+    : obtenerSiguientePreguntaRescate(sessionId))
 );
 console.timeEnd('Carga pregunta rescate');
 
@@ -955,7 +956,7 @@ const loop = useCallback(function juegoFrame() {
 // Precargar pregunta de rescate en segundo plano
 preguntaRescateRef.current = Promise.resolve(modoDemo
   ? obtenerSiguientePreguntaDemo(sessionId)
-  : obtenerSiguientePreguntaMixta(sessionId))
+  : obtenerSiguientePreguntaRescate(sessionId))
   .catch((error) => {
     console.error('Error precargando pregunta de rescate:', error);
     return null;
