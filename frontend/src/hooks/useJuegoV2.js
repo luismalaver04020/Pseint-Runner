@@ -33,6 +33,24 @@ import { descartarCheckpointJuego, guardarCheckpointJuego, registrarEventoJuego,
 import { evaluarCodigoPregunta } from '../services/evaluacionService';
 import { ZONAS, DIFICULTAD_CONFIG } from '../game/zonas';
 
+function opcionesDePregunta(pregunta) {
+  const opciones = pregunta.ops || pregunta.options || pregunta.opciones || [];
+  return opciones.map((opcion, indice) => ({
+    ...opcion,
+    l: opcion.l ?? opcion.option_key ?? opcion.key ?? String.fromCharCode(65 + indice),
+    ok: opcion.ok ?? opcion.is_correct ?? opcion.correct ?? false,
+    t: opcion.t ?? opcion.texto ?? opcion.option_text ?? '',
+    texto: opcion.texto ?? opcion.t ?? opcion.option_text ?? '',
+  }));
+}
+
+function esPreguntaDeCodigo(pregunta, opciones = opcionesDePregunta(pregunta)) {
+  const tipo = String(pregunta.tipo ?? pregunta.question_type ?? pregunta.type ?? '')
+    .trim()
+    .toLowerCase();
+  return ['codigo', 'code', 'pseudocode', 'pseudocodigo'].includes(tipo) || opciones.length === 0;
+}
+
 // Posición en pantalla del jugador
 function jPos(s) {
   try {
@@ -320,21 +338,19 @@ const scheduleQ = useCallback((primera = false, retrasoRestante = null) => {
 
     if (!s || s.ended || s.finishing || s.questionOpen) return;
 
-    const ops = (q.ops || q.options || []).map((o) => ({
-      ...o,
-      t: o.t ?? o.texto,
-      texto: o.texto ?? o.t,
-    }));
+    const ops = opcionesDePregunta(q);
+    const tipo = esPreguntaDeCodigo(q, ops) ? 'codigo' : 'opcion';
 
     s.questionOpen = true;
     doneRef.current = false;
 
     setPregunta({
       ...q,
+      tipo,
       t: q.t || q.prompt || q.enunciado,
       ex: q.ex ?? q.explanation ?? '',
       ops,
-      opciones: q.tipo === 'codigo' ? null : [...ops].sort(() => Math.random() - 0.5),
+      opciones: tipo === 'codigo' ? null : [...ops].sort(() => Math.random() - 0.5),
     });
 
     setFeedback(null);
@@ -382,7 +398,7 @@ const scheduleQ = useCallback((primera = false, retrasoRestante = null) => {
           q.t || q.prompt || q.enunciado,
           false
         );
-        if (q.tipo !== 'codigo' && q.question_type !== 'codigo') {
+        if (!esPreguntaDeCodigo(q, opcionesDePregunta(q))) {
           registrarIntentoJuego({
             sessionId: sessionRef.current,
             questionId: q.question_id ?? q.id,
@@ -671,14 +687,11 @@ if (!q) {
         return;
       }
 
-      const ops = (q.ops || q.options || []).map((o) => ({
-        ...o,
-        t: o.t ?? o.texto,
-        texto: o.texto ?? o.t,
-      }));
+      const ops = opcionesDePregunta(q);
+      const tipo = esPreguntaDeCodigo(q, ops) ? 'codigo' : 'opcion';
 
       setRevival({
-        tipo: q.tipo === 'codigo' ? 'codigo' : 'opcion',
+        tipo,
         question_id: q.question_id ?? q.id,
         texto: q.t || q.prompt || q.enunciado,
         ex: q.ex || q.explanation || '',
