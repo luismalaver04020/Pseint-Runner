@@ -819,19 +819,20 @@ const reanudarTrasRevival = useCallback(() => {
 const loop = useCallback(function juegoFrame() {
   const s = stateRef.current;
   const ctx = ctxRef.current;
+  const sesionLista = vistaLlegada || Boolean(sessionRef.current);
 
   if (!s || !ctx) return;
 
   if (!s.paused && !s.ended && !s.questionOpen && s.lives > 0) {
     const { hit, finished } = actualizarJuegoV2(s);
 
-    if (hit && !vistaLlegada) {
+    if (hit && !vistaLlegada && sesionLista) {
       perderVidaV2(s);
     }
 
     actuHUD();
 
-    if (s.lives <= 0 && !s.ended) {
+    if (s.lives <= 0 && !s.ended && sesionLista) {
       if (!revivalIniciadaRef.current) {
         tryRevivalRef.current();
       }
@@ -841,7 +842,7 @@ const loop = useCallback(function juegoFrame() {
       terminar('win');
       return;
     }
-  } else if (s.lives <= 0 && !s.ended) {
+  } else if (s.lives <= 0 && !s.ended && sesionLista) {
     if (!revivalIniciadaRef.current) {
       tryRevivalRef.current();
     }
@@ -914,11 +915,9 @@ const loop = useCallback(function juegoFrame() {
 
     actuHUD();
     mostrarBanner();
+    rafRef.current = requestAnimationFrame(loop);
     // La vista de prueba no necesita crear una sesión.
-    if (vistaLlegada) {
-      rafRef.current = requestAnimationFrame(loop);
-      return;
-    }
+    if (vistaLlegada) return;
 
     try {
       const partida = modoDemo
@@ -963,7 +962,6 @@ preguntaRescateRef.current = Promise.resolve(modoDemo
   });
 
 scheduleQ(true);
-      rafRef.current = requestAnimationFrame(loop);
     } catch (error) {
       console.error(
         'Error iniciando partida:',
