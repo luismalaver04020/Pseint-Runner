@@ -31,9 +31,6 @@ export function validarFechaNacimiento(fecha = '') {
 export const GENEROS_REGISTRO = [
   { valor: 'mujer', etiqueta: 'Mujer' },
   { valor: 'hombre', etiqueta: 'Hombre' },
-  { valor: 'no_binario', etiqueta: 'No binario' },
-  { valor: 'otro', etiqueta: 'Otro' },
-  { valor: 'prefiero_no_decir', etiqueta: 'Prefiero no decirlo' },
 ];
 
 export function requisitosContrasena(password = '') {
