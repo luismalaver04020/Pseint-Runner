@@ -200,3 +200,5 @@ select.pn-in{padding-right:8px}
 .pn-modal-box{animation:pn-enter .26s cubic-bezier(.2,.8,.2,1) both}
 @media(prefers-reduced-motion:reduce){.pn-root *{animation:none!important;transition:none!important}}
 @media(max-width:620px){.pn-profile-content{grid-template-columns:1fr}.pn-profile-avatar{width:150px;justify-self:center}.pn-profile-fields{grid-template-columns:1fr}.pn-profile-modal{padding:16px}}
+
+.pn-report-period-summary{display:flex;align-items:center;gap:24px;margin-top:10px;padding:14px 4px 0;border-top:1px solid var(--line)}.pn-report-period-summary>div{display:grid;gap:4px}.pn-report-period-summary span,.pn-report-period-summary small{color:var(--txt-3);font-size:11px}.pn-report-period-summary b{color:#fff;font-size:18px}.pn-report-period-summary small{margin-left:auto}.pn-chart-tools{flex-wrap:wrap}@media(max-width:480px){.pn-report-period-summary{flex-wrap:wrap;gap:14px}.pn-report-period-summary small{flex-basis:100%;margin-left:0}.pn-chart-tools button{padding:0 7px}}

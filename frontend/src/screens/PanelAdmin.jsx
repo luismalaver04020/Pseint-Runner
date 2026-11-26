@@ -209,6 +209,10 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo 
     const texto = [item.usuario, item.motivo, item.comentario, item.zona, item.dificultad].filter(Boolean).join(' ').toLocaleLowerCase('es');
     return texto.includes(buscarComentario.trim().toLocaleLowerCase('es'));
   });
+  const registrosPeriodo = (reporte?.registrosMensuales || []).slice(-mesesReporte);
+  const totalPeriodo = registrosPeriodo.reduce((suma, item) => suma + (Number(item.cantidad) || 0), 0);
+  const promedioPeriodo = registrosPeriodo.length ? (totalPeriodo / registrosPeriodo.length).toFixed(1).replace('.', ',') : '0';
+  const periodoLabel = mesesReporte === 1 ? 'Último mes' : `Últimos ${mesesReporte} meses`;
 
   return (
     <div className="pn-root">
@@ -304,7 +308,7 @@ export default function PanelAdmin({ usuario, onProbar, onSalir, onPerfil, demo 
 
         {tab === 'reportes' && reporte && <section className="pn-report" aria-label="Reportes de usuarios">
           <div className="pn-report-top"><div><span className="pn-eyebrow">PANEL DE USUARIOS</span><h2>Registro y comunidad</h2><p>Vista general del crecimiento y composición de las cuentas.</p></div><div className="pn-report-total"><b>{reporte.total ?? 0}</b><span>cuentas registradas</span></div></div>
-          <article className="pn-report-card pn-trend-card"><div className="pn-chart-heading"><div><h3>Nuevos registros</h3><p>Altas por mes</p></div><div className="pn-chart-tools" role="group" aria-label="Periodo del gráfico"><button className={mesesReporte === 6 ? 'selected' : ''} onClick={() => setMesesReporte(6)}>6 meses</button><button className={mesesReporte === 12 ? 'selected' : ''} onClick={() => setMesesReporte(12)}>12 meses</button></div></div><GraficoRegistros datos={(reporte.registrosMensuales || []).slice(-mesesReporte)} /></article>
+          <article className="pn-report-card pn-trend-card"><div className="pn-chart-heading"><div><h3>Nuevos registros</h3><p>Altas por mes · {periodoLabel.toLowerCase()}</p></div><div className="pn-chart-tools" role="group" aria-label="Periodo del gráfico">{[1, 3, 6, 12].map((meses) => <button key={meses} aria-pressed={mesesReporte === meses} className={mesesReporte === meses ? 'selected' : ''} onClick={() => setMesesReporte(meses)}>{meses} {meses === 1 ? 'mes' : 'meses'}</button>)}</div></div><GraficoRegistros datos={registrosPeriodo} /><div className="pn-report-period-summary"><div><span>Registros en el período</span><b>{totalPeriodo}</b></div><div><span>Promedio mensual</span><b>{promedioPeriodo}</b></div><small>El mes actual puede estar incompleto.</small></div></article>
           <div className="pn-report-grid">
             <article className="pn-report-card"><div className="pn-chart-heading"><div><h3>Género</h3><p>Distribución de cuentas</p></div></div><GraficoGenero datos={reporte.porGenero || []} total={reporte.total || 0} /></article>
             {[['Edades', reporte.porEdad],['Carreras', reporte.porCarrera],['Tipo de cuenta', reporte.porRol]].map(([titulo, items]) => <article className="pn-report-card" key={titulo}><div className="pn-chart-heading"><div><h3>{titulo}</h3><p>Usuarios registrados</p></div><div className="pn-chart-tools" role="group" aria-label={`Mostrar ${titulo.toLowerCase()} como`}><button className={modoReporte === 'cantidad' ? 'selected' : ''} onClick={() => setModoReporte('cantidad')}>N.º</button><button className={modoReporte === 'porcentaje' ? 'selected' : ''} onClick={() => setModoReporte('porcentaje')}>%</button></div></div>{items?.length ? <GraficoBarras datos={items} total={reporte.total || 0} modo={modoReporte} /> : <p className="pn-vacio">Todavía no hay datos para mostrar.</p>}</article>)}
