@@ -450,6 +450,9 @@ const scheduleQ = useCallback((primera = false, retrasoRestante = null) => {
     setAlerta(true);
 
     try {
+      // Primero se muestra el aviso; la solicitud de la pregunta empieza después de 1,5 s.
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       const q = modoDemo
         ? obtenerSiguientePreguntaDemo(sessionId)
         : await obtenerSiguientePreguntaMixta(sessionId);
